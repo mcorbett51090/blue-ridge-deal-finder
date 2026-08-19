@@ -1,0 +1,363 @@
+---
+/**
+ * DealCard — the direct port of SWC's WineryCard.astro (claims-D claim 15), and
+ * the most important component in the site.
+ *
+ * Two things carried over verbatim:
+ *
+ *  1. THE data-* ATTRIBUTE PATTERN. Every filterable fact is mirrored onto the
+ *     root element as a data attribute, so client-side instant filtering reads
+ *     the DOM and never needs this file edited to add a facet.
+ *
+ *  2. GRACEFUL ABSENCE. Every optional field renders ONLY when present. There is
+ *     no `?? 0`, no `|| '—'`, no default that turns "we don't know" into a
+ *     confident-looking number. The reference's own reuse map calls this the
+ *     single most valuable pattern to bring over, and it is: an assessed value
+ *     rendered as "$0" is a lie that looks like data.
+ *
+ * Added for this domain, and non-negotiable:
+ *  • the LANE, named in full on every card — a parcel record says a property
+ *    exists, not that you can buy it;
+ *  • the COUNTY COVERAGE TIER, so a card from a county we can barely see never
+ *    reads like one from a county we can;
+ *  • the SCORE with its per-signal breakdown, never a bare number;
+ *  • the PRIMARY SOURCE, linked, on every single row.
+ *
+ * NO OWNER NAMES. The only owner-derived facts rendered anywhere below are
+ * booleans and a tenure integer.
+ */
+import type { Listing } from '../lib/types';
+import { withBase } from '../lib/nav';
+import {
+  laneOf,
+  LANE_LABEL,
+  TIER_LABEL,
+  tierOf,
+  hasWater,
+  waterIsUnknown,
+  waterLabel,
+  inFloodplain,
+} from '../lib/deals';
+import { fmtAcres, fmtDate, fmtMoney, fmtPerAcre } from '../lib/format';
+import ScoreMeter from './ScoreMeter.astro';
+import WatchButton from './WatchButton.astro';
+
+interface Props {
+  l: Listing;
+  /** Suppress the county line on a page that is already about one county. */
+  showCounty?: boolean;
+}
+const { l, showCounty = true } = Astro.props;
+
+const lane = laneOf(l);
+const tier = tierOf(l.fips);
+const acres = fmtAcres(l.acres);
+const value = fmtMoney(l.assessed_value);
+const perAcre = fmtPerAcre(l.assessed_value, l.acres);
+const price = fmtMoney(l.price);
+const flood = inFloodplain(l);
+const water = hasWater(l);
+const waterUnknown = waterIsUnknown(l);
+const ev = l.for_sale_evidence;
+const observed = ev ? fmtDate(ev.observed_at) : null;
+const saleDate = ev ? fmtDate(ev.sale_date) : null;
+
+/** The vintage string. An assessed value with no year is a number with no
+ *  meaning, and a county about to reappraise is about to invalidate it. */
+const vintage = (() => {
+  if (l.assessment_year === undefined) return null;
+  const age = new Date().getFullYear() - l.assessment_year;
+  const base = `assessed ${l.assessment_year}${age > 0 ? ` (${age}y old)` : ''}`;
+  return l.reappraisal_year !== undefined
+    ? `${base} · ${l.county} reappraises ${l.reappraisal_year}`
+    : base;
+})();
+---
+
+<li
+  class="dcard"
+  data-card
+  data-id={l.id}
+  data-fips={l.fips}
+  data-county={l.county.toLowerCase()}
+  data-state={l.state}
+  data-lane={lane}
+  data-tier={tier ?? 'uncovered'}
+  data-score={String(l.score)}
+  data-acres={l.acres === null ? '' : String(l.acres)}
+  data-value={l.assessed_value === null ? '' : String(l.assessed_value)}
+  data-price={l.price === null ? '' : String(l.price)}
+  data-use={l.parcel_use}
+  data-water={water ? 'true' : 'false'}
+  data-water-unknown={waterUnknown ? 'true' : 'false'}
+  data-flood={flood === null ? 'unknown' : flood ? 'true' : 'false'}
+  data-search={`${l.county} ${l.state} ${l.parcel_use} ${l.id}`.toLowerCase()}
+>
+  <div class="dcard__top">
+    <h3 class="dcard__name">
+      <a href={withBase(`/deal/${l.id}/`)}>
+        {showCounty ? `${l.county} County, ${l.state}` : l.parcel_use}
+        <span class="dcard__id">#{l.id}</span>
+      </a>
+    </h3>
+    <WatchButton id={l.id} county={l.county} state={l.state} score={l.score} />
+  </div>
+
+  <p class="dcard__lane">
+    <span class={`tag tag--lane-${lane}`}>{LANE_LABEL[lane]}</span>
+    {
+      tier ? (
+        <a class={`tier tier--${tier}`} href={withBase(`/county/${l.fips}/`)}>
+          {TIER_LABEL[tier]}
+        </a>
+      ) : (
+        <span class="tier tier--notices-only">County not in the covered set</span>
+      )
+    }
+  </p>
+
+  <ScoreMeter score={l.score} breakdown={l.score_breakdown} confidence={l.confidence} />
+
+  <dl class="dcard__facts">
+    <div>
+      <dt>Acreage</dt>
+      <dd>
+        {
+          acres.known ? (
+            <>
+              <span class="num">{acres.text}</span>
+              {l.acreage_basis === 'gis' && (
+                <span class="tag tag--neutral" title="Measured from the published parcel polygon, which is not a survey.">
+                  GIS-derived
+                </span>
+              )}
+              {l.acreage_basis === 'deed' && <span class="tag tag--neutral">from deed</span>}
+              {l.acreage_basis === 'assessor' && <span class="tag tag--neutral">assessor-stated</span>}
+            </>
+          ) : (
+            <span class="unk" title={acres.why}>{acres.text}</span>
+          )
+        }
+      </dd>
+    </div>
+    <div>
+      <dt>Assessed value</dt>
+      <dd>
+        {
+          value.known ? (
+            <>
+              <span class="num">{value.text}</span>
+              {perAcre.known && <span class="dcard__sub num">{perAcre.text}</span>}
+            </>
+          ) : (
+            <span class="unk" title={value.why}>{value.text}</span>
+          )
+        }
+      </dd>
+    </div>
+    {
+      price.known && (
+        <div>
+          <dt>{ev?.opening_bid !== null && ev?.opening_bid !== undefined ? 'Opening bid' : 'Asking'}</dt>
+          <dd><span class="num">{price.text}</span></dd>
+        </div>
+      )
+    }
+    <div>
+      <dt>Water</dt>
+      <dd>
+        {
+          waterUnknown ? (
+            <span class="unk" title="No water layer has been joined for this county.">unknown</span>
+          ) : water ? (
+            <span class="tag tag--water">{waterLabel(l)}</span>
+          ) : (
+            <span class="dcard__sub">none within 1.8 km</span>
+          )
+        }
+      </dd>
+    </div>
+  </dl>
+
+  <p class="dcard__tags">
+    <span class="tag tag--neutral">{l.parcel_use}</span>
+    {flood === true && <span class="tag tag--lane-market">In floodplain ({l.flood_zone})</span>}
+    {flood === false && <span class="tag tag--neutral">Outside floodplain ({l.flood_zone})</span>}
+    {flood === null && <span class="tag tag--unknown">Floodplain unknown</span>}
+    {l.owner_out_of_state === true && <span class="tag tag--neutral">Out-of-state owner</span>}
+    {l.owner_is_entity === true && <span class="tag tag--neutral">Entity-owned</span>}
+    {l.tenure_years !== undefined && <span class="tag tag--neutral">Held {l.tenure_years}y</span>}
+  </p>
+
+  {vintage && <p class="dcard__vintage">{vintage}</p>}
+  {l.note && <p class="dcard__note">{l.note}</p>}
+
+  {
+    ev ? (
+      <p class="dcard__ev">
+        <strong>{ev.label}</strong>
+        {saleDate?.known && <> · sale {saleDate.text}</>}
+        <br />
+        <a href={ev.source_url} rel="noopener nofollow external" target="_blank">
+          Evidence source ↗
+        </a>
+        {observed?.known && <span class="dcard__sub"> observed {observed.text}</span>}
+      </p>
+    ) : (
+      <p class="dcard__ev dcard__ev--none">
+        No for-sale or distress evidence found. This is a research record, not a listing.
+      </p>
+    )
+  }
+
+  <p class="dcard__src">
+    <a href={l.source_url} rel="noopener nofollow external" target="_blank">Parcel source ↗</a>
+  </p>
+</li>
+
+<style>
+  .dcard {
+    padding: var(--space-m);
+    border: var(--hairline) solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--surface);
+    box-shadow: var(--shadow-s);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition:
+      border-color var(--dur-fast) var(--ease-soft),
+      box-shadow var(--dur-fast) var(--ease-soft),
+      transform var(--dur-fast) var(--ease-soft);
+  }
+  .dcard:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--rule));
+    box-shadow: var(--shadow-m);
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dcard:hover {
+      transform: none;
+    }
+  }
+  .dcard[hidden] {
+    display: none;
+  }
+  /* Lane 2 carries a visible left rule as well as its label, so the two lanes
+     are distinguishable at a glance even when a card is seen out of context. */
+  .dcard[data-lane='prospect'] {
+    border-left: 3px solid var(--lane-prospect);
+  }
+  .dcard[data-lane='market'] {
+    border-left: 3px solid var(--lane-market);
+  }
+  .dcard__top {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    justify-content: space-between;
+  }
+  .dcard__name {
+    font-size: var(--step-1);
+    font-family: var(--font-display);
+    line-height: 1.16;
+    letter-spacing: -0.01em;
+    min-width: 0;
+  }
+  .dcard__name a {
+    text-decoration: none;
+    color: var(--accent);
+  }
+  .dcard__name a:hover {
+    text-decoration: underline;
+  }
+  .dcard__id {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.03em;
+  }
+  .dcard__lane {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    max-width: none;
+  }
+  .dcard__lane .tier {
+    text-decoration: none;
+  }
+  .dcard__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+    gap: 0.5rem 0.9rem;
+    font-family: var(--font-ui);
+    margin-top: 0.15rem;
+  }
+  .dcard__facts dt {
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--ink-soft);
+  }
+  .dcard__facts dd {
+    margin: 0.1rem 0 0;
+    font-size: var(--step--1);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+  .dcard__sub {
+    color: var(--ink-soft);
+    font-size: var(--step--2);
+  }
+  .dcard__tags {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    max-width: none;
+  }
+  .dcard__vintage,
+  .dcard__note {
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    max-width: none;
+  }
+  .dcard__note {
+    border-left: 2px solid var(--rule);
+    padding-left: 0.5rem;
+  }
+  .dcard__ev {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    margin-top: auto;
+    padding-top: var(--space-2xs);
+    border-top: var(--hairline) solid var(--rule);
+    max-width: none;
+  }
+  .dcard__ev strong {
+    color: var(--lane-market);
+  }
+  .dcard__ev a {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .dcard__ev--none {
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .dcard__src {
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    max-width: none;
+  }
+  .dcard__src a {
+    color: var(--ink-soft);
+  }
+  .dcard__src a:hover {
+    color: var(--accent);
+  }
+</style>

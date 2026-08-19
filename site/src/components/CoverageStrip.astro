@@ -1,0 +1,75 @@
+---
+/**
+ * The persistent coverage summary. Driven entirely by coverage.json, so a county
+ * promoted from `thin` to `rich` updates this strip with ZERO UI edits — which
+ * is the only way a promotion actually reaches the reader without someone
+ * remembering to hand-edit a number.
+ *
+ * `partial` is a real, separate tier here — NOT folded into `notices-only`.
+ */
+import { coverageSummary, TIER_LABEL, TIER_BLURB } from '../lib/deals';
+import { withBase } from '../lib/nav';
+
+const s = coverageSummary();
+const tiers = [
+  { key: 'rich' as const, n: s.rich },
+  { key: 'partial' as const, n: s.partial },
+  { key: 'thin' as const, n: s.thin },
+  { key: 'notices-only' as const, n: s['notices-only'] },
+];
+---
+
+<div class="cov" role="group" aria-label="Data coverage across the tracked counties">
+  <span class="cov__lead">
+    <strong>{s.total}</strong> counties tracked
+  </span>
+  <ul class="cov__list">
+    {
+      tiers.map((t) => (
+        <li>
+          <span class={`tier tier--${t.key}`} title={TIER_BLURB[t.key]}>
+            <span class="num">{t.n}</span> {TIER_LABEL[t.key].toLowerCase()}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+  <a class="cov__more" href={withBase('/status/')}>What these mean →</a>
+</div>
+
+<style>
+  .cov {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    flex-wrap: wrap;
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    padding: var(--space-2xs) var(--space-s);
+    border: var(--hairline) solid var(--rule);
+    border-radius: var(--radius-s);
+    background: var(--surface);
+  }
+  .cov__lead strong {
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .cov__list {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .cov__more {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: auto;
+  }
+  .cov__more:hover {
+    text-decoration: underline;
+  }
+</style>

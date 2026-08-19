@@ -1,0 +1,2132 @@
+[
+  {
+    "id": "37189-0001",
+    "fips": "37189",
+    "county": "Watauga",
+    "state": "NC",
+    "lat": 36.261,
+    "lng": -81.742,
+    "acres": 18.4,
+    "assessed_value": 41200,
+    "price": 39500,
+    "score": 87,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.95,
+          "note": "Tax-foreclosure notice matched to this parcel by parcel number."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.86,
+          "note": "Assessed value is well under the county median per acre for this use code."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.7,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.9,
+          "note": "A mapped stream crosses the parcel (NHD flowline intersect)."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.8,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": {
+      "kind": "tax-foreclosure",
+      "label": "Tax foreclosure — upset-bid period open",
+      "source_url": "https://www.nccourts.gov/locations",
+      "observed_at": "2026-08-18T11:04:00Z",
+      "sale_date": "2026-09-09",
+      "opening_bid": 39500
+    },
+    "water": {
+      "has_stream": true,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 0
+    },
+    "flood_zone": "X",
+    "parcel_use": "Vacant land",
+    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "first_seen": "2026-06-02",
+    "last_seen": "2026-08-18",
+    "confidence": 0.82,
+    "acreage_basis": "gis",
+    "assessment_year": 2022,
+    "owner_out_of_state": true,
+    "tenure_years": 21
+  },
+  {
+    "id": "37009-0002",
+    "fips": "37009",
+    "county": "Ashe",
+    "state": "NC",
+    "lat": 36.372,
+    "lng": -81.429,
+    "acres": 62.1,
+    "assessed_value": 118000,
+    "price": 112500,
+    "score": 83,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.9,
+          "note": "Tax-foreclosure notice matched to this parcel by parcel number."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.72,
+          "note": "Discounted: Ashe publishes market value, not assessed value."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.95,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 1,
+          "note": "The parcel has both a mapped stream and river frontage."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.75,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 0.2,
+          "note": "FEMA zone AE — inside the 1% annual-chance floodplain. Scored DOWN, not excluded."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": {
+      "kind": "auction",
+      "label": "Public auction — estate liquidation",
+      "source_url": "https://www.nccourts.gov/locations",
+      "observed_at": "2026-08-17T15:20:00Z",
+      "sale_date": "2026-09-27",
+      "opening_bid": 112500
+    },
+    "water": {
+      "has_stream": true,
+      "has_river": true,
+      "has_pond": false,
+      "distance_m": 0
+    },
+    "flood_zone": "AE",
+    "parcel_use": "Agricultural",
+    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "first_seen": "2026-05-11",
+    "last_seen": "2026-08-18",
+    "confidence": 0.88,
+    "acreage_basis": "deed",
+    "assessment_year": 2023,
+    "owner_out_of_state": false,
+    "owner_is_entity": true,
+    "tenure_years": 34,
+    "note": "Ashe reports parvaltype=Market, which is not comparable to the Assessed counties — the value-gap signal is discounted accordingly."
+  },
+  {
+    "id": "47155-0003",
+    "fips": "47155",
+    "county": "Sevier",
+    "state": "TN",
+    "lat": 35.834,
+    "lng": -83.457,
+    "acres": 9.6,
+    "assessed_value": null,
+    "price": 78000,
+    "score": 44,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.5,
+          "note": "An active listing, not a distress event."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — this county publishes no assessed value. Excluded from the denominator, not scored zero."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.4,
+          "note": "Near the county median parcel size."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.05,
+          "note": "No mapped water within 1.8 km."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.6,
+          "note": "Paved county road frontage."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 75,
+      "unknown_count": 1
+    },
+    "for_sale_evidence": {
+      "kind": "listing",
+      "label": "Listed for sale",
+      "source_url": "https://www.tn.gov/finance/sts-gis.html",
+      "observed_at": "2026-08-18T09:12:00Z",
+      "sale_date": null,
+      "opening_bid": null
+    },
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 1840
+    },
+    "flood_zone": "X",
+    "parcel_use": "Residential",
+    "source_url": "https://www.tn.gov/finance/sts-gis.html",
+    "first_seen": "2026-07-01",
+    "last_seen": "2026-08-18",
+    "confidence": 0.51,
+    "acreage_basis": "gis",
+    "note": "Sevier publishes boundaries without assessed value; the TPAD hop that would carry it is unsettled."
+  },
+  {
+    "id": "47029-0004",
+    "fips": "47029",
+    "county": "Cocke",
+    "state": "TN",
+    "lat": 35.883,
+    "lng": -83.185,
+    "acres": null,
+    "assessed_value": 63400,
+    "price": 61000,
+    "score": 73,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.9,
+          "note": "Delinquent-tax sale scheduled."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.6,
+          "note": "Assessed value present; per-acre comparison unavailable without acreage, so this is scored on the flat value alone."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — the published geometry is a point, not a polygon. Excluded from the denominator, not scored zero."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.85,
+          "note": "A mapped stream crosses the parcel."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.4,
+          "note": "Unpaved access; no state-maintained frontage found."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": null,
+          "note": "UNKNOWN — no FEMA layer joined for this county yet. Excluded from the denominator."
+        }
+      ],
+      "denominator": 80,
+      "unknown_count": 2
+    },
+    "for_sale_evidence": {
+      "kind": "tax-foreclosure",
+      "label": "Delinquent-tax sale",
+      "source_url": "https://www.tn.gov/finance/sts-gis.html",
+      "observed_at": "2026-08-16T13:41:00Z",
+      "sale_date": "2026-10-14",
+      "opening_bid": 12800
+    },
+    "water": {
+      "has_stream": true,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 0
+    },
+    "flood_zone": null,
+    "parcel_use": "Vacant land",
+    "source_url": "https://www.tn.gov/finance/sts-gis.html",
+    "first_seen": "2026-06-19",
+    "last_seen": "2026-08-18",
+    "confidence": 0.44
+  },
+  {
+    "id": "37021-0005",
+    "fips": "37021",
+    "county": "Buncombe",
+    "state": "NC",
+    "lat": 35.639,
+    "lng": -82.502,
+    "acres": 0.42,
+    "assessed_value": 214000,
+    "price": 209000,
+    "score": 21,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.25,
+          "note": "A routine listing with no distress indicators."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.1,
+          "note": "Assessed at or above the county median per acre."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.05,
+          "note": "A small suburban lot."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.05,
+          "note": "No mapped water within 1.8 km."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.9,
+          "note": "Paved municipal street."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 0,
+          "note": "FEMA zone AE — inside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": {
+      "kind": "listing",
+      "label": "Listed for sale",
+      "source_url": "https://www.nccourts.gov/locations",
+      "observed_at": "2026-08-18T08:02:00Z",
+      "sale_date": null,
+      "opening_bid": null
+    },
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 1840
+    },
+    "flood_zone": "AE",
+    "parcel_use": "Residential",
+    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "first_seen": "2026-04-22",
+    "last_seen": "2026-08-18",
+    "confidence": 0.79,
+    "acreage_basis": "assessor",
+    "assessment_year": 2021,
+    "reappraisal_year": 2026,
+    "owner_out_of_state": false,
+    "tenure_years": 4,
+    "note": "Buncombe reappraises in 2026 — 26.8% of the corpus reprices this year, so the 2021 value is about to move."
+  },
+  {
+    "id": "37087-0006",
+    "fips": "37087",
+    "county": "Haywood",
+    "state": "NC",
+    "lat": 35.526,
+    "lng": -82.929,
+    "acres": 31.7,
+    "assessed_value": 74600,
+    "price": null,
+    "score": 74,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.85,
+          "note": "Sheriff sale scheduled on a judgment execution."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.78,
+          "note": "Assessed value is well under the county median per acre for this use code."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.72,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.55,
+          "note": "A mapped pond sits on the parcel; no flowing water."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.5,
+          "note": "Gravel easement access; no state-maintained frontage."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": {
+      "kind": "sheriff-sale",
+      "label": "Sheriff sale — execution on judgment",
+      "source_url": "https://www.nccourts.gov/locations",
+      "observed_at": "2026-08-15T16:30:00Z",
+      "sale_date": "2026-09-18",
+      "opening_bid": null
+    },
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": true,
+      "distance_m": 0
+    },
+    "flood_zone": "X",
+    "parcel_use": "Vacant land",
+    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "first_seen": "2026-03-08",
+    "last_seen": "2026-08-17",
+    "confidence": 0.71,
+    "acreage_basis": "gis",
+    "assessment_year": 2023,
+    "owner_out_of_state": true,
+    "owner_is_entity": true,
+    "tenure_years": 12
+  },
+  {
+    "id": "51125-0007",
+    "fips": "51125",
+    "county": "Nelson",
+    "state": "VA",
+    "lat": 37.842,
+    "lng": -78.941,
+    "acres": null,
+    "assessed_value": null,
+    "price": 145000,
+    "score": 50,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.5,
+          "note": "An active listing, not a distress event."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — no assessed value collected for this county."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel polygon collected for this county."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no water layer joined for this county."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.5,
+          "note": "Use code unknown; scored on road-network proximity alone."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": null,
+          "note": "UNKNOWN — no FEMA layer joined for this county."
+        }
+      ],
+      "denominator": 40,
+      "unknown_count": 4
+    },
+    "for_sale_evidence": {
+      "kind": "listing",
+      "label": "Listed for sale",
+      "source_url": "https://vgin.vdem.virginia.gov/",
+      "observed_at": "2026-08-18T07:45:00Z",
+      "sale_date": null,
+      "opening_bid": null
+    },
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": null
+    },
+    "flood_zone": null,
+    "parcel_use": "Unknown",
+    "source_url": "https://vgin.vdem.virginia.gov/",
+    "first_seen": "2026-08-04",
+    "last_seen": "2026-08-18",
+    "confidence": 0.22,
+    "note": "Nelson runs a custom county GIS that the qPublic probe never tested — the parcel attributes behind this row are thin by construction."
+  },
+  {
+    "id": "13111-0008",
+    "fips": "13111",
+    "county": "Fannin",
+    "state": "GA",
+    "lat": 34.901,
+    "lng": -84.283,
+    "acres": null,
+    "assessed_value": null,
+    "price": null,
+    "score": 88,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.88,
+          "note": "A published tax-sale notice."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — no parcel data source exists for this county."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel data source exists for this county."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry to join water against."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        }
+      ],
+      "denominator": 30,
+      "unknown_count": 5
+    },
+    "for_sale_evidence": {
+      "kind": "tax-foreclosure",
+      "label": "Tax-sale notice (county seat location — parcel not geocoded)",
+      "source_url": "https://www.gsccca.org/",
+      "observed_at": "2026-08-12T10:00:00Z",
+      "sale_date": "2026-09-01",
+      "opening_bid": 4300
+    },
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": null
+    },
+    "flood_zone": null,
+    "parcel_use": "Unknown",
+    "source_url": "https://www.gsccca.org/",
+    "first_seen": "2026-08-12",
+    "last_seen": "2026-08-18",
+    "confidence": 0.18,
+    "note": "Fannin has no parcel source: qPublic blocks automated access (E1.1-E1.4). This row is a NOTICE only — there is no parcel record behind it, and its location is the county seat, not the property."
+  },
+  {
+    "id": "45077-0009",
+    "fips": "45077",
+    "county": "Pickens",
+    "state": "SC",
+    "lat": 34.857,
+    "lng": -82.672,
+    "acres": null,
+    "assessed_value": null,
+    "price": null,
+    "score": 92,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.92,
+          "note": "A scheduled Master-in-Equity foreclosure sale."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — no parcel data source exists for this county."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel data source exists for this county."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        }
+      ],
+      "denominator": 30,
+      "unknown_count": 5
+    },
+    "for_sale_evidence": {
+      "kind": "master-in-equity",
+      "label": "Master-in-Equity foreclosure sale",
+      "source_url": "https://www.sccourts.org/",
+      "observed_at": "2026-08-14T12:00:00Z",
+      "sale_date": "2026-09-01",
+      "opening_bid": 58000
+    },
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": null
+    },
+    "flood_zone": null,
+    "parcel_use": "Unknown",
+    "source_url": "https://www.sccourts.org/",
+    "first_seen": "2026-08-06",
+    "last_seen": "2026-08-18",
+    "confidence": 0.2,
+    "note": "Pickens publishes a Master-in-Equity sales roster; there is no parcel source, so this notice is not joined to a parcel."
+  },
+  {
+    "id": "47091-0010",
+    "fips": "47091",
+    "county": "Johnson",
+    "state": "TN",
+    "lat": 36.488,
+    "lng": -81.889,
+    "acres": 44.3,
+    "assessed_value": null,
+    "price": null,
+    "score": 74,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.66,
+          "note": "An estate notice is a soft signal — it may never reach a sale."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — this county publishes no assessed value."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.85,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.9,
+          "note": "A mapped stream crosses the parcel (NHD flowline intersect)."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.45,
+          "note": "Unpaved access."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 75,
+      "unknown_count": 1
+    },
+    "for_sale_evidence": {
+      "kind": "estate-notice",
+      "label": "Estate notice — heirs unknown",
+      "source_url": "https://www.tn.gov/finance/sts-gis.html",
+      "observed_at": "2026-08-11T14:15:00Z",
+      "sale_date": null,
+      "opening_bid": null
+    },
+    "water": {
+      "has_stream": true,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 0
+    },
+    "flood_zone": "X",
+    "parcel_use": "Agricultural",
+    "source_url": "https://www.tn.gov/finance/sts-gis.html",
+    "first_seen": "2026-05-30",
+    "last_seen": "2026-08-18",
+    "confidence": 0.47,
+    "acreage_basis": "gis",
+    "tenure_years": 41
+  },
+  {
+    "id": "37089-0011",
+    "fips": "37089",
+    "county": "Henderson",
+    "state": "NC",
+    "lat": 35.299,
+    "lng": -82.513,
+    "acres": 5.2,
+    "assessed_value": 96500,
+    "price": 92000,
+    "score": 45,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.45,
+          "note": "A price reduction on an open listing."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.52,
+          "note": "Modestly under the county median per acre."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.3,
+          "note": "Below the county median parcel size."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.05,
+          "note": "No mapped water within 1.8 km."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.85,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": {
+      "kind": "listing",
+      "label": "Listed for sale — price reduced",
+      "source_url": "https://www.nccourts.gov/locations",
+      "observed_at": "2026-08-18T06:31:00Z",
+      "sale_date": null,
+      "opening_bid": null
+    },
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 1840
+    },
+    "flood_zone": "X",
+    "parcel_use": "Residential",
+    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "first_seen": "2026-06-25",
+    "last_seen": "2026-08-18",
+    "confidence": 0.74,
+    "acreage_basis": "gis",
+    "assessment_year": 2023,
+    "owner_out_of_state": true,
+    "tenure_years": 8
+  },
+  {
+    "id": "13241-0012",
+    "fips": "13241",
+    "county": "Rabun",
+    "state": "GA",
+    "lat": 34.854,
+    "lng": -83.444,
+    "acres": null,
+    "assessed_value": null,
+    "price": null,
+    "score": 80,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0.8,
+          "note": "A published tax-sale notice."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — no parcel data source exists for this county."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel data source exists for this county."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        }
+      ],
+      "denominator": 30,
+      "unknown_count": 5
+    },
+    "for_sale_evidence": {
+      "kind": "tax-foreclosure",
+      "label": "Tax-sale notice (county seat location — parcel not geocoded)",
+      "source_url": "https://www.gsccca.org/",
+      "observed_at": "2026-08-09T10:00:00Z",
+      "sale_date": "2026-09-01",
+      "opening_bid": 2900
+    },
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": null
+    },
+    "flood_zone": null,
+    "parcel_use": "Unknown",
+    "source_url": "https://www.gsccca.org/",
+    "first_seen": "2026-08-09",
+    "last_seen": "2026-08-18",
+    "confidence": 0.16
+  },
+  {
+    "id": "37199-0013",
+    "fips": "37199",
+    "county": "Yancey",
+    "state": "NC",
+    "lat": 35.936,
+    "lng": -82.281,
+    "acres": 87.5,
+    "assessed_value": 132000,
+    "price": null,
+    "score": 62,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.81,
+          "note": "Assessed value is well under the county median per acre for this use code."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.98,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 1,
+          "note": "River frontage plus a mapped stream."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.7,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": true,
+      "has_river": true,
+      "has_pond": false,
+      "distance_m": 0
+    },
+    "flood_zone": "X",
+    "parcel_use": "Agricultural",
+    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "first_seen": "2026-02-14",
+    "last_seen": "2026-08-18",
+    "confidence": 0.8,
+    "acreage_basis": "gis",
+    "assessment_year": 2023,
+    "owner_out_of_state": true,
+    "owner_is_entity": false,
+    "tenure_years": 29
+  },
+  {
+    "id": "37115-0014",
+    "fips": "37115",
+    "county": "Madison",
+    "state": "NC",
+    "lat": 35.829,
+    "lng": -82.656,
+    "acres": 26.8,
+    "assessed_value": 48900,
+    "price": null,
+    "score": 56,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.88,
+          "note": "Assessed value is well under the county median per acre for this use code."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.68,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.9,
+          "note": "A mapped stream crosses the parcel (NHD flowline intersect)."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.55,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": true,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 0
+    },
+    "flood_zone": "X",
+    "parcel_use": "Vacant land",
+    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "first_seen": "2026-02-14",
+    "last_seen": "2026-08-18",
+    "confidence": 0.77,
+    "acreage_basis": "gis",
+    "assessment_year": 2022,
+    "owner_out_of_state": true,
+    "tenure_years": 18
+  },
+  {
+    "id": "37175-0015",
+    "fips": "37175",
+    "county": "Transylvania",
+    "state": "NC",
+    "lat": 35.222,
+    "lng": -82.851,
+    "acres": 12.1,
+    "assessed_value": null,
+    "price": null,
+    "score": 38,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — no assessed value on this record. Excluded from the denominator, not scored zero."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.5,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.88,
+          "note": "A mapped stream crosses the parcel (NHD flowline intersect)."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.6,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": null,
+          "note": "UNKNOWN — no FEMA layer joined for this parcel."
+        }
+      ],
+      "denominator": 70,
+      "unknown_count": 2
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": true,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 0
+    },
+    "flood_zone": null,
+    "parcel_use": "Vacant land",
+    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "first_seen": "2026-03-02",
+    "last_seen": "2026-08-18",
+    "confidence": 0.39,
+    "acreage_basis": "gis"
+  },
+  {
+    "id": "37011-0016",
+    "fips": "37011",
+    "county": "Avery",
+    "state": "NC",
+    "lat": 36.033,
+    "lng": -81.946,
+    "acres": null,
+    "assessed_value": 87300,
+    "price": null,
+    "score": 26,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.35,
+          "note": "Assessed near the county median."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — the published geometry is a point, not a polygon."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.05,
+          "note": "No mapped water within 1.8 km."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.8,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 85,
+      "unknown_count": 1
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 1840
+    },
+    "flood_zone": "X",
+    "parcel_use": "Residential",
+    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "first_seen": "2026-02-14",
+    "last_seen": "2026-08-18",
+    "confidence": 0.35,
+    "assessment_year": 2023,
+    "owner_out_of_state": false,
+    "tenure_years": 6
+  },
+  {
+    "id": "37099-0017",
+    "fips": "37099",
+    "county": "Jackson",
+    "state": "NC",
+    "lat": 35.339,
+    "lng": -83.122,
+    "acres": 141.2,
+    "assessed_value": 205000,
+    "price": null,
+    "score": 53,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.74,
+          "note": "Assessed value is well under the county median per acre for this use code."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 1,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 1,
+          "note": "A mapped stream crosses the parcel (NHD flowline intersect)."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.35,
+          "note": "Landlocked on the published road network; access is by easement or not at all."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 0.15,
+          "note": "FEMA zone AE — inside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": true,
+      "has_river": true,
+      "has_pond": false,
+      "distance_m": 0
+    },
+    "flood_zone": "AE",
+    "parcel_use": "Timber",
+    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "first_seen": "2026-02-14",
+    "last_seen": "2026-08-18",
+    "confidence": 0.85,
+    "acreage_basis": "deed",
+    "assessment_year": 2023,
+    "owner_is_entity": true,
+    "tenure_years": 47
+  },
+  {
+    "id": "37121-0018",
+    "fips": "37121",
+    "county": "Mitchell",
+    "state": "NC",
+    "lat": 35.991,
+    "lng": -82.124,
+    "acres": 7.9,
+    "assessed_value": 29800,
+    "price": null,
+    "score": 37,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.79,
+          "note": "Assessed value is well under the county median per acre for this use code."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.35,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.05,
+          "note": "A mapped stream crosses the parcel (NHD flowline intersect)."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.65,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 1840
+    },
+    "flood_zone": "X",
+    "parcel_use": "Vacant land",
+    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "first_seen": "2026-02-14",
+    "last_seen": "2026-08-18",
+    "confidence": 0.72,
+    "acreage_basis": "gis",
+    "assessment_year": 2022,
+    "owner_out_of_state": true,
+    "tenure_years": 15
+  },
+  {
+    "id": "47171-0019",
+    "fips": "47171",
+    "county": "Unicoi",
+    "state": "TN",
+    "lat": 36.148,
+    "lng": -82.487,
+    "acres": 33.4,
+    "assessed_value": null,
+    "price": null,
+    "score": 46,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — this county publishes no assessed value."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.74,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.9,
+          "note": "A mapped stream crosses the parcel (NHD flowline intersect)."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.5,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 75,
+      "unknown_count": 1
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": true,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 0
+    },
+    "flood_zone": "X",
+    "parcel_use": "Agricultural",
+    "source_url": "https://www.tn.gov/finance/sts-gis.html",
+    "first_seen": "2026-04-03",
+    "last_seen": "2026-08-18",
+    "confidence": 0.43,
+    "acreage_basis": "gis"
+  },
+  {
+    "id": "47019-0020",
+    "fips": "47019",
+    "county": "Carter",
+    "state": "TN",
+    "lat": 36.261,
+    "lng": -82.089,
+    "acres": 2.6,
+    "assessed_value": null,
+    "price": null,
+    "score": 16,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — this county publishes no assessed value."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.15,
+          "note": "Well below the county median parcel size."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.05,
+          "note": "A mapped stream crosses the parcel (NHD flowline intersect)."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.85,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": null,
+          "note": "UNKNOWN — no FEMA layer joined for this county."
+        }
+      ],
+      "denominator": 70,
+      "unknown_count": 2
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 1840
+    },
+    "flood_zone": null,
+    "parcel_use": "Residential",
+    "source_url": "https://www.tn.gov/finance/sts-gis.html",
+    "first_seen": "2026-04-03",
+    "last_seen": "2026-08-18",
+    "confidence": 0.31,
+    "acreage_basis": "gis"
+  },
+  {
+    "id": "51003-0021",
+    "fips": "51003",
+    "county": "Albemarle",
+    "state": "VA",
+    "lat": 38.053,
+    "lng": -78.508,
+    "acres": 19.7,
+    "assessed_value": 168000,
+    "price": null,
+    "score": 38,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.28,
+          "note": "Assessed above the county median per acre."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.6,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.5,
+          "note": "A mapped pond sits on the parcel."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.9,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": true,
+      "distance_m": 0
+    },
+    "flood_zone": "X",
+    "parcel_use": "Residential",
+    "source_url": "https://vgin.vdem.virginia.gov/",
+    "first_seen": "2026-08-04",
+    "last_seen": "2026-08-18",
+    "confidence": 0.55,
+    "acreage_basis": "gis",
+    "assessment_year": 2024,
+    "owner_out_of_state": false,
+    "tenure_years": 11
+  },
+  {
+    "id": "51163-0022",
+    "fips": "51163",
+    "county": "Rockbridge",
+    "state": "VA",
+    "lat": 37.766,
+    "lng": -79.487,
+    "acres": null,
+    "assessed_value": null,
+    "price": null,
+    "score": 13,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — no assessed value collected for this county."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel polygon collected for this county."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no water layer joined for this county."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.5,
+          "note": "Use code unknown; scored on road-network proximity alone."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": null,
+          "note": "UNKNOWN — no FEMA layer joined for this county."
+        }
+      ],
+      "denominator": 40,
+      "unknown_count": 4
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": null
+    },
+    "flood_zone": null,
+    "parcel_use": "Unknown",
+    "source_url": "https://vgin.vdem.virginia.gov/",
+    "first_seen": "2026-08-04",
+    "last_seen": "2026-08-18",
+    "confidence": 0.14,
+    "note": "A thin-tier row: everything except location and use came back unknown. It is published so the gap is visible, not hidden."
+  },
+  {
+    "id": "51063-0023",
+    "fips": "51063",
+    "county": "Floyd",
+    "state": "VA",
+    "lat": 36.957,
+    "lng": -80.327,
+    "acres": 58.3,
+    "assessed_value": 91000,
+    "price": null,
+    "score": 59,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.83,
+          "note": "Assessed value is well under the county median per acre for this use code."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.93,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.9,
+          "note": "A mapped stream crosses the parcel (NHD flowline intersect)."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.6,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": true,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 0
+    },
+    "flood_zone": "X",
+    "parcel_use": "Agricultural",
+    "source_url": "https://vgin.vdem.virginia.gov/",
+    "first_seen": "2026-08-04",
+    "last_seen": "2026-08-18",
+    "confidence": 0.58,
+    "acreage_basis": "gis",
+    "assessment_year": 2024,
+    "owner_out_of_state": true,
+    "tenure_years": 23
+  },
+  {
+    "id": "51141-0024",
+    "fips": "51141",
+    "county": "Patrick",
+    "state": "VA",
+    "lat": 36.644,
+    "lng": -80.255,
+    "acres": 15.5,
+    "assessed_value": 33200,
+    "price": null,
+    "score": 41,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.9,
+          "note": "Far under the county median per acre."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.55,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.05,
+          "note": "A mapped stream crosses the parcel (NHD flowline intersect)."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.45,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 1840
+    },
+    "flood_zone": "X",
+    "parcel_use": "Vacant land",
+    "source_url": "https://vgin.vdem.virginia.gov/",
+    "first_seen": "2026-08-04",
+    "last_seen": "2026-08-18",
+    "confidence": 0.52,
+    "acreage_basis": "gis",
+    "assessment_year": 2023,
+    "owner_out_of_state": true,
+    "tenure_years": 31
+  },
+  {
+    "id": "51015-0025",
+    "fips": "51015",
+    "county": "Augusta",
+    "state": "VA",
+    "lat": 38.201,
+    "lng": -79.159,
+    "acres": 4.1,
+    "assessed_value": 121500,
+    "price": null,
+    "score": 22,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": 0.18,
+          "note": "Assessed above the county median per acre."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": 0.2,
+          "note": "Larger than the county median parcel for this use code."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": 0.05,
+          "note": "A mapped stream crosses the parcel (NHD flowline intersect)."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": 0.9,
+          "note": "Fronts a state-maintained road; vacant-land use code."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": 1,
+          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+        }
+      ],
+      "denominator": 100,
+      "unknown_count": 0
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": 1840
+    },
+    "flood_zone": "X",
+    "parcel_use": "Residential",
+    "source_url": "https://vgin.vdem.virginia.gov/",
+    "first_seen": "2026-08-04",
+    "last_seen": "2026-08-18",
+    "confidence": 0.49,
+    "acreage_basis": "assessor",
+    "assessment_year": 2024,
+    "owner_out_of_state": false,
+    "tenure_years": 3,
+    "note": "Augusta sits on VGSI (gis.vgsi.com); the 2025 VamaNet migration may have moved this source."
+  },
+  {
+    "id": "13291-0026",
+    "fips": "13291",
+    "county": "Union",
+    "state": "GA",
+    "lat": 34.861,
+    "lng": -84.018,
+    "acres": null,
+    "assessed_value": null,
+    "price": null,
+    "score": 0,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — no parcel data source exists for this county."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel data source exists for this county."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        }
+      ],
+      "denominator": 30,
+      "unknown_count": 5
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": null
+    },
+    "flood_zone": null,
+    "parcel_use": "Unknown",
+    "source_url": "https://www.gsccca.org/",
+    "first_seen": "2026-08-09",
+    "last_seen": "2026-08-18",
+    "confidence": 0.12,
+    "note": "Union has no parcel source (qPublic wall E1.1-E1.4). Everything about this row except its county is unknown."
+  },
+  {
+    "id": "45073-0027",
+    "fips": "45073",
+    "county": "Oconee",
+    "state": "SC",
+    "lat": 34.728,
+    "lng": -83.021,
+    "acres": null,
+    "assessed_value": null,
+    "price": null,
+    "score": 0,
+    "score_breakdown": {
+      "signals": [
+        {
+          "key": "distress",
+          "label": "Distress / for-sale evidence",
+          "weight": 30,
+          "value": 0,
+          "note": "No for-sale or distress evidence found. This is a prospecting record."
+        },
+        {
+          "key": "value_gap",
+          "label": "Assessed value vs county median per acre",
+          "weight": 25,
+          "value": null,
+          "note": "UNKNOWN — no parcel data source exists for this county."
+        },
+        {
+          "key": "acreage",
+          "label": "Parcel size",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel data source exists for this county."
+        },
+        {
+          "key": "water",
+          "label": "Water on or adjacent to parcel",
+          "weight": 15,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        },
+        {
+          "key": "access",
+          "label": "Road access & use code",
+          "weight": 10,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        },
+        {
+          "key": "flood",
+          "label": "Outside the 1% annual-chance floodplain",
+          "weight": 5,
+          "value": null,
+          "note": "UNKNOWN — no parcel geometry."
+        }
+      ],
+      "denominator": 30,
+      "unknown_count": 5
+    },
+    "for_sale_evidence": null,
+    "water": {
+      "has_stream": false,
+      "has_river": false,
+      "has_pond": false,
+      "distance_m": null
+    },
+    "flood_zone": null,
+    "parcel_use": "Unknown",
+    "source_url": "https://www.sccourts.org/",
+    "first_seen": "2026-08-06",
+    "last_seen": "2026-08-18",
+    "confidence": 0.11,
+    "note": "Oconee’s Master-in-Equity page returned HTTP 500 on probe — UNKNOWN, not absent. Recheck before drawing any conclusion from this county being quiet."
+  }
+]

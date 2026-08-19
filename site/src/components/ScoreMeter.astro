@@ -1,0 +1,254 @@
+---
+/**
+ * A score is never a bare number here.
+ *
+ * Every render of a score carries, at minimum: the value, how many of the
+ * signals were actually scored, and — one disclosure away on a card, inline on a
+ * detail page — the per-signal contribution.
+ *
+ * The rule that makes it honest: an UNKNOWN signal is excluded from the
+ * DENOMINATOR. It is never scored 0. "We don't know whether there's water" and
+ * "there is definitely no water" are different facts, and a scoring system that
+ * flattens them will confidently rank a county we can't see below a county we
+ * can, which is precisely backwards.
+ */
+import type { ScoreBreakdown } from '../lib/types';
+import { isLowEvidence } from '../lib/deals';
+
+interface Props {
+  score: number;
+  breakdown: ScoreBreakdown;
+  confidence?: number | undefined;
+  variant?: 'card' | 'detail';
+}
+const { score, breakdown, confidence, variant = 'card' } = Astro.props;
+
+const scored = breakdown.signals.filter((s) => s.value !== null);
+const unknown = breakdown.signals.filter((s) => s.value === null);
+const total = breakdown.signals.length;
+const low = isLowEvidence(breakdown);
+/** Bucket 1..5 for the colour ramp. Colour is a hint; the number is the fact. */
+const band = Math.min(5, Math.max(1, Math.ceil(score / 20) || 1));
+
+const contributions = scored
+  .map((s) => ({
+    ...s,
+    /** Points this signal contributed to the final 0–100. */
+    points: breakdown.denominator > 0
+      ? Math.round(((s.weight * (s.value as number)) / breakdown.denominator) * 100)
+      : 0,
+    /** Points it COULD have contributed at value = 1. */
+    ceiling: breakdown.denominator > 0 ? Math.round((s.weight / breakdown.denominator) * 100) : 0,
+  }))
+  .sort((a, b) => b.points - a.points);
+---
+
+<div class={`sm sm--${variant}`} data-band={band}>
+  <div class="sm__head">
+    <span class="sm__val num" aria-hidden="true">{score}</span>
+    <span class="visually-hidden">Score {score} out of 100.</span>
+    <span class="sm__of">
+      <span class="sm__bar" aria-hidden="true"><span style={`width:${score}%`}></span></span>
+      <span class="sm__meta">
+        scored from <strong class="num">{scored.length}</strong> of <strong class="num">{total}</strong> signals
+        {confidence !== undefined && <> · confidence <strong class="num">{Math.round(confidence * 100)}%</strong></>}
+      </span>
+    </span>
+  </div>
+
+  {
+    low && (
+      <p class="sm__low">
+        Low evidence — {unknown.length} of {total} signals are unknown for this parcel. The score is
+        computed only over what is known; it is not a claim that the unknown parts are bad.
+      </p>
+    )
+  }
+
+  {
+    variant === 'card' ? (
+      <details class="sm__why">
+        <summary>Why this score?</summary>
+        <ul class="sm__list">
+          {contributions.map((s) => (
+            <li>
+              <span class="sm__k">{s.label}</span>
+              <span class="sm__pts num">
+                +{s.points}
+                <span class="sm__ceil"> / {s.ceiling}</span>
+              </span>
+            </li>
+          ))}
+          {unknown.map((s) => (
+            <li class="sm__unk">
+              <span class="sm__k">{s.label}</span>
+              <span class="sm__pts">unknown — excluded</span>
+            </li>
+          ))}
+        </ul>
+      </details>
+    ) : (
+      <table class="tbl sm__tbl">
+        <caption>
+          Every signal, its weight, and what it contributed. Unknown signals are excluded from the
+          denominator ({breakdown.denominator} of{' '}
+          {breakdown.signals.reduce((a, s) => a + s.weight, 0)} total weight), never scored zero.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Signal</th>
+            <th scope="col">Reading</th>
+            <th scope="col" class="num">Weight</th>
+            <th scope="col" class="num">Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          {contributions.map((s) => (
+            <tr>
+              <th scope="row">{s.label}</th>
+              <td>{s.note}</td>
+              <td class="num">{s.weight}</td>
+              <td class="num">
+                +{s.points} <span class="sm__ceil">/ {s.ceiling}</span>
+              </td>
+            </tr>
+          ))}
+          {unknown.map((s) => (
+            <tr class="sm__unk">
+              <th scope="row">{s.label}</th>
+              <td>{s.note}</td>
+              <td class="num">
+                <span class="sm__strike">{s.weight}</span>
+              </td>
+              <td>unknown — excluded</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )
+  }
+</div>
+
+<style>
+  .sm {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+  }
+  .sm__head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .sm__val {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    line-height: 1;
+    font-weight: 600;
+    color: var(--score-5);
+    min-width: 2ch;
+    text-align: right;
+  }
+  [data-band='1'] .sm__val { color: var(--score-1); }
+  [data-band='2'] .sm__val { color: var(--score-2); }
+  [data-band='3'] .sm__val { color: var(--score-3); }
+  [data-band='4'] .sm__val { color: var(--score-4); }
+  [data-band='5'] .sm__val { color: var(--score-5); }
+  /* Bands 1–2 are pale by design; on the light theme they need a darker ink to
+     stay legible as TEXT, so the ramp only drives the bar there. */
+  :root:not([data-theme='hollow']) [data-band='1'] .sm__val,
+  :root:not([data-theme='hollow']) [data-band='2'] .sm__val {
+    color: var(--ink-soft);
+  }
+  .sm__of {
+    display: grid;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+  }
+  .sm__bar {
+    display: block;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--band);
+    overflow: hidden;
+  }
+  .sm__bar > span {
+    display: block;
+    height: 100%;
+    background: var(--score-4);
+    border-radius: 999px;
+  }
+  [data-band='1'] .sm__bar > span { background: var(--score-1); }
+  [data-band='2'] .sm__bar > span { background: var(--score-2); }
+  [data-band='3'] .sm__bar > span { background: var(--score-3); }
+  [data-band='4'] .sm__bar > span { background: var(--score-4); }
+  [data-band='5'] .sm__bar > span { background: var(--score-5); }
+  .sm__meta {
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+  }
+  .sm__meta strong {
+    color: var(--ink);
+  }
+  .sm__low {
+    margin-top: 0.45rem;
+    font-size: var(--step--2);
+    color: var(--warn);
+    background: var(--warn-bg);
+    border-radius: var(--radius-s);
+    padding: 0.35rem 0.55rem;
+    max-width: none;
+  }
+  .sm__why {
+    margin-top: 0.5rem;
+  }
+  .sm__why summary {
+    cursor: pointer;
+    font-size: var(--step--2);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .sm__list {
+    list-style: none;
+    padding: 0.4rem 0 0;
+    margin: 0;
+    display: grid;
+    gap: 0.2rem;
+    font-size: var(--step--2);
+  }
+  .sm__list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.6rem;
+    border-bottom: var(--hairline) dotted var(--rule);
+    padding-bottom: 0.15rem;
+  }
+  .sm__k {
+    color: var(--ink-soft);
+  }
+  .sm__pts {
+    color: var(--ink);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .sm__ceil {
+    color: var(--ink-soft);
+    font-weight: 400;
+  }
+  .sm__unk .sm__pts,
+  .sm__unk td {
+    color: var(--ink-soft);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .sm__strike {
+    text-decoration: line-through;
+    color: var(--ink-soft);
+  }
+  .sm__tbl {
+    margin-top: var(--space-s);
+  }
+  .sm__tbl caption {
+    max-width: 74ch;
+  }
+</style>

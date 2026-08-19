@@ -1,0 +1,236 @@
+---
+/**
+ * One page per tracked county — ALL of them, including the ones with no rows.
+ *
+ * A county that has no page is indistinguishable from a county with nothing in
+ * it. Generating every county is what lets the empty state say the thing that
+ * matters: "Fannin isn't covered — no parcel data source exists" versus "no
+ * deals found in Watauga, which is covered and quiet".
+ */
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DealCard from '../../components/DealCard.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import { withBase } from '../../lib/nav';
+import {
+  coverage,
+  byCounty,
+  laneOf,
+  TIER_LABEL,
+  TIER_BLURB,
+  LANE_LABEL,
+  LANE_BLURB,
+} from '../../lib/deals';
+import { fmtMoney } from '../../lib/format';
+
+export const getStaticPaths = (() => {
+  // All data resolved HERE, once, with zero per-page work afterwards. Build time
+  // is dominated by per-page work, not by page count.
+  return coverage.map((c) => {
+    const rows = byCounty(c.fips);
+    return {
+      params: { fips: c.fips },
+      props: {
+        county: c,
+        market: rows.filter((l) => laneOf(l) === 'market'),
+        prospect: rows.filter((l) => laneOf(l) === 'prospect'),
+      },
+    };
+  });
+}) satisfies GetStaticPaths;
+
+const { county, market, prospect } = Astro.props;
+
+const withValue = [...market, ...prospect].filter((l) => l.assessed_value !== null);
+const avgValue =
+  withValue.length > 0
+    ? Math.round(withValue.reduce((a, l) => a + (l.assessed_value as number), 0) / withValue.length)
+    : null;
+/** County-level aggregates obey the same rule as every other number here: never
+ *  a confident "$0 average" for a county whose values we simply do not have. */
+const avg = fmtMoney(avgValue, 'No assessed values have been collected for this county.');
+---
+
+<BaseLayout
+  title={`${county.county} County, ${county.state}`}
+  description={`Coverage and published records for ${county.county} County, ${county.state}.`}
+  path={`/county/${county.fips}/`}
+>
+  <div class="page wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href={withBase('/')}>Map</a></li>
+        <li><a href={withBase('/status/')}>Coverage</a></li>
+        <li><span aria-current="page">{county.county} County, {county.state}</span></li>
+      </ol>
+    </nav>
+
+    <header class="page__head">
+      <p class="eyebrow">{county.region}</p>
+      <h1>{county.county} County, {county.state}</h1>
+      <p class="cty__tier">
+        <span class={`tier tier--${county.tier}`}>{TIER_LABEL[county.tier]}</span>
+        {
+          county.parcel_source ? (
+            <code>{county.parcel_source}</code>
+          ) : (
+            <span class="unk" title="No parcel data source has been found for this county.">
+              no parcel source found
+            </span>
+          )
+        }
+      </p>
+      <p class="page__lead">{TIER_BLURB[county.tier]}</p>
+      {county.note && <p class="cty__note">{county.note}</p>}
+    </header>
+
+    <dl class="cty__facts">
+      <div>
+        <dt>On market / in distress</dt>
+        <dd class="num">{market.length}</dd>
+      </div>
+      <div>
+        <dt>Prospecting records</dt>
+        <dd class="num">{prospect.length}</dd>
+      </div>
+      <div>
+        <dt>Average assessed value</dt>
+        <dd>
+          {
+            avg.known ? (
+              <span class="num">{avg.text}</span>
+            ) : (
+              <span class="unk" title={avg.why}>{avg.text}</span>
+            )
+          }
+        </dd>
+      </div>
+    </dl>
+
+    <h2 class="section-head">{LANE_LABEL.market}</h2>
+    <p class="lane__blurb">{LANE_BLURB.market}</p>
+    {
+      market.length > 0 ? (
+        <ul class="dir-grid">
+          {market.map((l) => (
+            <DealCard l={l} showCounty={false} />
+          ))}
+        </ul>
+      ) : (
+        <EmptyState tier={county.tier} county={county.county} state={county.state} lane="market" />
+      )
+    }
+
+    <h2 class="section-head">{LANE_LABEL.prospect}</h2>
+    <div class="callout callout--lane2">
+      <p><strong>These are not listings.</strong> {LANE_BLURB.prospect}</p>
+    </div>
+    <details class="cty__lane2">
+      <summary>Show {prospect.length} prospecting record{prospect.length === 1 ? '' : 's'}</summary>
+      {
+        prospect.length > 0 ? (
+          <ul class="dir-grid">
+            {prospect.map((l) => (
+              <DealCard l={l} showCounty={false} />
+            ))}
+          </ul>
+        ) : (
+          <EmptyState
+            tier={county.tier}
+            county={county.county}
+            state={county.state}
+            lane="prospect"
+          />
+        )
+      }
+    </details>
+
+    <p class="cty__back">
+      <a href={withBase(`/?county=${county.fips}&state=${county.state}`)}>
+        Open {county.county} County on the map →
+      </a>
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .crumbs ol {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+  }
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: 0.4rem;
+    color: var(--rule);
+  }
+  .crumbs a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .cty__tier {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 0.4rem;
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    max-width: none;
+  }
+  .cty__note {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    border-left: 2px solid var(--rule);
+    padding-left: 0.6rem;
+    margin-top: var(--space-2xs);
+  }
+  .cty__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: var(--space-s);
+    font-family: var(--font-ui);
+    border-block: var(--hairline) solid var(--rule);
+    padding-block: var(--space-s);
+  }
+  .cty__facts dt {
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+  }
+  .cty__facts dd {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+  }
+  .lane__blurb {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .cty__lane2 {
+    margin-top: var(--space-s);
+  }
+  .cty__lane2 summary {
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .cty__back {
+    margin-top: var(--space-l);
+    font-family: var(--font-ui);
+  }
+  .cty__back a {
+    color: var(--accent);
+    font-weight: 600;
+  }
+</style>

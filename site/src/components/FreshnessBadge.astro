@@ -1,0 +1,176 @@
+---
+/**
+ * "Data as of <timestamp>" — a first-class, always-visible fact in the shell.
+ *
+ * TWO readers, deliberately (plan §6.6 / RT-8):
+ *  • the TIMESTAMP is server-rendered from status.json, because a fact should be
+ *    readable with JS off;
+ *  • the STALENESS VERDICT is computed IN THE BROWSER against Date.now(), never
+ *    at build time. If the deploy workflow is what dies, a build-time badge
+ *    freezes at its last-good value and reports green forever — it would fail to
+ *    the same root cause it exists to detect.
+ *
+ * The number asserted is max(observed_at) across published Lane-1 rows, not
+ * last_successful_run: "we fetched recently" is not "the data changed recently".
+ *
+ * Lane 2 is NOT measured against the 48-hour bar. 48-hour freshness is not a
+ * meaningful property of county assessor data, and the site says so instead of
+ * pretending — a badge that is red five days out of seven by design is a badge
+ * nobody reads.
+ */
+import { status } from '../lib/deals';
+import { site } from '../config/site';
+import { withBase } from '../lib/nav';
+import { fmtDateTime } from '../lib/format';
+
+const observed = fmtDateTime(status.data_observed_at);
+const statusUrl = withBase('/status/');
+const dataUrl = withBase('/data/status.json');
+---
+
+<a
+  class="fresh"
+  href={statusUrl}
+  data-fresh-badge
+  data-observed={status.data_observed_at ?? ''}
+  data-bar-hours={String(site.lane1FreshHours)}
+  data-status-url={dataUrl}
+  data-state="unknown"
+>
+  <span class="fresh__dot" aria-hidden="true"></span>
+  <span class="fresh__txt">
+    <span class="fresh__label">Lane 1 data as of</span>
+    <strong data-fresh-when>{observed.known ? observed.text : 'never — no Lane 1 data has been observed'}</strong>
+    <span class="fresh__age" data-fresh-age></span>
+  </span>
+</a>
+
+<script>
+  // Recompute the verdict in the browser. `built_at` is deliberately ignored
+  // here: a build is not an observation.
+  (() => {
+    const el = document.querySelector<HTMLElement>('[data-fresh-badge]');
+    if (!el) return;
+    const barHours = Number(el.dataset.barHours || '48');
+    const ageEl = el.querySelector<HTMLElement>('[data-fresh-age]');
+    const whenEl = el.querySelector<HTMLElement>('[data-fresh-when]');
+
+    function paint(iso: string | null) {
+      if (!iso) {
+        el!.dataset.state = 'never';
+        if (ageEl) ageEl.textContent = '— nothing observed yet';
+        return;
+      }
+      const t = new Date(iso).getTime();
+      if (Number.isNaN(t)) {
+        el!.dataset.state = 'unknown';
+        if (ageEl) ageEl.textContent = '— freshness unknown';
+        return;
+      }
+      const hours = (Date.now() - t) / 3600000;
+      const rounded = hours < 1 ? '<1' : Math.floor(hours).toString();
+      el!.dataset.state = hours > barHours ? 'stale' : 'ok';
+      if (ageEl) {
+        ageEl.textContent =
+          hours > barHours
+            ? `— ${rounded} h old, past the ${barHours} h bar`
+            : `— ${rounded} h old`;
+      }
+    }
+
+    paint(el.dataset.observed || null);
+
+    // Then re-read the deployed status file, so a page cached by the service
+    // layer cannot keep reporting a build-time value forever.
+    const url = el.dataset.statusUrl;
+    if (!url) return;
+    fetch(url, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((j) => {
+        const iso = typeof j?.data_observed_at === 'string' ? j.data_observed_at : null;
+        if (iso && whenEl) {
+          whenEl.textContent = new Date(iso).toLocaleString('en-US', {
+            year: 'numeric', month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+          });
+        }
+        paint(iso);
+      })
+      .catch(() => {
+        // An unreachable status file is itself a finding — say so rather than
+        // leaving the last-known value looking authoritative.
+        el.dataset.state = 'unknown';
+        if (ageEl) ageEl.textContent = '— status file unreachable; freshness unknown';
+      });
+  })();
+</script>
+
+<style>
+  .fresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 0.3em 0.7em;
+    border-radius: 999px;
+    border: var(--hairline) solid var(--rule);
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  .fresh:hover {
+    border-color: var(--accent);
+    color: var(--ink);
+  }
+  .fresh__txt {
+    display: inline-flex;
+    gap: 0.4em;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  .fresh__label {
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+  }
+  .fresh strong {
+    font-weight: 700;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .fresh__dot {
+    width: 0.6em;
+    height: 0.6em;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--ink-soft);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ink-soft) 25%, transparent);
+  }
+  /* Every state is also carried by the TEXT beside the dot — colour alone never
+     communicates staleness. */
+  [data-state='ok'] .fresh__dot {
+    background: var(--tier-rich);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--tier-rich) 25%, transparent);
+  }
+  [data-state='stale'] .fresh__dot,
+  [data-state='never'] .fresh__dot {
+    background: var(--warn);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--warn) 25%, transparent);
+  }
+  [data-state='stale'],
+  [data-state='never'] {
+    border-color: var(--warn);
+    background: var(--warn-bg);
+    color: var(--warn);
+  }
+  [data-state='stale'] strong,
+  [data-state='never'] strong {
+    color: var(--warn);
+  }
+  @media (max-width: 720px) {
+    .fresh__label {
+      display: none;
+    }
+  }
+</style>

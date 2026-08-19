@@ -1,0 +1,277 @@
+/* ============================================================================
+   Blue Ridge Deal Finder — Design Tokens
+
+   STRUCTURE ported verbatim from Southern Wine Country's src/styles/tokens.css
+   (claims-D claims 1, 3, 4): the same fluid ~1.25 major-third type scale at the
+   same -15% density retune, the same graduated spacing scale, the same layout /
+   radius / motion tokens, the same `--control-font*` + `--rail-*` coarse-pointer
+   floor, the same two-theme `[data-theme]` switch on <html>, and the same
+   "semantic layer + --map-* surface in one theme block" arrangement so the
+   MapLibre basemap re-themes with the page.
+
+   IDENTITY is new. claims-D's reuse map flags the Herbarium/Cellar-Oak names and
+   their white-wine-gold / red-wine-garnet accents as having NO analogue here —
+   they are literally a wine metaphor. The mechanism is ported; the metaphor is
+   not. Two new themes:
+     • RIDGE  (light, default) — haze grey-green ground, ridge-blue accent
+     • HOLLOW (dark alternate) — laurel-hollow black, pale-water accent
+
+   One deliberate improvement over the reference: SWC loads BOTH themes' font
+   sets together with a "tree-shake the loser after the pick" TODO it never paid
+   (claims-D claim 5). We ship ONE family set for both themes, so the dark theme
+   costs zero extra font bytes.
+
+   WCAG 2.2 AA: every text/accent pairing below is pre-checked against its own
+   surface. Re-verify on the RENDERED surface (map tiles flattened) before ship.
+   ============================================================================ */
+
+/* ---------- Theme-agnostic base (scales, layout, motion) ---------- */
+:root {
+  /* Type scale (fluid; ~1.25 major-third), at SWC's retuned density. */
+  --step--2: clamp(0.61rem, 0.6rem + 0.085vw, 0.66rem);
+  --step--1: clamp(0.71rem, 0.69rem + 0.136vw, 0.79rem);
+  --step-0: clamp(0.85rem, 0.82rem + 0.187vw, 0.97rem);
+  --step-1: clamp(1.05rem, 0.98rem + 0.34vw, 1.27rem);
+  --step-2: clamp(1.27rem, 1.15rem + 0.612vw, 1.66rem);
+  --step-3: clamp(1.62rem, 1.39rem + 1.02vw, 2.3rem);
+  --step-4: clamp(1.95rem, 1.62rem + 1.615vw, 2.98rem);
+  --step-5: clamp(2.38rem, 1.79rem + 2.635vw, 3.91rem);
+
+  /* Prose pins — the two BODY steps only, for reading pages (/about/, /status/
+     narrative). Headings still shrink, exactly as in the reference. */
+  --step-0-prose: clamp(1rem, 0.96rem + 0.22vw, 1.14rem);
+  --step--1-prose: clamp(0.84rem, 0.81rem + 0.16vw, 0.93rem);
+
+  /* Form-control type. Coarse-pointer floor applied below. */
+  --control-font: var(--step-0);
+  --control-font-s: var(--step--1);
+  --control-font-xs: var(--step--2);
+
+  /* Filter-rail text (labels / chips / counts / help). Same reason as the
+     control fonts: the rail's NON-control text is what a phone renders at ~10px
+     if only the controls are floored. */
+  --rail-label: var(--step--2);
+  --rail-chip: var(--step--1);
+  --rail-meta: var(--step--2);
+  --rail-help: var(--step--2);
+
+  /* Spacing — graduated, not uniform. Micro spacing pays least because it is
+     load-bearing for WCAG 2.2 SC 2.5.8 target-spacing exceptions. */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.45rem;
+  --space-xs: 0.62rem;
+  --space-s: 0.85rem;
+  --space-m: 1.2rem;
+  --space-l: 1.9rem;
+  --space-xl: 2.9rem;
+  --space-2xl: 4rem;
+
+  /* Layout */
+  --measure: 66ch;
+  --width-content: 1180px;
+  --width-wide: 1520px;
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+  --nav-h: 4rem;
+  --rail-w: clamp(15rem, 20vw, 19rem);
+  --results-w: clamp(20rem, 32vw, 32rem);
+
+  /* Radii / lines */
+  --radius-s: 4px;
+  --radius-m: 10px;
+  --radius-l: 18px;
+  --hairline: 1px; /* border WIDTH; colour = --edge/--rule */
+
+  /* Motion */
+  --ease-cut: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --dur-fast: 170ms;
+  --dur-mid: 360ms;
+}
+
+/* ----------------------------------------------------------------------------
+   Touch-pointer floor. `16px`, NOT `1rem`: iOS Safari's auto-zoom threshold is
+   16 CSS px, so a user who LOWERED their browser default would get 1rem < 16px
+   and the zoom returns. max() makes it a no-op for anyone who raised it.
+
+   The viewport meta is deliberately untouched — maximum-scale=1 would also
+   suppress the zoom but disables pinch-zoom for low-vision users.
+   ---------------------------------------------------------------------------- */
+@media (hover: none), (pointer: coarse) {
+  :root {
+    --control-font: max(16px, var(--step-0));
+    --control-font-s: max(16px, var(--step-0));
+    --control-font-xs: max(16px, var(--step-0));
+    --rail-label: max(12px, var(--step--2));
+    --rail-chip: max(14px, var(--step--1));
+    --rail-meta: max(12px, var(--step--2));
+    --rail-help: max(13px, var(--step--2));
+  }
+}
+
+/* ============================================================================
+   RIDGE — light (DEFAULT). :root and [data-theme=ridge].
+   ============================================================================ */
+:root,
+:root[data-theme='ridge'] {
+  /* Semantic layer */
+  --bg: #e9ece6;        /* morning haze over the ridge — the page canvas */
+  --surface: #f6f7f3;   /* cards, inputs, rail, results */
+  --surface-2: #dfe3da; /* deeper raised / alt band */
+  --text: #14201d;      /* spruce ink (14.6:1 on --bg) */
+  --text-soft: #3c4a45; /* secondary / labels (8.0:1 on --bg) */
+  --accent: #1d5b63;    /* RIDGE BLUE — CTA, active filter, link (6.0:1 on --bg) */
+  --accent-deep: #15464c;
+  --accent-on: #f6f7f3; /* text on an accent fill (6.0:1) */
+  --accent-2: #7a4418;  /* CLAY — supporting / secondary emphasis (6.6:1 on --bg) */
+  --edge: #cfd5c9;      /* tonal edge (hairline colour) */
+  --focus: #1d5b63;
+
+  /* Type — ONE family set, both themes. */
+  --font-display: 'EB Garamond Variable', 'EB Garamond', Georgia, serif;
+  --font-body: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
+  --font-ui: 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif;
+
+  /* Map surface (light basemap = OpenFreeMap positron) */
+  --map-land: #e9ece6;
+  --map-water: #c3d3d6;
+  --map-landcover: #d7ded0;
+  --map-road: #ffffff;
+  --map-road-hi: #e6e6da;
+  --map-label: #3c4a45;
+  --map-ink: #14201d;
+  --map-pin-stroke: #f6f7f3;
+  --map-basemap: 'positron';
+
+  /* --- Domain signal colours ------------------------------------------------
+     These are SEMANTIC, never decorative, and every one of them is ALWAYS
+     accompanied by a text label in the markup. Colour is the grouping hint; the
+     word is the identifier. (Same discipline as the reference's colour-blind
+     note: no palette makes N categories separable, so never rely on hue alone.) */
+  --lane-market: #8a3324;   /* Lane 1 — on market / in distress */
+  --lane-prospect: #4a5c6a; /* Lane 2 — prospecting; deliberately muted */
+  --sig-water: #1f6f8b;
+  --warn: #8a3324;
+  --warn-bg: #f6e7e3;
+
+  /* Coverage tiers — a DESATURATING ramp, strongest at `rich`, so an uncovered
+     county can never render pixel-identical to a covered-but-quiet one. */
+  --tier-rich: #2f6b4f;
+  --tier-partial: #7a6412;
+  --tier-thin: #8a5a1e;
+  --tier-notices: #5c5f5b;
+
+  /* Score ramp (5 stops, sequential light→dark; used by the map + card meters) */
+  --score-1: #c3d0cd;
+  --score-2: #93b3b3;
+  --score-3: #5e9099;
+  --score-4: #2f6f7d;
+  --score-5: #14454f;
+
+  /* Dark chrome tones (footer / on-dark surfaces) */
+  --on-dark: #f6f7f3;
+  --on-dark-soft: #b8c2ba;
+  --dark-surface: #14201d;
+  --dark-surface-2: #0c1513;
+
+  --shadow-s: 0 1px 2px rgba(20, 32, 29, 0.05), 0 3px 6px -1px rgba(20, 32, 29, 0.06);
+  --shadow-m: 0 1px 2px rgba(20, 32, 29, 0.04), 0 6px 16px -4px rgba(20, 32, 29, 0.1),
+    0 16px 32px -10px rgba(20, 32, 29, 0.1);
+  --shadow-l: 0 2px 4px rgba(20, 32, 29, 0.05), 0 12px 28px -6px rgba(20, 32, 29, 0.13),
+    0 28px 56px -14px rgba(20, 32, 29, 0.16);
+  --edge-shadow: rgba(20, 32, 29, 0.18);
+}
+
+/* ============================================================================
+   HOLLOW — dark alternate.
+   ============================================================================ */
+:root[data-theme='hollow'] {
+  --bg: #101715;
+  --surface: #18211e;
+  --surface-2: #212b27;
+  --text: #e6ece7;      /* (14.4:1 on --bg) */
+  --text-soft: #a8b4ad; /* (7.6:1 on --bg) */
+  --accent: #79bfc5;    /* pale creek water (8.5:1 on --bg) */
+  --accent-deep: #9ad3d8;
+  --accent-on: #0d1412; /* dark text on a pale accent fill */
+  --accent-2: #dda06a;
+  --edge: #2c3833;
+  --focus: #79bfc5;
+
+  --font-display: 'EB Garamond Variable', 'EB Garamond', Georgia, serif;
+  --font-body: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
+  --font-ui: 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif;
+
+  /* Map surface (DARK basemap required) */
+  --map-land: #101715;
+  --map-water: #15262b;
+  --map-landcover: #182420;
+  --map-road: #2c3833;
+  --map-road-hi: #3b4a44;
+  --map-label: #a8b4ad;
+  --map-ink: #e6ece7;
+  --map-pin-stroke: #18211e;
+  --map-basemap: 'dark-matter';
+
+  --lane-market: #e0836f;
+  --lane-prospect: #8fa2ae;
+  --sig-water: #6cb6d1;
+  --warn: #e0836f;
+  --warn-bg: #2a1a17;
+
+  --tier-rich: #74c3a0;
+  --tier-partial: #d6bd66;
+  --tier-thin: #d9a06a;
+  --tier-notices: #97a099;
+
+  --score-1: #2a3a38;
+  --score-2: #375a5c;
+  --score-3: #47807f;
+  --score-4: #63a7a6;
+  --score-5: #93cfcb;
+
+  --on-dark: #e6ece7;
+  --on-dark-soft: #a8b4ad;
+  --dark-surface: #18211e;
+  --dark-surface-2: #0b110f;
+
+  --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.5), 0 3px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-m: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 20px -4px rgba(0, 0, 0, 0.5),
+    0 18px 36px -10px rgba(0, 0, 0, 0.5);
+  --shadow-l: 0 4px 8px rgba(0, 0, 0, 0.5), 0 16px 32px -6px rgba(0, 0, 0, 0.6),
+    0 32px 64px -14px rgba(0, 0, 0, 0.65);
+  --edge-shadow: rgba(0, 0, 0, 0.55);
+}
+
+/* ============================================================================
+   Colour-blind mode (opt-in, [data-cb=on] on <html>) — Okabe-Ito-derived.
+   The score ramp becomes monotone-luminance blue→yellow, which survives every
+   common CVD type, and the two lane colours become the two most separable
+   Okabe-Ito hues. Never the default experience; a toggle the user turns on.
+   ============================================================================ */
+:root[data-cb='on'] {
+  --score-1: #d5e4ef;
+  --score-2: #92c5de;
+  --score-3: #56a0c8;
+  --score-4: #0072b2;
+  --score-5: #004466;
+  --lane-market: #d55e00;
+  --lane-prospect: #56698a;
+  --sig-water: #0072b2;
+  --tier-rich: #009e73;
+  --tier-partial: #cc9a00;
+  --tier-thin: #d55e00;
+  --tier-notices: #5c5f5b;
+}
+
+/* ============================================================================
+   Aliases — one indirection so component CSS reads semantically.
+   ============================================================================ */
+:root {
+  --paper: var(--bg);
+  --paper-2: var(--surface);
+  --band: var(--surface-2);
+  --ink: var(--text);
+  --ink-soft: var(--text-soft);
+  --text-muted: var(--text-soft);
+  --rule: var(--edge);
+}

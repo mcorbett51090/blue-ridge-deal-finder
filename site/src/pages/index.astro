@@ -1,0 +1,887 @@
+---
+/**
+ * The hub. Ported shape: SWC's `.dash` three-column grid (claims-D claim 27) —
+ * filter rail, persistent map, results list, three co-visible independently
+ * scrolling zones, so filtering never scrolls the page. Collapses at ≤1080px to
+ * 'rail rail' / 'map results'; below 860px the map and list become mutually
+ * exclusive views behind a segmented control, because showing both on a phone
+ * means showing neither.
+ *
+ * The mechanic underneath is the reference's most important one (claims-D claim
+ * 21) and is copied as-is: ONE predicate object, ONE `matches()` function, and
+ * one `applyFilter()` that in the same tick sets `hidden` on every server-
+ * rendered card AND hands the surviving ids to the map. The dots and the
+ * accessible HTML list are two renderings of one array, so they cannot disagree.
+ *
+ * What is NEW, and is the reason this page is not just a reskin:
+ *
+ *   THE TWO LANES ARE NEVER MIXED. Lane 1 — "On market / in distress" — is the
+ *   default and the only thing expanded. Lane 2 — "Prospecting — not known to be
+ *   for sale" — is a <details> that ships CLOSED, is labelled in full on its own
+ *   summary, and carries a caution note the moment it is opened. <details> is
+ *   deliberate: it is collapsed with no JS at all, so the honesty requirement
+ *   does not depend on a script running.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DealMap from '../components/DealMap.astro';
+import DealCard from '../components/DealCard.astro';
+import CoverageStrip from '../components/CoverageStrip.astro';
+import EmptyState from '../components/EmptyState.astro';
+import { withBase } from '../lib/nav';
+import {
+  byLane,
+  countyFacets,
+  states,
+  parcelUses,
+  LANE_LABEL,
+  LANE_BLURB,
+  coverage,
+} from '../lib/deals';
+
+const market = byLane('market');
+const prospect = byLane('prospect');
+const counties = countyFacets();
+const stateList = states();
+const uses = parcelUses();
+
+/** Handed to the client so the filtered-to-zero empty state can be tier-aware
+ *  exactly like the server-rendered one. */
+const coverageLite = coverage.map((c) => ({
+  fips: c.fips, county: c.county, state: c.state, tier: c.tier,
+}));
+---
+
+<BaseLayout
+  title="Map"
+  description="Property and land signals across 37 Blue Ridge counties, with per-county coverage stated on every result."
+  path="/"
+  dash
+>
+  <div class="dash" data-dash data-view="map">
+    <!-- ================= FILTER RAIL ================= -->
+    <aside class="dash__rail" aria-label="Filters">
+      <div class="rail__in">
+        <div class="rail__grp">
+          <label class="rail__label" for="f-q">Search</label>
+          <input
+            id="f-q"
+            type="search"
+            class="rail__input"
+            placeholder="County, use, or record id"
+            data-f-q
+            autocomplete="off"
+          />
+        </div>
+
+        <fieldset class="rail__grp rail__lane">
+          <legend class="rail__label">Which records</legend>
+          <label class="rail__radio">
+            <input type="radio" name="lane" value="market" checked data-f-lane />
+            <span><strong>{LANE_LABEL.market}</strong> <em>default</em></span>
+          </label>
+          <label class="rail__radio">
+            <input type="radio" name="lane" value="prospect" data-f-lane />
+            <span><strong>{LANE_LABEL.prospect}</strong></span>
+          </label>
+          <label class="rail__radio">
+            <input type="radio" name="lane" value="both" data-f-lane />
+            <span>Both, kept separate</span>
+          </label>
+          <p class="rail__help">
+            A parcel record says a property exists. It does not say it is for sale.
+          </p>
+        </fieldset>
+
+        <div class="rail__grp">
+          <label class="rail__label" for="f-state">State</label>
+          <select id="f-state" class="rail__select" data-f-state>
+            <option value="all">All states</option>
+            {stateList.map((s) => <option value={s}>{s}</option>)}
+          </select>
+        </div>
+
+        <div class="rail__grp">
+          <label class="rail__label" for="f-county">County</label>
+          <select id="f-county" class="rail__select" data-f-county>
+            <option value="all">All {counties.length} counties</option>
+            {
+              counties.map((c) => (
+                <option value={c.fips} data-tier={c.tier} data-state={c.state}>
+                  {c.county}, {c.state} — {c.tier} ({c.rows})
+                </option>
+              ))
+            }
+          </select>
+          <p class="rail__help">
+            Every tracked county is listed, including the ones with nothing in them — a county
+            missing from a list is indistinguishable from a county with nothing in it, and those
+            are not the same fact.
+          </p>
+        </div>
+
+        <div class="rail__grp">
+          <label class="rail__label" for="f-use">Parcel use</label>
+          <select id="f-use" class="rail__select" data-f-use>
+            <option value="all">Any use</option>
+            {uses.map((u) => <option value={u}>{u}</option>)}
+          </select>
+        </div>
+
+        <div class="rail__grp">
+          <label class="rail__label" for="f-score">Minimum score <span class="num" data-out-score>0</span></label>
+          <input id="f-score" type="range" min="0" max="100" step="5" value="0" class="rail__range" data-f-score />
+        </div>
+
+        <div class="rail__grp">
+          <label class="rail__label" for="f-acres">Minimum acreage <span class="num" data-out-acres>any</span></label>
+          <input id="f-acres" type="range" min="0" max="150" step="5" value="0" class="rail__range" data-f-acres />
+          <p class="rail__help">
+            Parcels with <strong>unknown</strong> acreage are kept unless you move this off zero —
+            an unknown is not a small parcel.
+          </p>
+        </div>
+
+        <div class="rail__grp">
+          <label class="rail__label" for="f-price">Maximum price <span class="num" data-out-price>any</span></label>
+          <input id="f-price" type="range" min="0" max="300000" step="5000" value="0" class="rail__range" data-f-price />
+        </div>
+
+        <fieldset class="rail__grp">
+          <legend class="rail__label">Signals</legend>
+          <div class="rail__chips">
+            <button class="chip" type="button" data-f-toggle="water" aria-pressed="false">Water on parcel</button>
+            <button class="chip" type="button" data-f-toggle="distress" aria-pressed="false">Distress only</button>
+            <button class="chip" type="button" data-f-toggle="land" aria-pressed="false">Land only</button>
+            <button class="chip" type="button" data-f-toggle="noflood" aria-pressed="false">Exclude floodplain</button>
+          </div>
+          <p class="rail__help">
+            “Exclude floodplain” drops parcels known to be IN one. Parcels whose flood zone is
+            <em>unknown</em> are kept and stay labelled unknown — dropping them would quietly turn a
+            gap in our data into a claim about the property.
+          </p>
+        </fieldset>
+
+        <button class="btn btn--ghost btn--sm rail__clear" type="button" data-f-clear>Clear all filters</button>
+      </div>
+    </aside>
+
+    <!-- ================= MAP ================= -->
+    <div class="dash__map">
+      <DealMap />
+    </div>
+
+    <!-- ================= RESULTS ================= -->
+    <section class="dash__results" aria-label="Results">
+      <div class="res__head">
+        <CoverageStrip />
+        <p class="res__count" data-count>
+          Showing <strong class="num" data-shown>{market.length}</strong> of
+          <strong class="num">{market.length}</strong> on-market records
+        </p>
+      </div>
+
+      <!-- LANE 1 — default, expanded, the only thing you see unless you ask. -->
+      <section class="lane lane--market" data-lane-section="market" aria-labelledby="lane1-h">
+        <h2 class="lane__h" id="lane1-h">
+          {LANE_LABEL.market}
+          <span class="lane__n num" data-lane-count="market">{market.length}</span>
+        </h2>
+        <p class="lane__blurb">{LANE_BLURB.market}</p>
+        <ul class="res__list" data-list="market">
+          {market.map((l) => <DealCard l={l} />)}
+        </ul>
+        <div data-dir-empty="market" hidden>
+          <EmptyState tier="rich" filtered lane="market" />
+        </div>
+      </section>
+
+      <!-- LANE 2 — <details>, so it is CLOSED with no JS at all. The honesty
+           requirement must not depend on a script running. -->
+      <details class="lane lane--prospect" data-lane-section="prospect">
+        <summary class="lane__sum">
+          <span class="lane__sum-t">{LANE_LABEL.prospect}</span>
+          <span class="lane__n num" data-lane-count="prospect">{prospect.length}</span>
+        </summary>
+        <div class="callout callout--lane2 lane__warn">
+          <p>
+            <strong>These are not listings.</strong> {LANE_BLURB.prospect}
+          </p>
+        </div>
+        <ul class="res__list" data-list="prospect">
+          {prospect.map((l) => <DealCard l={l} />)}
+        </ul>
+        <div data-dir-empty="prospect" hidden>
+          <EmptyState tier="rich" filtered lane="prospect" />
+        </div>
+      </details>
+
+      <p class="res__foot">
+        Every row links to its primary source. Confirm against the deed, the survey and the county
+        before acting on anything here. <a href={withBase('/status/')}>Data status →</a>
+      </p>
+    </section>
+
+    <!-- Mobile-only: map and list are mutually exclusive below 860px. -->
+    <div class="dash__seg" role="group" aria-label="Switch between map and list" data-js-only>
+      <button type="button" data-view-btn="map" aria-pressed="true">Map</button>
+      <button type="button" data-view-btn="list" aria-pressed="false">List</button>
+    </div>
+  </div>
+
+  <script is:inline type="application/json" id="brdf-coverage" set:html={JSON.stringify(coverageLite)}></script>
+</BaseLayout>
+
+<script>
+  import { emptyCopy } from '../lib/empty-copy';
+  import type { CoverageTier } from '../lib/types';
+
+  (() => {
+    const dash = document.querySelector<HTMLElement>('[data-dash]');
+    if (!dash) return;
+
+    const covEl = document.getElementById('brdf-coverage');
+    const coverage: Array<{ fips: string; county: string; state: string; tier: CoverageTier }> =
+      covEl ? JSON.parse(covEl.textContent || '[]') : [];
+    const covByFips = new Map(coverage.map((c) => [c.fips, c]));
+
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-card]'));
+    const shownEl = document.querySelector<HTMLElement>('[data-shown]');
+    const countEl = document.querySelector<HTMLElement>('[data-count]');
+    const laneCount = {
+      market: document.querySelector<HTMLElement>('[data-lane-count="market"]'),
+      prospect: document.querySelector<HTMLElement>('[data-lane-count="prospect"]'),
+    };
+    const laneSection = {
+      market: document.querySelector<HTMLElement>('[data-lane-section="market"]'),
+      prospect: document.querySelector<HTMLDetailsElement>('[data-lane-section="prospect"]'),
+    };
+    const emptyBox = {
+      market: document.querySelector<HTMLElement>('[data-dir-empty="market"]'),
+      prospect: document.querySelector<HTMLElement>('[data-dir-empty="prospect"]'),
+    };
+
+    // ---- THE ONE PREDICATE -------------------------------------------------
+    // Everything — the map, both lists, every count, the empty states — is
+    // derived from this object and nothing else.
+    const filters = {
+      q: '',
+      lane: 'market' as 'market' | 'prospect' | 'both',
+      state: 'all',
+      county: 'all',
+      use: 'all',
+      minScore: 0,
+      minAcres: 0,
+      maxPrice: 0, // 0 == no cap
+      water: false,
+      distress: false,
+      land: false,
+      noflood: false,
+    };
+
+    const LAND_USES = new Set(['Vacant land', 'Timber', 'Agricultural']);
+
+    /** Structural facets only — free text is applied separately so typing never
+     *  collapses the facet lists. Lane is applied by the caller, because lane
+     *  PARTITIONS rather than filters. */
+    function facetMatch(d: DOMStringMap): boolean {
+      if (filters.state !== 'all' && d.state !== filters.state) return false;
+      if (filters.county !== 'all' && d.fips !== filters.county) return false;
+      if (filters.use !== 'all' && d.use !== filters.use) return false;
+      if (Number(d.score || '0') < filters.minScore) return false;
+
+      // UNKNOWN acreage passes at minAcres 0 and is excluded above it. An
+      // unknown is not a small parcel, and it is not a large one either — the
+      // only honest behaviour is to stop claiming once the reader asks for a
+      // size, and to say so in the rail (it is said, in .rail__help).
+      if (filters.minAcres > 0) {
+        if (d.acres === '') return false;
+        if (Number(d.acres) < filters.minAcres) return false;
+      }
+
+      // A price cap cannot exclude a row with no price — "no asking price" is
+      // not "expensive".
+      if (filters.maxPrice > 0 && d.price !== '' && Number(d.price) > filters.maxPrice) return false;
+
+      if (filters.water && d.water !== 'true') return false;
+      if (filters.land && !LAND_USES.has(d.use || '')) return false;
+      // Drops only parcels KNOWN to be in a floodplain. `unknown` survives and
+      // keeps its label; dropping it would turn a gap in our data into a claim
+      // about the property.
+      if (filters.noflood && d.flood === 'true') return false;
+      if (filters.distress && d.lane !== 'market') return false;
+      return true;
+    }
+
+    function matches(d: DOMStringMap): boolean {
+      if (!facetMatch(d)) return false;
+      if (filters.q === '') return true;
+      return (d.search || '').includes(filters.q);
+    }
+
+    let fitTimer: number | undefined;
+
+    function applyFilter(fitNow: boolean) {
+      const visibleIds: string[] = [];
+      const perLane = { market: 0, prospect: 0 };
+
+      for (const card of cards) {
+        const d = card.dataset;
+        const lane = (d.lane === 'prospect' ? 'prospect' : 'market') as 'market' | 'prospect';
+        const laneAllowed = filters.lane === 'both' || filters.lane === lane;
+        const ok = laneAllowed && matches(d);
+        card.hidden = !ok;
+        if (ok) {
+          perLane[lane] += 1;
+          if (d.id) visibleIds.push(d.id);
+        }
+      }
+
+      // Lane 2 stays collapsed unless the reader explicitly asked for it. It is
+      // never opened as a side effect of a filter.
+      if (laneSection.market) laneSection.market.hidden = filters.lane === 'prospect';
+      if (laneSection.prospect) {
+        laneSection.prospect.hidden = false;
+        if (filters.lane === 'market') laneSection.prospect.open = false;
+        else laneSection.prospect.open = true;
+      }
+
+      laneCount.market && (laneCount.market.textContent = String(perLane.market));
+      laneCount.prospect && (laneCount.prospect.textContent = String(perLane.prospect));
+      shownEl && (shownEl.textContent = String(perLane.market + perLane.prospect));
+      if (countEl) {
+        const noun =
+          filters.lane === 'market'
+            ? 'on-market records'
+            : filters.lane === 'prospect'
+              ? 'prospecting records'
+              : 'records, both lanes';
+        countEl.innerHTML = `Showing <strong class="num">${perLane.market + perLane.prospect}</strong> ${noun}`;
+      }
+
+      paintEmpty('market', perLane.market);
+      paintEmpty('prospect', perLane.prospect);
+
+      // Map and list move together, from the same array, in the same tick.
+      window.dispatchEvent(
+        new CustomEvent('brdf:filtered', { detail: { ids: visibleIds, fit: fitNow } }),
+      );
+    }
+
+    /** The empty state is keyed off the SELECTED COUNTY'S TIER, never off the
+     *  row count — a row count cannot tell "covered and quiet" from "we cannot
+     *  see this county", and conflating them is the exact bug this exists to
+     *  prevent. Copy comes from the same module the server-rendered state uses. */
+    function paintEmpty(lane: 'market' | 'prospect', n: number) {
+      const box = emptyBox[lane];
+      if (!box) return;
+      if (n > 0) {
+        box.hidden = true;
+        return;
+      }
+      const cov = filters.county === 'all' ? undefined : covByFips.get(filters.county);
+      const anyFilter =
+        filters.q !== '' || filters.use !== 'all' || filters.minScore > 0 ||
+        filters.minAcres > 0 || filters.maxPrice > 0 || filters.water ||
+        filters.distress || filters.land || filters.noflood;
+
+      const c = emptyCopy({
+        tier: filters.county === 'all' ? 'rich' : cov?.tier,
+        county: cov?.county,
+        state: cov?.state,
+        // With no county picked we cannot make a coverage claim, so the only
+        // honest reading of zero rows is "your filters did this".
+        filtered: filters.county === 'all' ? true : anyFilter,
+        lane,
+      });
+
+      box.hidden = false;
+      const el = box.querySelector<HTMLElement>('.empty');
+      if (!el) return;
+      el.className = `empty empty--${c.tierKey}`;
+      el.dataset.emptyTier = c.tierKey;
+      const h = el.querySelector('h3');
+      const p = el.querySelector('p');
+      if (h) h.textContent = c.heading;
+      if (p) p.textContent = c.body;
+      const more = el.querySelector<HTMLElement>('.empty__more');
+      if (more) more.hidden = !c.showStatusLink;
+    }
+
+    // ---- Wiring ------------------------------------------------------------
+    const q = document.querySelector<HTMLInputElement>('[data-f-q]');
+    q?.addEventListener('input', () => {
+      filters.q = q.value.trim().toLowerCase();
+      window.clearTimeout(fitTimer);
+      // Debounced for text (the reference's ~350 ms), immediate for controls.
+      fitTimer = window.setTimeout(() => applyFilter(true), 350);
+      applyFilter(false);
+    });
+
+    for (const r of document.querySelectorAll<HTMLInputElement>('[data-f-lane]')) {
+      r.addEventListener('change', () => {
+        if (!r.checked) return;
+        filters.lane = r.value as typeof filters.lane;
+        applyFilter(true);
+      });
+    }
+
+    const stateSel = document.querySelector<HTMLSelectElement>('[data-f-state]');
+    const countySel = document.querySelector<HTMLSelectElement>('[data-f-county]');
+    stateSel?.addEventListener('change', () => {
+      filters.state = stateSel.value;
+      // Narrow the county list to the chosen state, and drop a county selection
+      // that the new state cannot contain.
+      if (countySel) {
+        for (const opt of Array.from(countySel.options)) {
+          if (opt.value === 'all') continue;
+          opt.hidden = filters.state !== 'all' && opt.dataset.state !== filters.state;
+        }
+        const cur = countySel.selectedOptions[0];
+        if (cur && cur.hidden) {
+          countySel.value = 'all';
+          filters.county = 'all';
+        }
+      }
+      applyFilter(true);
+    });
+    countySel?.addEventListener('change', () => {
+      filters.county = countySel.value;
+      applyFilter(true);
+    });
+
+    const useSel = document.querySelector<HTMLSelectElement>('[data-f-use]');
+    useSel?.addEventListener('change', () => {
+      filters.use = useSel.value;
+      applyFilter(true);
+    });
+
+    function bindRange(
+      sel: string,
+      out: string,
+      set: (n: number) => void,
+      fmt: (n: number) => string,
+    ) {
+      const el = document.querySelector<HTMLInputElement>(sel);
+      const o = document.querySelector<HTMLElement>(out);
+      el?.addEventListener('input', () => {
+        const n = Number(el.value);
+        set(n);
+        if (o) o.textContent = fmt(n);
+        applyFilter(false);
+        window.clearTimeout(fitTimer);
+        fitTimer = window.setTimeout(() => applyFilter(true), 300);
+      });
+    }
+    bindRange('[data-f-score]', '[data-out-score]', (n) => (filters.minScore = n), String);
+    bindRange('[data-f-acres]', '[data-out-acres]', (n) => (filters.minAcres = n), (n) =>
+      n === 0 ? 'any' : `${n} ac`,
+    );
+    bindRange('[data-f-price]', '[data-out-price]', (n) => (filters.maxPrice = n), (n) =>
+      n === 0 ? 'any' : `$${(n / 1000).toFixed(0)}k`,
+    );
+
+    for (const b of document.querySelectorAll<HTMLButtonElement>('[data-f-toggle]')) {
+      b.addEventListener('click', () => {
+        const key = b.dataset.fToggle as 'water' | 'distress' | 'land' | 'noflood';
+        filters[key] = !filters[key];
+        b.setAttribute('aria-pressed', String(filters[key]));
+        applyFilter(true);
+      });
+    }
+
+    document.querySelector<HTMLButtonElement>('[data-f-clear]')?.addEventListener('click', () => {
+      filters.q = '';
+      filters.lane = 'market';
+      filters.state = 'all';
+      filters.county = 'all';
+      filters.use = 'all';
+      filters.minScore = 0;
+      filters.minAcres = 0;
+      filters.maxPrice = 0;
+      filters.water = filters.distress = filters.land = filters.noflood = false;
+      if (q) q.value = '';
+      if (stateSel) stateSel.value = 'all';
+      if (countySel) {
+        countySel.value = 'all';
+        for (const opt of Array.from(countySel.options)) opt.hidden = false;
+      }
+      if (useSel) useSel.value = 'all';
+      for (const r of document.querySelectorAll<HTMLInputElement>('[data-f-lane]')) {
+        r.checked = r.value === 'market';
+      }
+      for (const el of document.querySelectorAll<HTMLInputElement>('.rail__range')) el.value = '0';
+      const outs: Array<[string, string]> = [
+        ['[data-out-score]', '0'],
+        ['[data-out-acres]', 'any'],
+        ['[data-out-price]', 'any'],
+      ];
+      for (const [s, v] of outs) {
+        const o = document.querySelector<HTMLElement>(s);
+        if (o) o.textContent = v;
+      }
+      for (const b of document.querySelectorAll<HTMLButtonElement>('[data-f-toggle]')) {
+        b.setAttribute('aria-pressed', 'false');
+      }
+      applyFilter(true);
+    });
+
+    // ---- Deep-link contract ------------------------------------------------
+    // ?lane=&county=&state=&use=&water=&deal= parsed ONCE at script load and
+    // applied before the map finishes loading, so a bookmarked filtered view
+    // survives a tile-provider outage.
+    (() => {
+      const p = new URLSearchParams(location.search);
+      const lane = p.get('lane');
+      if (lane === 'prospect' || lane === 'both' || lane === 'market') {
+        filters.lane = lane;
+        const r = document.querySelector<HTMLInputElement>(`[data-f-lane][value="${lane}"]`);
+        if (r) r.checked = true;
+      }
+      const st = p.get('state');
+      if (st && stateSel) {
+        stateSel.value = st;
+        filters.state = st;
+      }
+      const cty = p.get('county');
+      if (cty && countySel) {
+        countySel.value = cty;
+        filters.county = cty;
+      }
+      const use = p.get('use');
+      if (use && useSel) {
+        useSel.value = use;
+        filters.use = use;
+      }
+      if (p.get('water') === '1') {
+        filters.water = true;
+        document.querySelector('[data-f-toggle="water"]')?.setAttribute('aria-pressed', 'true');
+      }
+    })();
+
+    // A clicked map pin scrolls its card into view and highlights it, rather
+    // than opening a popup that duplicates the card's content.
+    window.addEventListener('brdf:pinclick', (e) => {
+      const id = (e as CustomEvent<{ id: string }>).detail?.id;
+      if (!id) return;
+      const card = cards.find((c) => c.dataset.id === id);
+      if (!card) return;
+      if (card.dataset.lane === 'prospect' && laneSection.prospect) laneSection.prospect.open = true;
+      card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      card.classList.add('is-focused');
+      window.setTimeout(() => card.classList.remove('is-focused'), 2200);
+    });
+
+    // Mobile Map|List segmented control.
+    for (const b of document.querySelectorAll<HTMLButtonElement>('[data-view-btn]')) {
+      b.addEventListener('click', () => {
+        const v = b.dataset.viewBtn || 'map';
+        dash.dataset.view = v;
+        for (const o of document.querySelectorAll<HTMLButtonElement>('[data-view-btn]')) {
+          o.setAttribute('aria-pressed', String(o.dataset.viewBtn === v));
+        }
+      });
+    }
+
+    applyFilter(false);
+  })();
+</script>
+
+<style>
+  .dash {
+    display: grid;
+    grid-template-columns: var(--rail-w) minmax(0, 1fr) var(--results-w);
+    grid-template-areas: 'rail map results';
+    height: calc(100dvh - var(--nav-h));
+  }
+  .dash__rail {
+    grid-area: rail;
+    overflow-y: auto;
+    border-right: var(--hairline) solid var(--rule);
+    background: var(--surface);
+  }
+  .rail__in {
+    padding: var(--space-s);
+    display: grid;
+    gap: var(--space-m);
+  }
+  .rail__grp {
+    display: grid;
+    gap: 0.35rem;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  .rail__label {
+    font-family: var(--font-ui);
+    font-size: var(--rail-label);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    color: var(--ink-soft);
+    padding: 0;
+  }
+  .rail__input,
+  .rail__select {
+    width: 100%;
+    font-family: var(--font-ui);
+    font-size: var(--control-font);
+    padding: 0.45em 0.6em;
+    border-radius: var(--radius-s);
+    border: var(--hairline) solid var(--rule);
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .rail__range {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+  .rail__radio {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45em;
+    font-family: var(--font-ui);
+    font-size: var(--rail-chip);
+    line-height: 1.3;
+    cursor: pointer;
+    padding: 0.2rem 0;
+  }
+  .rail__radio input {
+    margin-top: 0.15em;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+  }
+  .rail__radio strong {
+    font-weight: 700;
+  }
+  .rail__radio em {
+    font-style: normal;
+    font-size: var(--rail-meta);
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .rail__lane {
+    border: var(--hairline) solid var(--rule);
+    border-radius: var(--radius-s);
+    padding: var(--space-2xs) var(--space-xs) var(--space-xs);
+    background: var(--bg);
+  }
+  .rail__help {
+    font-family: var(--font-ui);
+    font-size: var(--rail-help);
+    color: var(--ink-soft);
+    line-height: 1.4;
+    max-width: none;
+  }
+  .rail__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+  .rail__clear {
+    justify-self: start;
+  }
+
+  .dash__map {
+    grid-area: map;
+    position: relative;
+    min-width: 0;
+  }
+
+  .dash__results {
+    grid-area: results;
+    overflow-y: auto;
+    border-left: var(--hairline) solid var(--rule);
+    background: var(--bg);
+    padding: var(--space-s);
+    display: grid;
+    gap: var(--space-m);
+    align-content: start;
+  }
+  .res__head {
+    display: grid;
+    gap: 0.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: var(--bg);
+    /* Pull up through the column's own padding so the strip meets the top edge
+       when it sticks, instead of leaving a band of scrolling content above it. */
+    margin-top: calc(var(--space-s) * -1);
+    padding-block: var(--space-s) var(--space-2xs);
+  }
+  .res__count {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    max-width: none;
+  }
+  .res__count strong {
+    color: var(--ink);
+  }
+  .lane {
+    display: grid;
+    gap: var(--space-2xs);
+  }
+  .lane__h,
+  .lane__sum-t {
+    font-family: var(--font-ui);
+    font-size: var(--step-0);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .lane__h {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-left: 3px solid var(--lane-market);
+    padding-left: 0.5rem;
+  }
+  .lane__n {
+    font-size: var(--step--2);
+    background: var(--band);
+    color: var(--ink-soft);
+    border-radius: 999px;
+    padding: 0.1em 0.55em;
+  }
+  .lane__blurb {
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    max-width: none;
+    padding-left: 0.6rem;
+  }
+  .lane--prospect {
+    border: var(--hairline) solid var(--rule);
+    border-left: 3px solid var(--lane-prospect);
+    border-radius: var(--radius-s);
+    padding: var(--space-xs);
+    background: var(--surface);
+  }
+  .lane__sum {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+  }
+  .lane__sum::-webkit-details-marker {
+    display: none;
+  }
+  .lane__sum::before {
+    content: '▸';
+    color: var(--lane-prospect);
+    transition: transform var(--dur-fast) var(--ease-soft);
+  }
+  .lane--prospect[open] .lane__sum::before {
+    transform: rotate(90deg);
+  }
+  .lane__warn {
+    margin-block: var(--space-2xs);
+  }
+  .res__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-s);
+  }
+  .res__foot {
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    max-width: none;
+    border-top: var(--hairline) solid var(--rule);
+    padding-top: var(--space-xs);
+  }
+  .res__foot a {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .dash__seg {
+    display: none;
+  }
+
+  /* ≤1080px — the reference's collapse: filters full-width on top, map and
+     results side by side beneath. */
+  @media (max-width: 1080px) {
+    .dash {
+      grid-template-columns: minmax(0, 1fr) var(--results-w);
+      grid-template-areas: 'rail rail' 'map results';
+      grid-template-rows: auto minmax(0, 1fr);
+      height: auto;
+      min-height: calc(100dvh - var(--nav-h));
+    }
+    .dash__rail {
+      border-right: 0;
+      border-bottom: var(--hairline) solid var(--rule);
+      max-height: 40vh;
+    }
+    .rail__in {
+      grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+      align-items: start;
+    }
+    .dash__map {
+      min-height: 60vh;
+    }
+  }
+
+  /* ≤860px — map and list become mutually exclusive. Showing both on a phone
+     means showing neither. */
+  @media (max-width: 860px) {
+    .dash {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'rail' 'map' 'results';
+      grid-template-rows: auto auto auto;
+    }
+    .dash__results {
+      border-left: 0;
+    }
+    .dash[data-view='map'] .dash__results {
+      display: none;
+    }
+    .dash[data-view='list'] .dash__map {
+      display: none;
+    }
+    .dash__seg {
+      display: flex;
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(0.8rem + env(safe-area-inset-bottom, 0px));
+      z-index: 70;
+      gap: 0;
+      border-radius: 999px;
+      overflow: hidden;
+      border: var(--hairline) solid var(--rule);
+      background: var(--surface);
+      box-shadow: var(--shadow-l);
+    }
+    .dash__seg button {
+      border: 0;
+      background: transparent;
+      color: var(--ink-soft);
+      font-family: var(--font-ui);
+      font-size: var(--step--1);
+      font-weight: 700;
+      min-height: 40px;
+      padding: 0 1.1em;
+      cursor: pointer;
+    }
+    .dash__seg button[aria-pressed='true'] {
+      background: var(--accent);
+      color: var(--accent-on);
+    }
+  }
+</style>
+
+<style is:global>
+  .dcard.is-focused {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+</style>

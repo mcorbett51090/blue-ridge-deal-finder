@@ -1,0 +1,85 @@
+---
+/**
+ * Per-property "Watch" toggle. Ported from SWC's TripButton.astro (claims-D
+ * claim 41), including the two things that make it correct:
+ *
+ *  • It server-renders `hidden` and is revealed by its OWN script. With JS off
+ *    no dead-looking button appears at all — progressive enhancement, not a
+ *    decoration that lies.
+ *  • ALL FOUR toggle() return states are handled distinctly. Collapsing
+ *    'failed' into 'removed' is a documented past bug in the reference: the user
+ *    is told the property was removed when in fact the device refused the write.
+ */
+interface Props {
+  id: string;
+  county: string;
+  state: string;
+  score: number;
+  variant?: 'full' | 'compact';
+}
+const { id, county, state, score, variant = 'compact' } = Astro.props;
+---
+
+<button
+  class={`wbtn wbtn--${variant}`}
+  type="button"
+  hidden
+  data-watch-btn
+  data-id={id}
+  data-county={county}
+  data-state-code={state}
+  data-score={String(score)}
+  aria-pressed="false"
+>
+  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+    <path
+      d="M12 21s-7.5-4.7-9.3-9A5.4 5.4 0 0 1 12 6.6 5.4 5.4 0 0 1 21.3 12c-1.8 4.3-9.3 9-9.3 9z"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linejoin="round"></path>
+  </svg>
+  <span class="wbtn__txt">Watch</span>
+</button>
+
+<style>
+  .wbtn[hidden] {
+    display: none;
+  }
+  .wbtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35em;
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    font-weight: 600;
+    min-height: 34px;
+    padding: 0.3em 0.7em;
+    border-radius: var(--radius-s);
+    border: var(--hairline) solid var(--rule);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    transition:
+      background var(--dur-fast) var(--ease-soft),
+      border-color var(--dur-fast) var(--ease-soft),
+      color var(--dur-fast) var(--ease-soft);
+  }
+  .wbtn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .wbtn[aria-pressed='true'] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-on);
+  }
+  .wbtn[aria-pressed='true'] svg path {
+    fill: currentColor;
+  }
+  .wbtn--full {
+    min-height: 44px;
+    padding: 0.6em 1.1em;
+  }
+</style>

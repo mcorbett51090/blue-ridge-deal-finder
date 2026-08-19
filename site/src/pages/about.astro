@@ -1,0 +1,126 @@
+---
+/**
+ * /about/ — who is fetching what, at what rate, and how to make it stop.
+ *
+ * The escalation path named here is deliberately the one that does NOT destroy
+ * the data: an email or an issue, answered in a commit. If the cheapest thing an
+ * annoyed county admin can do is file a GitHub abuse report or block the whole
+ * IP range, that is what will happen, and everything already collected becomes
+ * unmaintainable. Making the low-friction path the constructive one is the
+ * control.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../config/site';
+import { coverageSummary } from '../lib/deals';
+import { withBase } from '../lib/nav';
+
+const sum = coverageSummary();
+---
+
+<BaseLayout
+  title="About"
+  description="What this project collects, how, and how to ask it to stop."
+  path="/about/"
+  prose
+>
+  <div class="page wrap">
+    <header class="page__head">
+      <p class="eyebrow">About</p>
+      <h1>What this is, and what it is not</h1>
+      <p class="page__lead">
+        A research tool over public property records in {sum.total} Blue Ridge counties across North
+        Carolina, Tennessee, Virginia, Georgia and South Carolina.
+      </p>
+    </header>
+
+    <h2>It is not a listing service</h2>
+    <p>
+      Most of what is here is a <strong>parcel record</strong>. A parcel record says a property
+      exists and describes it. It does not say the property is for sale, and it certainly does not
+      mean its owner wants to hear from you. That is why the interface has two lanes that are never
+      mixed: <em>On market / in distress</em>, where a dated and linked piece of evidence exists,
+      and <em>Prospecting — not known to be for sale</em>, which ships collapsed and labelled in
+      full everywhere it appears.
+    </p>
+
+    <h2>No owner names</h2>
+    <p>
+      Owner names are stripped before anything is published. The site shows only booleans —
+      out-of-state owner, entity-owned — and an integer for years since the last recorded transfer.
+      There is no name in this site, in the published payload, or in the repository, and a build
+      gate re-checks the built output for one on every deploy rather than trusting that a type
+      prevented it.
+    </p>
+
+    <h2>Unknown is not zero</h2>
+    <p>
+      A missing assessed value renders as <span class="unk">unknown</span>, never as $0. A missing
+      acreage renders as <span class="unk">unknown</span>, never as 0 ac. In the score, an unknown
+      signal is excluded from the denominator rather than scored zero — because "we could not see
+      it" and "it is bad" are different facts, and flattening them would confidently rank the
+      counties we cannot see below the counties we can, which is exactly backwards.
+    </p>
+
+    <h2>Coverage is stated, not implied</h2>
+    <p>
+      Every county carries a tier: <strong>rich</strong>, <strong>partial</strong>,
+      <strong>thin</strong> or <strong>notices-only</strong>. An empty result in a rich county means
+      we looked and found nothing. An empty result in a notices-only county means no parcel data
+      source exists there and we cannot see it at all. The interface never renders those two the
+      same way. <a href={withBase('/status/')}>The per-county table is here.</a>
+    </p>
+
+    <h2>The crawler</h2>
+    <ul class="about__facts">
+      <li><strong>User agent:</strong> <code>{site.crawlerUA}</code></li>
+      <li><strong>Rate:</strong> one request at a time per host, with a delay between requests, and it honours <code>robots.txt</code> and <code>Crawl-delay</code>.</li>
+      <li><strong>What it fetches:</strong> published parcel/assessment layers and public sale and foreclosure notices. Nothing behind a login, nothing behind a paywall, no form submissions.</li>
+      <li><strong>Purpose:</strong> one person evaluating land to buy.</li>
+    </ul>
+
+    <h2>How to make it stop</h2>
+    <div class="callout">
+      <p>
+        Email <a href={`mailto:${site.contact}`}>{site.contact}</a> or open an issue on the
+        repository. Naming a host stops all fetching of it in the next commit — a <code>PAUSE</code>
+        file in the repo stops <em>all</em> egress within one commit. You do not need to block
+        anything or file anything for this to work, and asking is faster than either.
+      </p>
+    </div>
+
+    <h2>Search engines</h2>
+    <p>
+      This site sends <code>noindex, nofollow</code> on every page and <code>Disallow: /</code> in
+      robots.txt. It has no SEO goal, and a search-result page for someone's tax foreclosure is a
+      harm with no upside here. Be clear about the limit, though: that is hygiene, not access
+      control. A public Pages site has none.
+    </p>
+
+    <h2>Do not act on this alone</h2>
+    <p>
+      Everything here is derived from a public record by an automated process, and every row links
+      to its source so you can check it. Acreage marked GIS-derived is measured from a published
+      polygon and is not a survey. Assessed values have a vintage and some counties reappraise on a
+      cycle that will move them. Confirm against the deed, the survey, the plat and the county
+      before spending money.
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .about__facts {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    display: grid;
+    gap: 0.4rem;
+    padding-left: 1.1rem;
+    max-width: 72ch;
+  }
+  code {
+    font-size: 0.92em;
+  }
+  h2 {
+    margin-top: var(--space-l);
+    margin-bottom: var(--space-2xs);
+  }
+</style>

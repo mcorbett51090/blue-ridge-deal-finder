@@ -1,0 +1,93 @@
+---
+/**
+ * The tier-aware empty state — the copy is one line and it is load-bearing.
+ *
+ * "No deals match your filters right now" makes an UNCOVERED county look
+ * identical to a covered-but-quiet one. Those are opposite facts:
+ *
+ *   • Watauga is `rich`. Zero rows there means we looked and found nothing.
+ *   • Fannin is `notices-only`. Zero rows there means qPublic blocks us and no
+ *     parcel data source exists. It is not quiet; it is invisible.
+ *
+ * The copy itself lives in src/lib/empty-copy.ts, shared verbatim with the
+ * client-side filter rail, so the server-rendered and the filtered-to-zero
+ * states cannot drift apart.
+ */
+import type { CoverageTier } from '../lib/types';
+import { emptyCopy } from '../lib/empty-copy';
+import { withBase } from '../lib/nav';
+
+interface Props {
+  tier?: CoverageTier | undefined;
+  county?: string | undefined;
+  state?: string | undefined;
+  filtered?: boolean;
+  lane?: 'market' | 'prospect';
+}
+const { tier, county, state, filtered = false, lane = 'market' } = Astro.props;
+const c = emptyCopy({ tier, county, state, filtered, lane });
+---
+
+<div class={`empty empty--${c.tierKey}`} data-empty-tier={c.tierKey}>
+  <h3>{c.heading}</h3>
+  <p>{c.body}</p>
+  {
+    c.showStatusLink && (
+      <p class="empty__more">
+        <a href={withBase('/status/')}>See per-county coverage and why →</a>
+      </p>
+    )
+  }
+</div>
+
+<style is:global>
+  .empty {
+    border: var(--hairline) dashed var(--rule);
+    border-radius: var(--radius-m);
+    padding: var(--space-m);
+    background: var(--surface);
+    font-family: var(--font-ui);
+  }
+  .empty h3 {
+    font-family: var(--font-ui);
+    font-size: var(--step-0);
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .empty p {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+  .empty__more {
+    margin-top: 0.5rem;
+  }
+  .empty__more a {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  /* An uncovered county's empty state is VISUALLY distinct from a covered one's
+     — the pixel-level half of the same requirement the copy carries. */
+  .empty--notices-only,
+  .empty--uncovered {
+    border-style: solid;
+    border-left: 3px solid var(--tier-notices);
+    background: repeating-linear-gradient(
+      135deg,
+      var(--surface),
+      var(--surface) 6px,
+      var(--band) 6px,
+      var(--band) 12px
+    );
+  }
+  .empty--thin {
+    border-style: solid;
+    border-left: 3px solid var(--tier-thin);
+  }
+  .empty--rich {
+    border-left: 3px solid var(--tier-rich);
+  }
+  .empty--partial {
+    border-left: 3px solid var(--tier-partial);
+  }
+</style>

@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/nav';
+---
+
+<BaseLayout title="Not found" description="That page does not exist." path="/404/" prose>
+  <div class="page wrap">
+    <header class="page__head">
+      <p class="eyebrow">404</p>
+      <h1>That page is not here</h1>
+      <p class="page__lead">
+        If you arrived from your watchlist, the most likely reason is that the record left the
+        published set on a later run — a weights change, or enough new records outranking it. Your
+        watchlist shows that state explicitly rather than linking you here; if it sent you here
+        anyway, that is a bug worth reporting.
+      </p>
+    </header>
+    <p>
+      <a class="btn btn--primary" href={withBase('/')}>Back to the map</a>
+      <a class="btn btn--ghost" href={withBase('/status/')}>Data status</a>
+    </p>
+  </div>
+</BaseLayout>

@@ -1,0 +1,315 @@
+---
+/**
+ * /status/ — the freshness and coverage surface.
+ *
+ * This page exists so the site LOOKS stale when it is stale, instead of quietly
+ * serving old data behind a healthy façade. Three things it states plainly:
+ *
+ *  1. Per-source last-success, last-attempt, row counts and state — including
+ *     sources that have NEVER run, which a dashboard that only lists successes
+ *     would silently omit.
+ *  2. All 37 counties with their tier and the reason for it. Every row, always,
+ *     including the ones with nothing in them.
+ *  3. The distinction between "we fetched recently" and "the data changed
+ *     recently", because only the second one is freshness.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { countyFacets, coverageSummary, status, TIER_LABEL, TIER_BLURB, byLane } from '../lib/deals';
+import { fmtDateTime } from '../lib/format';
+import { withBase } from '../lib/nav';
+import { site } from '../config/site';
+
+const counties = countyFacets();
+const sum = coverageSummary();
+const observed = fmtDateTime(status.data_observed_at);
+const lastRun = fmtDateTime(status.last_run_at);
+const built = fmtDateTime(status.built_at);
+const market = byLane('market').length;
+const prospect = byLane('prospect').length;
+
+const STATE_LABEL: Record<string, string> = {
+  ok: 'OK',
+  degraded: 'Degraded',
+  failed: 'Failed',
+  'never-run': 'Never run',
+};
+---
+
+<BaseLayout
+  title="Data status & coverage"
+  description="Per-source freshness, per-county coverage, and what an empty county actually means."
+  path="/status/"
+  prose
+>
+  <div class="page wrap">
+    <header class="page__head">
+      <p class="eyebrow">Status</p>
+      <h1>Data status &amp; coverage</h1>
+      <p class="page__lead">
+        What has run, when it last returned something new, and which counties we can and cannot see.
+      </p>
+    </header>
+
+    <section class="cards">
+      <div class="statcard">
+        <p class="statcard__k">Lane 1 data observed</p>
+        <p class="statcard__v" data-status-observed>
+          {observed.known ? observed.text : 'never'}
+        </p>
+        <p class="statcard__n">
+          The newest <code>observed_at</code> across published on-market rows — not the time the
+          pipeline last ran. A source serving a frozen snapshot for six months would look perfectly
+          fresh under that other measure.
+        </p>
+      </div>
+      <div class="statcard">
+        <p class="statcard__k">Pipeline last ran</p>
+        <p class="statcard__v">{lastRun.known ? lastRun.text : 'never'}</p>
+        <p class="statcard__n">
+          Shown beside the observation time, never instead of it. A successful run that changed
+          nothing is not freshness.
+        </p>
+      </div>
+      <div class="statcard">
+        <p class="statcard__k">Site built</p>
+        <p class="statcard__v">{built.known ? built.text : 'unknown'}</p>
+        <p class="statcard__n">
+          If this is old and the two above are older still, the deploy is what died — the freshness
+          badge in the header recomputes in your browser against the clock for exactly that case.
+        </p>
+      </div>
+      <div class="statcard">
+        <p class="statcard__k">Published rows</p>
+        <p class="statcard__v num">{market + prospect}</p>
+        <p class="statcard__n">
+          <strong class="num">{market}</strong> on-market / in-distress ·
+          <strong class="num">{prospect}</strong> prospecting. The two are never mixed.
+        </p>
+      </div>
+    </section>
+
+    <h2 class="section-head" id="sources">Sources</h2>
+    <p>
+      Lane 1 is measured against a <strong>{site.lane1FreshHours}-hour</strong> bar, because that is
+      the only data in the system that moves that fast. Lane 2 is county assessor data reported as
+      “assessed as of &lt;year&gt;, ingested &lt;date&gt;” — a 48-hour freshness bar is not a
+      meaningful property of it, and a badge that would be red five days out of seven by design is a
+      badge nobody reads.
+    </p>
+    <table class="tbl">
+      <caption>Every configured source, including the ones that have never run.</caption>
+      <thead>
+        <tr>
+          <th scope="col">Source</th>
+          <th scope="col">State</th>
+          <th scope="col">Last success</th>
+          <th scope="col" class="num">Rows</th>
+          <th scope="col">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          status.sources.map((s) => {
+            const ls = fmtDateTime(s.last_success);
+            return (
+              <tr>
+                <th scope="row">
+                  {s.label}
+                  <br />
+                  <code>{s.source_id}</code>
+                </th>
+                <td>
+                  <span class={`sstate sstate--${s.state}`}>{STATE_LABEL[s.state] ?? s.state}</span>
+                </td>
+                <td>{ls.known ? ls.text : <span class="unk" title="This source has never returned a successful response.">never</span>}</td>
+                <td class="num">{s.rows === null ? <span class="unk">unknown</span> : s.rows}</td>
+                <td>{s.note}</td>
+              </tr>
+            );
+          })
+        }
+      </tbody>
+    </table>
+
+    <h2 class="section-head" id="coverage">County coverage</h2>
+    <p>
+      <strong class="num">{sum.total}</strong> counties tracked:
+      <strong class="num">{sum.rich}</strong> rich, <strong class="num">{sum.partial}</strong>{' '}
+      partial, <strong class="num">{sum.thin}</strong> thin,
+      <strong class="num">{sum['notices-only']}</strong> notices-only. These four are real, separate
+      states — <em>partial</em> is not folded into <em>notices-only</em>, so a county that gains
+      boundaries but not values shows the difference the day it happens.
+    </p>
+    <dl class="tierdefs">
+      {
+        (['rich', 'partial', 'thin', 'notices-only'] as const).map((t) => (
+          <div>
+            <dt><span class={`tier tier--${t}`}>{TIER_LABEL[t]}</span></dt>
+            <dd>{TIER_BLURB[t]}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <table class="tbl">
+      <caption>
+        All {counties.length} counties. Row counts are what is published today; they are never used
+        to infer coverage — a covered county with nothing in it and an uncovered county both show
+        zero, and only the tier tells you which is which.
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">County</th>
+          <th scope="col">Region</th>
+          <th scope="col">Tier</th>
+          <th scope="col">Parcel source</th>
+          <th scope="col" class="num">Rows</th>
+          <th scope="col">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          counties.map((c) => (
+            <tr>
+              <th scope="row">
+                <a href={withBase(`/county/${c.fips}/`)}>
+                  {c.county}, {c.state}
+                </a>
+                <br />
+                <code>{c.fips}</code>
+              </th>
+              <td>{c.region}</td>
+              <td><span class={`tier tier--${c.tier}`}>{TIER_LABEL[c.tier]}</span></td>
+              <td>
+                {c.parcel_source ? (
+                  <code>{c.parcel_source}</code>
+                ) : (
+                  <span class="unk" title="No parcel data source has been found for this county.">none found</span>
+                )}
+              </td>
+              <td class="num">
+                {c.rows}
+                {c.rows > 0 && <span class="rowsplit"> ({c.marketRows}/{c.prospectRows})</span>}
+              </td>
+              <td>{c.note || '—'}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p class="fine">
+      Row counts are shown as total (on-market / prospecting).
+    </p>
+  </div>
+</BaseLayout>
+
+<script>
+  // The freshness verdict is a browser computation, here as well as in the
+  // header: a build cannot detect that it never ran.
+  (() => {
+    const el = document.querySelector<HTMLElement>('[data-status-observed]');
+    if (!el) return;
+    fetch(new URL('data/status.json', document.baseURI).href, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((j) => {
+        const iso = typeof j?.data_observed_at === 'string' ? j.data_observed_at : null;
+        if (!iso) {
+          el.textContent = 'never';
+          return;
+        }
+        const hours = Math.floor((Date.now() - new Date(iso).getTime()) / 3600000);
+        el.textContent = `${new Date(iso).toLocaleString()} — ${hours} h ago`;
+      })
+      .catch(() => {
+        el.textContent = 'status file unreachable — freshness unknown';
+      });
+  })();
+</script>
+
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--space-s);
+    margin-bottom: var(--space-l);
+  }
+  .statcard {
+    border: var(--hairline) solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--surface);
+    padding: var(--space-s);
+    font-family: var(--font-ui);
+  }
+  .statcard__k {
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    max-width: none;
+  }
+  .statcard__v {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    color: var(--ink);
+    margin-block: 0.15rem 0.3rem;
+    max-width: none;
+    overflow-wrap: anywhere;
+  }
+  .statcard__n {
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    line-height: 1.45;
+    max-width: none;
+  }
+  .sstate {
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding: 0.15em 0.5em;
+    border-radius: var(--radius-s);
+    border: var(--hairline) solid currentColor;
+    white-space: nowrap;
+  }
+  .sstate--ok { color: var(--tier-rich); }
+  .sstate--degraded { color: var(--tier-partial); }
+  .sstate--failed { color: var(--warn); }
+  .sstate--never-run { color: var(--tier-notices); }
+  .tierdefs {
+    display: grid;
+    gap: 0.5rem;
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    margin-block: var(--space-s);
+  }
+  .tierdefs > div {
+    display: grid;
+    grid-template-columns: minmax(9rem, auto) 1fr;
+    gap: 0.6rem;
+    align-items: baseline;
+  }
+  .tierdefs dd {
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .rowsplit {
+    color: var(--ink-soft);
+    font-size: var(--step--2);
+  }
+  .fine {
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    margin-top: var(--space-2xs);
+  }
+  code {
+    font-size: 0.9em;
+    color: var(--ink-soft);
+  }
+  @media (max-width: 700px) {
+    .tierdefs > div {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

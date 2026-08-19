@@ -1,0 +1,11 @@
+# Indexing here is the INVERSE of a normal directory site (plan §6.4).
+#
+# This site republishes distress signals about real people's real property. It
+# is not marketing, it has no SEO goal, and a search-result page for someone's
+# tax foreclosure is a harm this project has no reason to create.
+#
+# NOTE THE LIMIT, honestly: this is hygiene, not access control. A public Pages
+# site has no access control at all. robots.txt is a request that well-behaved
+# crawlers honour; it stops nobody else. Do not treat it as a security control.
+User-agent: *
+Disallow: /

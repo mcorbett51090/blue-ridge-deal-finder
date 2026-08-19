@@ -1,0 +1,470 @@
+---
+/**
+ * The property detail page. One per published record, all data resolved once in
+ * getStaticPaths with zero per-page work afterwards.
+ *
+ * Everything the card promises is expanded here: the full score table with each
+ * signal's reading, weight and contribution — and every UNKNOWN signal listed
+ * explicitly with its weight struck through, because the reader needs to see
+ * that it was excluded from the denominator rather than scored zero.
+ */
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ScoreMeter from '../../components/ScoreMeter.astro';
+import WatchButton from '../../components/WatchButton.astro';
+import { withBase } from '../../lib/nav';
+import {
+  sorted,
+  countyOf,
+  laneOf,
+  LANE_LABEL,
+  LANE_BLURB,
+  TIER_LABEL,
+  TIER_BLURB,
+  hasWater,
+  waterIsUnknown,
+  waterLabel,
+  inFloodplain,
+} from '../../lib/deals';
+import { fmtAcres, fmtDate, fmtDateTime, fmtDistance, fmtMoney, fmtPerAcre } from '../../lib/format';
+
+export const getStaticPaths = (() => {
+  return sorted.map((l) => ({
+    params: { id: l.id },
+    props: { l, county: countyOf(l.fips) },
+  }));
+}) satisfies GetStaticPaths;
+
+const { l, county } = Astro.props;
+const lane = laneOf(l);
+const ev = l.for_sale_evidence;
+const acres = fmtAcres(l.acres);
+const value = fmtMoney(l.assessed_value);
+const perAcre = fmtPerAcre(l.assessed_value, l.acres);
+const price = fmtMoney(l.price);
+const flood = inFloodplain(l);
+const waterDist = fmtDistance(l.water.distance_m);
+const firstSeen = fmtDate(l.first_seen);
+const lastSeen = fmtDate(l.last_seen);
+const observed = ev ? fmtDateTime(ev.observed_at) : null;
+const saleDate = ev ? fmtDate(ev.sale_date) : null;
+const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notice.') : null;
+---
+
+<BaseLayout
+  title={`${l.county} County ${l.state} · ${l.id}`}
+  description={`Record ${l.id} in ${l.county} County, ${l.state}. ${LANE_LABEL[lane]}.`}
+  path={`/deal/${l.id}/`}
+>
+  <div class="page wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href={withBase('/')}>Map</a></li>
+        <li><a href={withBase(`/county/${l.fips}/`)}>{l.county} County, {l.state}</a></li>
+        <li><span aria-current="page">{l.id}</span></li>
+      </ol>
+    </nav>
+
+    <header class="page__head">
+      <p class="eyebrow">Record {l.id}</p>
+      <h1>{l.county} County, {l.state}</h1>
+      <p class="d__badges">
+        <span class={`tag tag--lane-${lane}`}>{LANE_LABEL[lane]}</span>
+        {
+          county ? (
+            <a class={`tier tier--${county.tier}`} href={withBase(`/county/${county.fips}/`)}>
+              {TIER_LABEL[county.tier]}
+            </a>
+          ) : (
+            <span class="tier tier--notices-only">County not in the covered set</span>
+          )
+        }
+        <span class="tag tag--neutral">{l.parcel_use}</span>
+      </p>
+      <p class="page__lead">{LANE_BLURB[lane]}</p>
+    </header>
+
+    {
+      county && (county.tier === 'thin' || county.tier === 'notices-only') && (
+        <div class="callout callout--warn">
+          <p>
+            <strong>Read this record with its county's coverage in mind.</strong>{' '}
+            {TIER_BLURB[county.tier]}
+          </p>
+        </div>
+      )
+    }
+
+    <div class="d__grid">
+      <section class="d__main">
+        <h2>Why this score</h2>
+        <ScoreMeter
+          score={l.score}
+          breakdown={l.score_breakdown}
+          confidence={l.confidence}
+          variant="detail"
+        />
+
+        <h2 class="section-head">The record</h2>
+        <dl class="d__facts">
+          <div>
+            <dt>Acreage</dt>
+            <dd>
+              {
+                acres.known ? (
+                  <>
+                    <span class="num">{acres.text}</span>
+                    {l.acreage_basis === 'gis' && (
+                      <span class="d__basis">
+                        GIS-derived — confirm against the deed or a survey before relying on it.
+                      </span>
+                    )}
+                    {l.acreage_basis === 'deed' && <span class="d__basis">Stated on the deed.</span>}
+                    {l.acreage_basis === 'assessor' && (
+                      <span class="d__basis">Stated by the assessor.</span>
+                    )}
+                  </>
+                ) : (
+                  <span class="unk" title={acres.why}>{acres.text}</span>
+                )
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Assessed value</dt>
+            <dd>
+              {
+                value.known ? (
+                  <>
+                    <span class="num">{value.text}</span>
+                    {perAcre.known && <span class="d__basis num">{perAcre.text}</span>}
+                    {l.assessment_year !== undefined && (
+                      <span class="d__basis">
+                        Assessed {l.assessment_year}
+                        {l.reappraisal_year !== undefined &&
+                          ` · ${l.county} reappraises ${l.reappraisal_year}, which will move this number.`}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span class="unk" title={value.why}>{value.text}</span>
+                )
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>{ev?.opening_bid != null ? 'Opening bid' : 'Asking price'}</dt>
+            <dd>
+              {
+                price.known ? (
+                  <span class="num">{price.text}</span>
+                ) : (
+                  <span class="unk" title={price.why}>{price.text}</span>
+                )
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Water</dt>
+            <dd>
+              {
+                waterIsUnknown(l) ? (
+                  <span class="unk" title="No water layer has been joined for this county.">unknown</span>
+                ) : (
+                  <>
+                    <span class={hasWater(l) ? 'tag tag--water' : ''}>{waterLabel(l)}</span>
+                    {waterDist.known && <span class="d__basis">{waterDist.text}</span>}
+                  </>
+                )
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Floodplain</dt>
+            <dd>
+              {
+                flood === null ? (
+                  <span class="unk" title="No FEMA layer has been joined for this record.">unknown</span>
+                ) : flood ? (
+                  <span class="tag tag--lane-market">Inside — FEMA zone {l.flood_zone}</span>
+                ) : (
+                  <span class="tag tag--neutral">Outside — FEMA zone {l.flood_zone}</span>
+                )
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Coordinates</dt>
+            <dd>
+              <span class="num">{l.lat.toFixed(5)}, {l.lng.toFixed(5)}</span>
+              <span class="d__basis">Parcel centroid, not a street address.</span>
+            </dd>
+          </div>
+        </dl>
+
+        <h3 class="section-head">Ownership signals</h3>
+        <p class="d__pii">
+          Owner names are stripped upstream and are not in this site, this repo, or this payload.
+          Only the booleans below are published.
+        </p>
+        <ul class="d__owner">
+          {
+            l.owner_out_of_state !== undefined && (
+              <li>
+                Out-of-state owner: <strong>{l.owner_out_of_state ? 'yes' : 'no'}</strong>
+              </li>
+            )
+          }
+          {
+            l.owner_is_entity !== undefined && (
+              <li>
+                Owned by an entity rather than an individual:{' '}
+                <strong>{l.owner_is_entity ? 'yes' : 'no'}</strong>
+              </li>
+            )
+          }
+          {
+            l.tenure_years !== undefined && (
+              <li>
+                Years since the last recorded transfer: <strong class="num">{l.tenure_years}</strong>
+              </li>
+            )
+          }
+          {
+            l.owner_out_of_state === undefined &&
+              l.owner_is_entity === undefined &&
+              l.tenure_years === undefined && (
+                <li><span class="unk">No ownership signals collected for this record.</span></li>
+              )
+          }
+        </ul>
+
+        {l.note && <p class="d__note">{l.note}</p>}
+      </section>
+
+      <aside class="d__side">
+        <div class="d__box">
+          <h2>Sources</h2>
+          <p class="d__boxnote">Every figure above traces to one of these. Confirm before acting.</p>
+          <ul class="d__srcs">
+            <li>
+              <a href={l.source_url} rel="noopener nofollow external" target="_blank">
+                Parcel record source ↗
+              </a>
+            </li>
+            {
+              ev && (
+                <li>
+                  <a href={ev.source_url} rel="noopener nofollow external" target="_blank">
+                    {ev.label} ↗
+                  </a>
+                  {observed?.known && <span class="d__basis">Observed {observed.text}</span>}
+                </li>
+              )
+            }
+          </ul>
+        </div>
+
+        {
+          ev ? (
+            <div class="d__box d__box--ev">
+              <h2>Evidence</h2>
+              <dl class="d__evd">
+                <dt>Kind</dt>
+                <dd>{ev.kind}</dd>
+                <dt>Sale date</dt>
+                <dd>
+                  {saleDate?.known ? saleDate.text : <span class="unk">not published</span>}
+                </dd>
+                <dt>Opening bid</dt>
+                <dd>
+                  {bid?.known ? <span class="num">{bid.text}</span> : <span class="unk">{bid?.text}</span>}
+                </dd>
+              </dl>
+            </div>
+          ) : (
+            <div class="d__box">
+              <h2>No for-sale evidence</h2>
+              <p class="d__boxnote">
+                Nothing found says this property is for sale, and nobody has asked its owner whether
+                they want to sell. It is here because its parcel record scored, not because it is
+                available.
+              </p>
+            </div>
+          )
+        }
+
+        <div class="d__box">
+          <h2>Seen</h2>
+          <p class="d__boxnote">
+            First seen {firstSeen.known ? firstSeen.text : 'unknown'} · last seen{' '}
+            {lastSeen.known ? lastSeen.text : 'unknown'}.
+          </p>
+          <WatchButton
+            id={l.id}
+            county={l.county}
+            state={l.state}
+            score={l.score}
+            variant="full"
+          />
+          <p class="d__boxnote">
+            The watchlist lives only in this browser. Export it from the tray — Safari deletes site
+            storage after 7 days without a visit, and a record can also leave the published set
+            between runs.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .crumbs ol {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+  }
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: 0.4rem;
+    color: var(--rule);
+  }
+  .crumbs a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .d__badges {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+    max-width: none;
+  }
+  .d__badges .tier {
+    text-decoration: none;
+  }
+  .d__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 21rem);
+    gap: var(--space-l);
+    align-items: start;
+    margin-top: var(--space-m);
+  }
+  .d__main h2 {
+    font-size: var(--step-2);
+  }
+  .d__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--space-s) var(--space-m);
+    font-family: var(--font-ui);
+  }
+  .d__facts dt {
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+  }
+  .d__facts dd {
+    margin: 0.2rem 0 0;
+    font-size: var(--step-0);
+    display: grid;
+    gap: 0.15rem;
+  }
+  .d__basis {
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+  .d__pii,
+  .d__note {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .d__note {
+    border-left: 2px solid var(--rule);
+    padding-left: 0.7rem;
+    margin-top: var(--space-m);
+  }
+  .d__owner {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.25rem;
+    margin-top: 0.4rem;
+  }
+  .d__side {
+    display: grid;
+    gap: var(--space-s);
+    position: sticky;
+    top: calc(var(--nav-h) + var(--space-s));
+  }
+  .d__box {
+    border: var(--hairline) solid var(--rule);
+    border-radius: var(--radius-m);
+    background: var(--surface);
+    padding: var(--space-s);
+    font-family: var(--font-ui);
+  }
+  .d__box h2 {
+    font-size: var(--step-0);
+    font-family: var(--font-ui);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    margin-bottom: 0.35rem;
+  }
+  .d__box--ev {
+    border-left: 3px solid var(--lane-market);
+  }
+  .d__boxnote {
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    line-height: 1.45;
+    margin-block: 0.3rem;
+    max-width: none;
+  }
+  .d__srcs {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+    font-size: var(--step--1);
+  }
+  .d__srcs a {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .d__evd {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 0.7rem;
+    font-size: var(--step--1);
+  }
+  .d__evd dt {
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    font-size: var(--step--2);
+    letter-spacing: 0.08em;
+  }
+  .d__evd dd {
+    margin: 0;
+  }
+  @media (max-width: 900px) {
+    .d__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .d__side {
+      position: static;
+    }
+  }
+</style>

@@ -1,0 +1,124 @@
+---
+/**
+ * The page shell. Ported from SWC's BaseLayout.astro (claims-D claims 10, 12):
+ * head order, pre-paint theme script with `no-js` stripped before first paint
+ * (no FOUC, no dead focusable controls with JS off), skip link, slot, footer,
+ * one globally-mounted tray.
+ *
+ * Two deliberate differences from the reference:
+ *
+ *  1. NO analytics, no Tag Manager, no service worker. The reference ships GTM
+ *     and sanitises the query string before GA4 reads the page URL. This site's
+ *     URLs carry parcel identifiers for distress events on real people's
+ *     property; the cheapest correct control is not to run a third-party
+ *     container at all.
+ *
+ *  2. `noindex, nofollow` SITEWIDE and unconditional — the inverse of the
+ *     reference's per-record isIndexable() gate, which exists to get thin pages
+ *     INTO Google. Paired with robots.txt Disallow: / and re-checked against the
+ *     built dist/ by scripts/verify-noindex.mjs, because a sitewide claim that
+ *     lives in exactly one template is one careless prop away from being false.
+ */
+import '../styles/global.css';
+import { site } from '../config/site';
+import { withBase } from '../lib/nav';
+import { IS_FIXTURE_DATA } from '../lib/deals';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import WatchlistTray from '../components/WatchlistTray.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  path?: string;
+  /** Set on the map dashboard, which manages its own full-height scroll zones. */
+  dash?: boolean;
+  /** Reading pages opt into the prose type pins. */
+  prose?: boolean;
+}
+const { title, description, path = '', dash = false, prose = false } = Astro.props;
+const fullTitle = path === '/' ? `${site.name} — ${site.tagline}` : `${title} · ${site.name}`;
+---
+
+<!doctype html>
+<!-- `no-js` is stripped pre-paint by the head script below the moment JS runs,
+     so JS-only controls are hidden ONLY when scripting is off — where they would
+     otherwise be visible, focusable dead controls (WCAG 4.1.2). -->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      /* Pre-paint theme + colour-blind mode: applied before first paint, so
+         there is no flash of the wrong theme and the map boots into the right
+         basemap palette. Default = Ridge (the :root default), so no attribute is
+         needed for it. */
+      (() => {
+        document.documentElement.classList.remove('no-js');
+        try {
+          const q = new URLSearchParams(location.search).get('theme');
+          const t = q === 'hollow' || q === 'ridge' ? q : localStorage.getItem('brdf-theme');
+          if (t === 'hollow' || t === 'ridge') {
+            document.documentElement.setAttribute('data-theme', t);
+            if (q) localStorage.setItem('brdf-theme', q);
+          }
+          const cbq = new URLSearchParams(location.search).get('cb');
+          const cb = cbq === 'on' || cbq === 'off' ? cbq : localStorage.getItem('brdf-cb');
+          if (cb === 'on') document.documentElement.setAttribute('data-cb', 'on');
+          if (cbq) localStorage.setItem('brdf-cb', cbq === 'on' ? 'on' : 'off');
+        } catch (e) {
+          /* private mode / storage disabled — defaults apply */
+        }
+      })();
+    </script>
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="googlebot" content="noindex, nofollow" />
+    <meta name="theme-color" content="#1d5b63" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <!-- OpenFreeMap is the sole external origin this site talks to, and only
+         once the map boots. Warming the connection here costs one DNS+TLS
+         handshake and saves it from the critical path of the first tile. -->
+    <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin />
+  </head>
+  <body data-page={path}>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    {
+      IS_FIXTURE_DATA && (
+        <p class="fixture-strip">
+          <strong>Fixture data.</strong> Every row below is a hand-built test record, not a real
+          parcel or a real notice. The pipeline that produces the live payload is being written in
+          parallel. Nothing here should be acted on.
+        </p>
+      )
+    }
+    <Nav path={path} />
+    <main id="main-content" tabindex="-1" class={dash ? 'dash-main' : ''} data-prose={prose ? '' : undefined}>
+      <slot />
+    </main>
+    {!dash && <Footer />}
+    <WatchlistTray />
+  </body>
+</html>
+
+<style>
+  .fixture-strip {
+    max-width: none;
+    margin: 0;
+    padding: 0.5rem clamp(0.75rem, 2.5vw, 1.5rem);
+    background: var(--accent-2);
+    color: var(--on-dark);
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    text-align: center;
+  }
+  .fixture-strip strong {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .dash-main {
+    display: block;
+  }
+</style>

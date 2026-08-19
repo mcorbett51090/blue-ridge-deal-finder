@@ -1,0 +1,82 @@
+---
+import { withBase } from '../lib/nav';
+import { site } from '../config/site';
+import { coverageSummary } from '../lib/deals';
+
+const s = coverageSummary();
+const year = new Date().getFullYear();
+---
+
+<footer class="foot">
+  <div class="wrap-wide foot__in">
+    <div>
+      <p class="foot__name">{site.name}</p>
+      <p class="foot__note">
+        {s.total} counties across NC, TN, VA, GA and SC. A parcel record says a property exists —
+        it does not say it is for sale.
+      </p>
+    </div>
+    <nav aria-label="Footer">
+      <ul class="foot__links">
+        <li><a href={withBase('/')}>Map</a></li>
+        <li><a href={withBase('/status/')}>Data status &amp; coverage</a></li>
+        <li><a href={withBase('/about/')}>About &amp; contact</a></li>
+      </ul>
+    </nav>
+  </div>
+  <p class="wrap-wide foot__legal">
+    © {year} · Not a listing service, not legal advice, and not a title search. Every figure here
+    is derived from a public record and every row links to its source — confirm against the deed,
+    the survey and the county before acting on any of it.
+  </p>
+</footer>
+
+<style>
+  .foot {
+    background: var(--dark-surface);
+    color: var(--on-dark);
+    padding-block: var(--space-l) var(--space-m);
+    margin-top: var(--space-2xl);
+  }
+  .foot__in {
+    display: flex;
+    gap: var(--space-l);
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .foot__name {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+  }
+  .foot__note {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--on-dark-soft);
+    max-width: 46ch;
+    margin-top: 0.3rem;
+  }
+  .foot__links {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+  }
+  .foot__links a {
+    color: var(--on-dark);
+    text-decoration: none;
+  }
+  .foot__links a:hover {
+    text-decoration: underline;
+  }
+  .foot__legal {
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--on-dark-soft);
+    margin-top: var(--space-l);
+    padding-top: var(--space-s);
+    border-top: var(--hairline) solid color-mix(in srgb, var(--on-dark) 15%, transparent);
+    max-width: none;
+  }
+</style>

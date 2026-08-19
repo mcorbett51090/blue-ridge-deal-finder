@@ -1,0 +1,579 @@
+---
+/**
+ * DealMap — the port of SWC's WineryMap.astro map subsystem (claims-D claims
+ * 16, 18, 20, 23), with ONE deliberate inversion.
+ *
+ * PORTED VERBATIM IN MECHANISM
+ *  • MapLibre GL JS over OpenFreeMap's keyless `positron` style, held in a
+ *    one-line constant so a provider swap is trivial. It is the site's only
+ *    external dependency and a single donation-funded operator, so it is treated
+ *    as a thing that WILL be down one day.
+ *  • Lazy boot: the container is server-rendered with a fallback paragraph; an
+ *    IntersectionObserver (200px rootMargin) triggers a DYNAMIC import of
+ *    maplibre-gl and injects its CSS at boot — never a render-blocking head
+ *    <link>. A deep-linked visit boots immediately instead of waiting to scroll.
+ *  • The 9-second honest-failure timer: if `load` never fires, the fallback text
+ *    flips from "Loading…" to an accurate "unavailable, the list below has every
+ *    property" — and the list underneath really is complete and server-rendered,
+ *    so a tile outage degrades to a working directory rather than a blank box.
+ *  • Theme reactivity by setPaintProperty on the EXISTING style, keyed on layer
+ *    id, never setStyle() churn.
+ *  • The saved-properties layer reads its own separate source built from the
+ *    UNFILTERED set, so a watchlisted pin never vanishes when facets narrow.
+ *
+ * THE ONE INVERSION — CLUSTERING.
+ * The reference deliberately does NOT cluster: it de-duplicates ~880 coincident
+ * town centroids with a golden-angle jitter and draws every dot. At parcel scale
+ * that inverts. Parcel centroids are naturally distinct, so the jitter is
+ * pointless, and thousands of individual circles is not a map, it is a stain.
+ * `cluster: true` with clusterRadius 50 / clusterMaxZoom 12 is required here.
+ *
+ * DATA DELIVERY — read before wiring the real pipeline in.
+ * The reference inlines its whole dataset into a <script type="application/json">
+ * block and JSON.parses it. That is what ships here too, and it is correct for a
+ * fixture set of this size. It does NOT survive 5k–25k rows: at that point the
+ * payload moves to public/data/deals-<contenthash>.json, fetched once at boot,
+ * with a top-N first-paint slice left inline so the list is useful before it
+ * lands. The consumer below reads one object either way — that swap touches this
+ * file and nothing else.
+ */
+import { featureCollection, bounds, sorted } from '../lib/deals';
+
+const fc = featureCollection();
+const bb = bounds(sorted);
+const payload = JSON.stringify({ fc, bounds: bb });
+---
+
+<div class="mapwrap" data-map-root>
+  <!-- role="region", NOT role="application". `application` tells a screen
+       reader to stop intercepting keys and hand everything to the widget, which
+       is only correct when the widget IS the content. Here the real content is
+       the server-rendered list beside the map — every property, with its county,
+       score, lane and source link. The map is a second view of it, so browse
+       mode must keep working. -->
+  <div id="deal-map" class="mapwrap__canvas" role="region" aria-label="Map of tracked properties"></div>
+  <p class="mapwrap__fallback" data-map-fallback>Loading the map…</p>
+
+  <div class="maplegend" data-map-legend>
+    <p class="maplegend__t">Score</p>
+    <ul class="maplegend__ramp">
+      <li><span class="sw sw--1"></span>0–20</li>
+      <li><span class="sw sw--2"></span>21–40</li>
+      <li><span class="sw sw--3"></span>41–60</li>
+      <li><span class="sw sw--4"></span>61–80</li>
+      <li><span class="sw sw--5"></span>81–100</li>
+    </ul>
+    <p class="maplegend__t">Ring</p>
+    <ul class="maplegend__keys">
+      <li><span class="ring ring--water"></span>Water on parcel</li>
+      <li><span class="ring ring--none"></span>No water / unknown</li>
+      <li><span class="ring ring--watch"></span>On your watchlist</li>
+    </ul>
+    <p class="maplegend__note">
+      Colour is a grouping hint. Every property's score, lane and coverage tier are written out in
+      the list beside the map.
+    </p>
+  </div>
+</div>
+
+<script is:inline type="application/json" id="brdf-map-data" set:html={payload}></script>
+
+<script>
+  import maplibreCssUrl from 'maplibre-gl/dist/maplibre-gl.css?url';
+  import { getItems as watchItems, CHANGE_EVENT as WATCH_CHANGE } from '../lib/watchlist';
+  import type { GeoJSONSource, StyleSpecification } from 'maplibre-gl';
+
+  type FC = {
+    type: 'FeatureCollection';
+    features: Array<{
+      type: 'Feature';
+      geometry: { type: 'Point'; coordinates: [number, number] };
+      properties: Record<string, unknown>;
+    }>;
+  };
+
+  const dataEl = document.getElementById('brdf-map-data');
+  const mapEl = document.getElementById('deal-map');
+  const fallbackEl = document.querySelector<HTMLElement>('[data-map-fallback]');
+
+  /** RT8 — an honest failure message, not a stuck "Loading…". */
+  function mapUnavailable() {
+    if (!fallbackEl) return;
+    fallbackEl.hidden = false;
+    fallbackEl.textContent =
+      'Interactive map unavailable — the list beside it has every property, with its county, score and source link.';
+  }
+
+  let started = false;
+  function boot() {
+    if (started) return;
+    started = true;
+    void init().catch((err) => {
+      console.warn('[map] init failed', err);
+      mapUnavailable();
+    });
+  }
+
+  if (dataEl && mapEl) {
+    const hasDeepLink = location.search.length > 1 || location.hash.length > 1;
+    if (hasDeepLink) boot();
+    else if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            io.disconnect();
+            boot();
+          }
+        },
+        { rootMargin: '200px' },
+      );
+      io.observe(mapEl);
+    } else {
+      boot();
+    }
+  }
+
+  function tokens() {
+    const cs = getComputedStyle(document.documentElement);
+    const t = (n: string, fb: string) => cs.getPropertyValue(n).trim() || fb;
+    return {
+      land: t('--map-land', '#e9ece6'),
+      water: t('--map-water', '#c3d3d6'),
+      landcover: t('--map-landcover', '#d7ded0'),
+      road: t('--map-road', '#ffffff'),
+      roadHi: t('--map-road-hi', '#e6e6da'),
+      label: t('--map-label', '#3c4a45'),
+      ink: t('--map-ink', '#14201d'),
+      stroke: t('--map-pin-stroke', '#f6f7f3'),
+      sigWater: t('--sig-water', '#1f6f8b'),
+      accent: t('--accent', '#1d5b63'),
+      accentOn: t('--accent-on', '#f6f7f3'),
+      score: [
+        t('--score-1', '#c3d0cd'),
+        t('--score-2', '#93b3b3'),
+        t('--score-3', '#5e9099'),
+        t('--score-4', '#2f6f7d'),
+        t('--score-5', '#14454f'),
+      ],
+    };
+  }
+
+  async function init() {
+    if (!dataEl || !mapEl) return;
+    const maplibregl = (await import('maplibre-gl')).default;
+
+    if (!document.querySelector('link[data-maplibre-css]')) {
+      const cssLink = document.createElement('link');
+      cssLink.rel = 'stylesheet';
+      cssLink.href = maplibreCssUrl;
+      cssLink.setAttribute('data-maplibre-css', '');
+      document.head.appendChild(cssLink);
+    }
+
+    const DATA = JSON.parse(dataEl.textContent || '{}') as {
+      fc: FC;
+      bounds: [[number, number], [number, number]];
+    };
+    const FULL: FC = DATA.fc;
+
+    // The sole external tile dependency. One line, so a provider change is one
+    // edit. OpenFreeMap is free and keyless and run by one donation-funded
+    // operator — hence the outage path above being a first-class feature.
+    const TILE_STYLE = 'https://tiles.openfreemap.org/styles/positron';
+
+    const map = new maplibregl.Map({
+      container: 'deal-map',
+      style: TILE_STYLE,
+      bounds: DATA.bounds,
+      fitBoundsOptions: { padding: 48 },
+      attributionControl: { compact: true },
+      cooperativeGestures: true,
+      dragRotate: false,
+      pitchWithRotate: false,
+    });
+    const loadTimer = window.setTimeout(mapUnavailable, 9000);
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+    map.keyboard.enable();
+
+    /** Re-tint the positron vector tiles to the active theme's --map-* surface.
+     *  setPaintProperty on the SAME style object — no setStyle() churn. */
+    function restyle() {
+      const C = tokens();
+      const style = map.getStyle() as StyleSpecification | undefined;
+      if (!style?.layers) return;
+      for (const layer of style.layers) {
+        const id = layer.id;
+        try {
+          if (layer.type === 'background') {
+            map.setPaintProperty(id, 'background-color', C.land);
+          } else if (id.includes('water') && layer.type === 'fill') {
+            map.setPaintProperty(id, 'fill-color', C.water);
+          } else if (layer.type === 'line' && id.includes('water')) {
+            map.setPaintProperty(id, 'line-color', C.water);
+          } else if (
+            /landcover|landuse|park|wood|forest|grass|nature|farmland/.test(id) &&
+            layer.type === 'fill'
+          ) {
+            map.setPaintProperty(id, 'fill-color', C.landcover);
+            map.setPaintProperty(id, 'fill-opacity', 0.7);
+          } else if (
+            layer.type === 'line' &&
+            /road|street|transportation|bridge|tunnel|highway/.test(id)
+          ) {
+            map.setPaintProperty(
+              id,
+              'line-color',
+              /motorway|trunk|primary/.test(id) ? C.roadHi : C.road,
+            );
+          } else if (id.includes('poi')) {
+            map.setLayoutProperty(id, 'visibility', 'none');
+          } else if (
+            layer.type === 'symbol' &&
+            /place|label|state|country|city|town|village/.test(id)
+          ) {
+            map.setPaintProperty(id, 'text-color', C.label);
+            map.setPaintProperty(id, 'text-halo-color', C.land);
+            map.setPaintProperty(id, 'text-halo-width', 1.4);
+          }
+        } catch {
+          /* that layer lacks that property — ignore */
+        }
+      }
+      paintOurLayers();
+    }
+
+    /** Our own layers are NOT in the basemap loop above, and their ink is
+     *  theme-DEPENDENT: --map-ink is near-black on positron and near-white on
+     *  dark-matter, deliberately, so a pin ring always contrasts with the land.
+     *  Without this the light theme's dark ring would be drawn over the dark
+     *  basemap and simply disappear. */
+    function paintOurLayers() {
+      const C = tokens();
+      const scoreColor: unknown[] = [
+        'step',
+        ['get', 'score'],
+        C.score[0], 21, C.score[1], 41, C.score[2], 61, C.score[3], 81, C.score[4],
+      ];
+      try {
+        if (map.getLayer('pins')) {
+          map.setPaintProperty('pins', 'circle-color', scoreColor as never);
+          // Water is carried by the RING, so it reads at any dot size and never
+          // competes with the score ramp for the fill.
+          map.setPaintProperty('pins', 'circle-stroke-color', [
+            'case',
+            ['==', ['get', 'water'], 1],
+            C.sigWater,
+            C.ink,
+          ] as never);
+          map.setPaintProperty('pins', 'circle-stroke-width', [
+            'case',
+            ['==', ['get', 'water'], 1],
+            2.4,
+            1,
+          ] as never);
+        }
+        if (map.getLayer('clusters')) {
+          map.setPaintProperty('clusters', 'circle-color', [
+            'step', ['get', 'maxScore'],
+            C.score[0], 21, C.score[1], 41, C.score[2], 61, C.score[3], 81, C.score[4],
+          ] as never);
+          map.setPaintProperty('clusters', 'circle-stroke-color', C.ink as never);
+        }
+        if (map.getLayer('cluster-count')) {
+          map.setPaintProperty('cluster-count', 'text-color', C.ink as never);
+          map.setPaintProperty('cluster-count', 'text-halo-color', C.land as never);
+        }
+        if (map.getLayer('watch-pins')) {
+          map.setPaintProperty('watch-pins', 'circle-stroke-color', C.accent as never);
+          map.setPaintProperty('watch-pins', 'circle-color', C.accentOn as never);
+        }
+      } catch {
+        /* layers not added yet — the initial paint already used live tokens */
+      }
+    }
+
+    map.on('load', () => {
+      window.clearTimeout(loadTimer);
+      if (fallbackEl) fallbackEl.hidden = true;
+      const C = tokens();
+
+      map.addSource('deals', {
+        type: 'geojson',
+        data: FULL as never,
+        promoteId: 'id',
+        cluster: true,
+        clusterRadius: 50,
+        clusterMaxZoom: 12,
+        // Carried up so a cluster can be coloured by the BEST thing inside it —
+        // a cluster painted by count tells you where the data is dense, which is
+        // not the question anyone is asking.
+        clusterProperties: {
+          maxScore: ['max', ['get', 'score']],
+          waterCount: ['+', ['case', ['==', ['get', 'water'], 1], 1, 0]],
+        },
+      });
+
+      map.addLayer({
+        id: 'clusters',
+        type: 'circle',
+        source: 'deals',
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': [
+            'step', ['get', 'maxScore'],
+            C.score[0], 21, C.score[1], 41, C.score[2], 61, C.score[3], 81, C.score[4],
+          ],
+          'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 30],
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': C.ink,
+          'circle-opacity': 0.9,
+        },
+      });
+
+      map.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'deals',
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': ['get', 'point_count_abbreviated'],
+          'text-size': 12,
+          'text-allow-overlap': true,
+        },
+        paint: { 'text-color': C.ink, 'text-halo-color': C.land, 'text-halo-width': 1.4 },
+      });
+
+      map.addLayer({
+        id: 'pins',
+        type: 'circle',
+        source: 'deals',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': [
+            'step', ['get', 'score'],
+            C.score[0], 21, C.score[1], 41, C.score[2], 61, C.score[3], 81, C.score[4],
+          ],
+          // Dot radius IS the tap target on touch, so it grows where hover is
+          // unavailable — the reference's rule, kept.
+          'circle-radius': [
+            'interpolate', ['linear'], ['zoom'],
+            5, ['case', ['==', ['get', 'lane'], 'market'], 6, 4.5],
+            12, ['case', ['==', ['get', 'lane'], 'market'], 11, 8],
+          ],
+          'circle-stroke-color': ['case', ['==', ['get', 'water'], 1], C.sigWater, C.ink],
+          'circle-stroke-width': ['case', ['==', ['get', 'water'], 1], 2.4, 1],
+          // Lane 2 sits back visually as well as behind a collapsed list.
+          'circle-opacity': ['case', ['==', ['get', 'lane'], 'market'], 1, 0.55],
+        },
+      });
+
+      // The watchlist layer: its OWN source, built from the UNFILTERED set, for
+      // exactly the reference's reason — a saved pin must never vanish because a
+      // facet narrowed, and `setData` on the shared source would take it away.
+      map.addSource('watch', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } as never });
+      map.addLayer({
+        id: 'watch-pins',
+        type: 'circle',
+        source: 'watch',
+        paint: {
+          'circle-radius': 9,
+          'circle-color': C.accentOn,
+          'circle-stroke-color': C.accent,
+          'circle-stroke-width': 3,
+        },
+      });
+
+      restyle();
+      renderWatchPins();
+
+      map.on('click', 'clusters', (e) => {
+        const f = map.queryRenderedFeatures(e.point, { layers: ['clusters'] })[0];
+        const clusterId = f?.properties?.cluster_id;
+        if (clusterId === undefined) return;
+        const src = map.getSource('deals') as GeoJSONSource;
+        void src.getClusterExpansionZoom(clusterId).then((zoom) => {
+          const geom = f.geometry as unknown as { coordinates: [number, number] };
+          map.easeTo({ center: geom.coordinates, zoom });
+        });
+      });
+
+      map.on('click', 'pins', (e) => {
+        const f = e.features?.[0];
+        const id = f?.properties?.id;
+        if (typeof id !== 'string') return;
+        window.dispatchEvent(new CustomEvent('brdf:pinclick', { detail: { id } }));
+      });
+
+      for (const layer of ['clusters', 'pins'] as const) {
+        map.on('mouseenter', layer, () => (map.getCanvas().style.cursor = 'pointer'));
+        map.on('mouseleave', layer, () => (map.getCanvas().style.cursor = ''));
+      }
+    });
+
+    map.on('error', (e) => {
+      // A tile 404 is noise; a style failure is the outage this component is
+      // built around. Don't swallow either silently.
+      console.warn('[map]', e?.error?.message ?? e);
+    });
+
+    function renderWatchPins() {
+      const src = map.getSource('watch') as GeoJSONSource | undefined;
+      if (!src) return;
+      const saved = new Set(watchItems().map((i) => i.id));
+      const features = saved.size
+        ? FULL.features.filter((f) => saved.has(String(f.properties.id)))
+        : [];
+      src.setData({ type: 'FeatureCollection', features } as never);
+    }
+    window.addEventListener(WATCH_CHANGE, renderWatchPins);
+
+    window.addEventListener('brdf:themechange', () => {
+      if (map.isStyleLoaded()) {
+        try {
+          restyle();
+        } catch {
+          /* ignore */
+        }
+      }
+    });
+    window.addEventListener('brdf:cbchange', () => {
+      if (map.isStyleLoaded()) {
+        try {
+          paintOurLayers();
+        } catch {
+          /* ignore */
+        }
+      }
+    });
+
+    // The filter half of the one-source-of-truth pair. The rail computes ONE
+    // predicate, applies it to the list, and hands the same result here — the
+    // dots and the accessible HTML list cannot disagree, because they are two
+    // renderings of one array.
+    window.addEventListener('brdf:filtered', (e) => {
+      const detail = (e as CustomEvent<{ ids: string[]; fit: boolean }>).detail;
+      const keep = new Set(detail.ids);
+      const src = map.getSource('deals') as GeoJSONSource | undefined;
+      if (!src) return;
+      const features = FULL.features.filter((f) => keep.has(String(f.properties.id)));
+      src.setData({ type: 'FeatureCollection', features } as never);
+      if (!detail.fit || features.length === 0) return; // hold still on zero results
+      const lngs = features.map((f) => f.geometry.coordinates[0]);
+      const lats = features.map((f) => f.geometry.coordinates[1]);
+      map.fitBounds(
+        [
+          [Math.min(...lngs), Math.min(...lats)],
+          [Math.max(...lngs), Math.max(...lats)],
+        ],
+        { padding: 64, maxZoom: 12, duration: 500 },
+      );
+    });
+
+    window.addEventListener('brdf:focus', (e) => {
+      const id = (e as CustomEvent<{ id: string }>).detail?.id;
+      const f = FULL.features.find((x) => String(x.properties.id) === id);
+      if (!f) return;
+      map.easeTo({ center: f.geometry.coordinates, zoom: Math.max(map.getZoom(), 11) });
+    });
+  }
+</script>
+
+<style>
+  .mapwrap {
+    position: relative;
+    height: 100%;
+    min-height: 20rem;
+    background: var(--map-land);
+  }
+  .mapwrap__canvas {
+    position: absolute;
+    inset: 0;
+  }
+  .mapwrap__fallback {
+    position: absolute;
+    inset: auto 0 0 0;
+    margin: 0;
+    max-width: none;
+    padding: var(--space-s);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    border-top: var(--hairline) solid var(--rule);
+  }
+  .maplegend {
+    position: absolute;
+    left: 0.6rem;
+    bottom: 0.6rem;
+    z-index: 2;
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    border: var(--hairline) solid var(--rule);
+    border-radius: var(--radius-s);
+    padding: 0.5rem 0.6rem;
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    max-width: 15rem;
+    box-shadow: var(--shadow-s);
+  }
+  .maplegend__t {
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+    max-width: none;
+  }
+  .maplegend__ramp,
+  .maplegend__keys {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.4rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+  }
+  .maplegend__keys {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .maplegend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+  }
+  .sw {
+    width: 0.75em;
+    height: 0.75em;
+    border-radius: 50%;
+    border: 1px solid var(--map-ink);
+  }
+  .sw--1 { background: var(--score-1); }
+  .sw--2 { background: var(--score-2); }
+  .sw--3 { background: var(--score-3); }
+  .sw--4 { background: var(--score-4); }
+  .sw--5 { background: var(--score-5); }
+  .ring {
+    width: 0.8em;
+    height: 0.8em;
+    border-radius: 50%;
+    background: var(--score-3);
+  }
+  .ring--water { box-shadow: 0 0 0 2.4px var(--sig-water); }
+  .ring--none { box-shadow: 0 0 0 1px var(--map-ink); }
+  .ring--watch { background: var(--accent-on); box-shadow: 0 0 0 3px var(--accent); }
+  .maplegend__note {
+    max-width: none;
+    line-height: 1.35;
+  }
+  @media (max-width: 720px) {
+    .maplegend {
+      max-width: 11rem;
+      font-size: 10px;
+    }
+    .maplegend__note {
+      display: none;
+    }
+  }
+</style>

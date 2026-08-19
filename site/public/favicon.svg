@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Blue Ridge Deal Finder">
+  <rect width="32" height="32" rx="6" fill="#e9ece6"/>
+  <path d="M1 25 L9 12 L15 20 L21 9 L31 25 Z" fill="#1d5b63" opacity="0.85"/>
+  <path d="M1 27 L7 19 L13 25 L19 16 L31 27 Z" fill="#1d5b63" opacity="0.45"/>
+</svg>
