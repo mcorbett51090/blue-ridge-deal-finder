@@ -166,6 +166,9 @@
   --score-3: #5e9099;
   --score-4: #2f6f7d;
   --score-5: #14454f;
+  /* Unknown is OFF the ramp, not the bottom of it. Warm grey against a teal
+     ramp so "no data" can never read as "scored low". */
+  --score-unknown: #a7a9a2;
 
   /* Dark chrome tones (footer / on-dark surfaces) */
   --on-dark: #f6f7f3;
@@ -228,6 +231,7 @@
   --score-3: #47807f;
   --score-4: #63a7a6;
   --score-5: #93cfcb;
+  --score-unknown: #6d716c;
 
   --on-dark: #e6ece7;
   --on-dark-soft: #a8b4ad;
@@ -254,6 +258,7 @@
   --score-3: #56a0c8;
   --score-4: #0072b2;
   --score-5: #004466;
+  --score-unknown: #8a8f88;
   --lane-market: #d55e00;
   --lane-prospect: #56698a;
   --sig-water: #0072b2;
