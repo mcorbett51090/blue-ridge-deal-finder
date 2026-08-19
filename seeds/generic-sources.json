@@ -1,0 +1,64 @@
+{
+  "_why": [
+    "Owner ruling 2026-08-19: 'I would prefer a specific link for each row, but if you",
+    "can't provide it then give me the generic link and label it as such.'",
+    "",
+    "So provenance has THREE tiers, in preference order:",
+    "  1. record  — resolves to THAT record. NC OneMap can do this (an ArcGIS /query",
+    "               filtered to cntyname + parno; verified live: 1 row for a real",
+    "               parno, 0 for a bogus one).",
+    "  2. generic — the right place to look, LABELLED as general rather than",
+    "               record-level. Useful, and honest as long as it is labelled.",
+    "  3. how_to_verify — instructions, when not even a generic page exists.",
+    "",
+    "Every URL below was fetched 2026-08-19 and returned a real status.",
+    "A 403 is kept where the page genuinely exists for a human in a browser and",
+    "merely refuses our crawler — that is a fine link for Matt to CLICK, and we",
+    "make no claim to have fetched it. A DNS failure is not kept: that URL is",
+    "simply wrong (fannincountyga.gov does not resolve; fannincountytax.com does).",
+    "",
+    "⛔ NEVER a host from sources.denied.yaml. gsccca.org is denied because it",
+    "requires an account we never create, so citing it claims a source we do not",
+    "have — generic or otherwise."
+  ],
+  "by_fips": {
+    "13111": {
+      "url": "https://www.fannincountytax.com/",
+      "label": "Fannin County Tax Commissioner",
+      "http_status": 200,
+      "checked": "2026-08-19"
+    }
+  },
+  "by_state": {
+    "NC": {
+      "url": "https://www.nconemap.gov/pages/parcels",
+      "label": "NC OneMap statewide parcels",
+      "http_status": 200,
+      "checked": "2026-08-19"
+    },
+    "GA": {
+      "url": "https://dor.georgia.gov/local-government-services/digest-compliance-section/property-tax-millage-rates",
+      "label": "Georgia DOR — Local Government Services",
+      "http_status": 200,
+      "checked": "2026-08-19"
+    },
+    "TN": {
+      "url": "https://comptroller.tn.gov/office-functions/pa/tax-resources/assessment-information-for-each-county/information-by-county.html",
+      "label": "TN Comptroller — assessment information by county",
+      "http_status": 200,
+      "checked": "2026-08-19"
+    },
+    "VA": {
+      "url": "https://vgin.vdem.virginia.gov/pages/parcels",
+      "label": "VGIN statewide parcels",
+      "http_status": 200,
+      "checked": "2026-08-19"
+    },
+    "SC": {
+      "url": "https://www.co.pickens.sc.us/departments/master_in_equity/index.php",
+      "label": "SC Master-in-Equity (Pickens shown; rosters are per-county)",
+      "http_status": 200,
+      "checked": "2026-08-19"
+    }
+  }
+}

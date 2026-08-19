@@ -8,7 +8,8 @@
     "parcel_source": "nc-onemap-parcels",
     "data_state": "ingested",
     "rows": 46252,
-    "published": 100,
+    "published": 103,
+    "scorable": 41073,
     "ledger_status": "not-run",
     "last_ingested_at": null,
     "note": "Collected and scored — the rows below are published from real parcel records. (Ledger note: the last run recorded this county as 'not-run' while 46,252 of its parcels are present in the same warehouse — the row count is what is published here.)"
@@ -22,7 +23,8 @@
     "parcel_source": "nc-onemap-parcels",
     "data_state": "ingested",
     "rows": 38698,
-    "published": 74,
+    "published": 69,
+    "scorable": 37597,
     "ledger_status": "complete",
     "last_ingested_at": "2026-08-19T15:48:58.294Z",
     "note": "Collected and scored — the rows below are published from real parcel records. (Source note: parvaltype=Market — not comparable to Assessed counties)"
@@ -37,6 +39,7 @@
     "data_state": "ingested",
     "rows": 24034,
     "published": 60,
+    "scorable": 24019,
     "ledger_status": "complete",
     "last_ingested_at": "2026-08-19T15:48:58.294Z",
     "note": "Collected and scored — the rows below are published from real parcel records."
@@ -51,6 +54,7 @@
     "data_state": "not-run",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": "not-run",
     "last_ingested_at": null,
     "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: next reappraisal 2027 per NCDOR (last 2021)"
@@ -65,6 +69,7 @@
     "data_state": "not-run",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": "not-run",
     "last_ingested_at": null,
     "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero."
@@ -79,6 +84,7 @@
     "data_state": "not-run",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": "not-run",
     "last_ingested_at": null,
     "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: parvaltype=Market; A19 tax-foreclosure page confirmed)"
@@ -93,6 +99,7 @@
     "data_state": "ingested",
     "rows": 41291,
     "published": 109,
+    "scorable": 39919,
     "ledger_status": "complete",
     "last_ingested_at": "2026-08-19T15:48:58.294Z",
     "note": "Collected and scored — the rows below are published from real parcel records."
@@ -107,6 +114,7 @@
     "data_state": "ingested",
     "rows": 21102,
     "published": 47,
+    "scorable": 19407,
     "ledger_status": "complete",
     "last_ingested_at": "2026-08-19T15:48:58.294Z",
     "note": "Collected and scored — the rows below are published from real parcel records."
@@ -121,6 +129,7 @@
     "data_state": "ingested",
     "rows": 29204,
     "published": 73,
+    "scorable": 28994,
     "ledger_status": "complete",
     "last_ingested_at": "2026-08-19T15:48:58.294Z",
     "note": "Collected and scored — the rows below are published from real parcel records."
@@ -135,9 +144,10 @@
     "data_state": "ingested",
     "rows": 17332,
     "published": 0,
+    "scorable": 0,
     "ledger_status": "complete",
     "last_ingested_at": "2026-08-19T15:28:22.027Z",
-    "note": "Collected and scored: we hold this county's parcels and NONE of them ranked into the published set. This is a real zero, measured."
+    "note": "Collected, but NOTHING HERE CAN BE SCORED: this county publishes no assessed values, so every signal we have is unknown for every one of its parcels. That is a gap in what the county publishes, not a judgement about its land."
   },
   {
     "fips": "37121",
@@ -148,7 +158,8 @@
     "parcel_source": "nc-onemap-parcels",
     "data_state": "ingested",
     "rows": 17508,
-    "published": 37,
+    "published": 39,
+    "scorable": 15490,
     "ledger_status": "not-run",
     "last_ingested_at": null,
     "note": "Collected and scored — the rows below are published from real parcel records. (Ledger note: the last run recorded this county as 'not-run' while 17,508 of its parcels are present in the same warehouse — the row count is what is published here.)"
@@ -163,6 +174,7 @@
     "data_state": "not-run",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
@@ -177,6 +189,7 @@
     "data_state": "not-run",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
@@ -191,6 +204,7 @@
     "data_state": "not-run",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
@@ -205,6 +219,7 @@
     "data_state": "not-run",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
@@ -219,6 +234,7 @@
     "data_state": "not-run",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
@@ -233,6 +249,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: custom county GIS — untested by the qPublic probe)"
@@ -247,6 +264,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -261,6 +279,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -275,6 +294,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: VGSI gis.vgsi.com — 2025 VamaNet migration may have moved it)"
@@ -289,6 +309,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -303,6 +324,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -317,6 +339,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -331,6 +354,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -345,6 +369,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -359,6 +384,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: qPublic wall E1.1-E1.4)"
@@ -373,6 +399,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -387,6 +414,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: qPublic wall E1.1-E1.4)"
@@ -401,6 +429,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -415,6 +444,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -429,6 +459,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -443,6 +474,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -457,6 +489,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -471,6 +504,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
@@ -485,6 +519,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: Master-in-Equity page returned HTTP 500 — UNKNOWN not absent)"
@@ -499,6 +534,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: Master-in-Equity Sales Rosters CONFIRMED online)"
@@ -513,6 +549,7 @@
     "data_state": "no-source",
     "rows": null,
     "published": 0,
+    "scorable": 0,
     "ledger_status": null,
     "last_ingested_at": null,
     "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: Master-in-Equity roster confirmed; self-hosted gcgis.org untested)"

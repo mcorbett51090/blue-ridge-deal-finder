@@ -72,14 +72,19 @@ CREATE TABLE IF NOT EXISTS county_runs (
   county              TEXT NOT NULL,
   run_id              TEXT NOT NULL,
   ingest_status       TEXT NOT NULL,
-  rows_fetched        INTEGER NOT NULL,
-  distinct_keys       INTEGER NOT NULL,
-  rows_warehoused     INTEGER NOT NULL,
-  unkeyed             INTEGER NOT NULL,
-  collapsed_dupes     INTEGER NOT NULL,
-  multipart_parcels   INTEGER NOT NULL,
-  deed_date_nulled    INTEGER NOT NULL,
-  zero_parval         INTEGER NOT NULL,
+  -- Run-time counters are NULLABLE on purpose. A row can be reconstructed from
+  -- the parcels table (ground truth) when the ledger has drifted, and for such
+  -- a row these are genuinely UNKNOWN: nobody observed that fetch. NOT NULL
+  -- forced a choice between fabricating a number and leaving the ledger wrong,
+  -- and this project's rule is that unknown is spelled null, never zero.
+  rows_fetched        INTEGER,
+  distinct_keys       INTEGER,
+  rows_warehoused     INTEGER NOT NULL,   -- derivable from parcels; never unknown
+  unkeyed             INTEGER,
+  collapsed_dupes     INTEGER,
+  multipart_parcels   INTEGER,
+  deed_date_nulled    INTEGER,
+  zero_parval         INTEGER,
   ingested_at         TEXT NOT NULL,
   PRIMARY KEY (fips, run_id)
 );

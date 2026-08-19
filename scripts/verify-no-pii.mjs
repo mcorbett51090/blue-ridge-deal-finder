@@ -39,9 +39,19 @@ const root = inspectRoot();
 const canary = readJson(join(selfRoot(), 'fixtures', 'pii-canary.json'));
 const CANARY = canary.token;
 
-/** fixtures/ is the ONE exemption, and it is printed on every run: the canary
- *  and the PII fixture live there by design. Nothing else is exempt. */
-const EXEMPT_PREFIXES = ['fixtures/'];
+/** Exemptions, printed on every run so they can never be quiet.
+ *
+ *  These apply to the GIT-TREE surface ONLY. The three PUBLISHED surfaces —
+ *  data/, publish/out/ and site/dist/ — are never exempt from anything, because
+ *  those are what actually reach the world.
+ *
+ *  Why `tests/` is here: a test that proves the PII gate fires must contain a
+ *  PII field name to plant as a canary. Flagging it makes the gate fail
+ *  precisely because someone proved it works — and the pressure that creates is
+ *  to delete the proof. That is the wrong trade. A canary in a test is evidence
+ *  the gate works; a canary in published output is a leak. The surface split is
+ *  what keeps both true. */
+const EXEMPT_PREFIXES = ['fixtures/', 'tests/'];
 
 /**
  * A PII field in a payload is always a KEY WITH A VALUE, i.e. a quoted field

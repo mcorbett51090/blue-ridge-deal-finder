@@ -13,7 +13,7 @@
 import type { ScoreConfig } from './config.ts';
 import type { ComponentId, ScoreComponent } from './schema.ts';
 import type { CohortIndex, ValuedRow } from './cohorts.ts';
-import { cohortKey, useBucket } from './cohorts.ts';
+import { cohortKey, isAtValueFloor, useBucket } from './cohorts.ts';
 import { clamp, invert } from './index.ts';
 import type {
   DistressObservation,
@@ -106,6 +106,18 @@ export function scorePerAcre(
       'per_acre',
       nominal,
       `Acreage unknown (${row.acreage_unknown_reason ?? 'not published'}) — $/acre is not computed against a zero.`,
+      sources,
+    );
+  }
+  // ⛔ The administrative floor. See detectValueFloors() for the measurement.
+  const floor = cohorts.floors.get(row.fips);
+  if (floor !== undefined && isAtValueFloor(row, cohorts.floors)) {
+    return unknownComponent(
+      'per_acre',
+      nominal,
+      `Assessed value is exactly ${money(floor.value)}, which is the lowest value ${row.county} County ` +
+        `publishes and is shared by ${floor.count} parcels there — an administrative floor, not a ` +
+        'valuation of this parcel. Treated as unknown rather than as the cheapest land in the county.',
       sources,
     );
   }

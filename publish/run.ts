@@ -114,8 +114,15 @@ async function main(): Promise<void> {
 
   const publishedByFips = new Map<string, number>();
   for (const l of listings) publishedByFips.set(l.fips, (publishedByFips.get(l.fips) ?? 0) + 1);
+  // Scorable ≠ published. A county can hold 17,332 parcels, publish no assessed
+  // value on ANY of them (measured: Yancey), and therefore contribute nothing —
+  // which is a fact about the county's publishing, not about its land.
+  const scorableByFips = new Map<string, number>();
+  for (const s of scored) {
+    if (s.scored_count > 0) scorableByFips.set(s.row.fips, (scorableByFips.get(s.row.fips) ?? 0) + 1);
+  }
 
-  const coverage = buildCoverage(seeds, wh.ledger, wh.rowsByFips, publishedByFips);
+  const coverage = buildCoverage(seeds, wh.ledger, wh.rowsByFips, publishedByFips, scorableByFips);
 
   const manifest = {
     generated_at: now.toISOString(),
@@ -134,6 +141,9 @@ async function main(): Promise<void> {
     signals: { known: tallies.known, unknown: tallies.unknown },
     veto_by_reason: tallies.veto_by_reason,
     cohorts: tallies.cohorts,
+    // The measured administrative floors that were treated as `unknown`. A rule
+    // this consequential is published, not only applied.
+    value_floors: tallies.value_floors,
     enrichment_present: enrichment.present,
     provenance: {
       with_record_url: listings.filter((l) => l.provenance.record_url !== null).length,

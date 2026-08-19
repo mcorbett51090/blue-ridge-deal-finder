@@ -33,6 +33,7 @@ const problems = [];
 let checked = 0;
 let deepLinks = 0;
 let honestNulls = 0;
+let genericLinks = 0;
 
 /** Hosts we are forbidden to fetch — citing one is a false provenance claim. */
 function deniedHosts() {
@@ -76,8 +77,18 @@ function inspect(obj, file, path = '') {
     const v = obj[k];
     if (typeof v !== 'string' || !v.startsWith('http')) continue;
     checked++;
-    if (isBareOrigin(v)) {
-      problems.push(`${file}${path}.${k}: BARE HOMEPAGE — does not show the record: ${v}`);
+    // Owner ruling 2026-08-19: a generic link is WANTED where no per-record page
+    // exists — "give me the generic link and label it as such". So the sin was
+    // never the homepage; it was the UNLABELLED homepage masquerading as
+    // record-level provenance. A link declared `source_scope: 'generic'` is
+    // honest and useful. One left undeclared still fails.
+    const scope = obj.source_scope;
+    if (scope === 'generic') {
+      if (typeof obj.source_label !== 'string' || obj.source_label.trim().length < 4) {
+        problems.push(`${file}${path}.${k}: source_scope 'generic' with no source_label — a generic link MUST say what it is`);
+      } else genericLinks++;
+    } else if (isBareOrigin(v)) {
+      problems.push(`${file}${path}.${k}: BARE HOMEPAGE and not labelled generic — it reads as record-level provenance and is not: ${v}`);
     } else {
       deepLinks++;
     }
@@ -89,7 +100,9 @@ function inspect(obj, file, path = '') {
   }
 
   // A null record_url is fine ONLY with instructions a human can follow.
-  if ('record_url' in obj && obj.record_url === null) {
+  // A null record_url is fine with EITHER a labelled generic link or usable
+  // instructions. Silence is still not an option.
+  if ('record_url' in obj && obj.record_url === null && obj.source_scope !== 'generic') {
     const how = obj.how_to_verify;
     if (typeof how !== 'string' || how.trim().length < 12) {
       problems.push(`${file}${path}: record_url is null with no usable how_to_verify`);
@@ -110,7 +123,7 @@ for (const dir of ['site/src/data', 'publish/out', 'data']) {
   }
 }
 
-if (checked === 0 && honestNulls === 0) {
+if (checked === 0 && honestNulls === 0 && genericLinks === 0) {
   // ⛔ Not a pass. A gate that inspected nothing must never report clean —
   // this project has shipped that mistake once already.
   console.error('verify-provenance: NO URLs INSPECTED — cannot report clean');
@@ -125,6 +138,6 @@ if (problems.length) {
 }
 
 console.log(
-  `✓ verify-provenance — ${deepLinks} record link(s) resolve past the origin, ` +
-  `${honestNulls} honest null(s) with instructions, 0 denied hosts cited`,
+  `✓ verify-provenance — ${deepLinks} record-level link(s), ${genericLinks} labelled generic, ` +
+  `${honestNulls} instruction-only, 0 denied hosts cited`,
 );

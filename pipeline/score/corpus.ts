@@ -19,7 +19,13 @@ import type { ScoreConfig } from './config.ts';
 import type { Enrichment } from './enrich-contract.ts';
 import type { SourceRef } from './enrich-contract.ts';
 import type { WarehouseParcel } from './read-warehouse.ts';
-import { Population, buildCohorts, type CohortIndex, type ValuedRow } from './cohorts.ts';
+import {
+  Population,
+  buildCohorts,
+  detectValueFloors,
+  type CohortIndex,
+  type ValuedRow,
+} from './cohorts.ts';
 import { rollUp, withContributions } from './index.ts';
 import {
   assertComponentsCoherent,
@@ -55,6 +61,10 @@ export type ScoreTallies = {
   unknown: Record<string, number>;
   veto_by_reason: Record<string, number>;
   cohorts: { total: number; usable: number; min_cohort: number };
+  /** Per-county administrative floors detected in the corpus, and how many rows
+   *  sit on each. Published in the manifest — a rule this consequential must be
+   *  legible in the output, not only in the code that applied it. */
+  value_floors: Record<string, { value: number; rows_at_floor: number }>;
 };
 
 export type ScoreCorpusOptions = {
@@ -104,7 +114,9 @@ export function scoreCorpus(
   opts: ScoreCorpusOptions,
 ): { scored: ScoredParcel[]; cohorts: CohortIndex; tallies: ScoreTallies } {
   const { cfg, enrichment, now } = opts;
-  const cohorts = buildCohorts(rows.map(toSignalRow), cfg);
+  const signalRows = rows.map(toSignalRow);
+  const floors = detectValueFloors(signalRows, cfg.per_acre.min_cohort);
+  const cohorts = buildCohorts(signalRows, cfg, floors);
   const discountCohorts = buildDiscountCohorts(rows, enrichment);
   const patterns = useClassPatterns(cfg);
 
@@ -176,6 +188,9 @@ export function scoreCorpus(
       unknown,
       veto_by_reason: vetoByReason,
       cohorts: { total: cohorts.byKey.size, usable: usableCohorts, min_cohort: cfg.per_acre.min_cohort },
+      value_floors: Object.fromEntries(
+        [...cohorts.floors].map(([fips, f]) => [fips, { value: f.value, rows_at_floor: f.count }]),
+      ),
     },
   };
 }

@@ -103,6 +103,17 @@
           "site/src/data/listings.json": "gates/provenance-homepage.json"
         }
       }
+    ],
+    "verify-ledger-reconciles.mjs": [
+      {
+        "name": "ledger-drift",
+        "expect": "red",
+        "_why": "Measured 2026-08-19: the warehouse held 235,421 parcels while county_runs claimed 171,661 \u2014 Watauga (46,252) and Mitchell (17,508) sat in the file while the ledger called them not-run. coverage.json is built from that ledger, so the site would have rendered 'we cannot see this county' over 63,760 parcels we hold.",
+        "plant": {
+          "data/warehouse/warehouse-drifted.sqlite": "gates/ledger-drift/warehouse-drifted.sqlite",
+          "data/warehouse/warehouse-pointer.json": "gates/ledger-drift/warehouse-pointer.json"
+        }
+      }
     ]
   },
   "non_verify_gates": {

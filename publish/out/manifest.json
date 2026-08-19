@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-19T16:07:34.304Z",
+  "generated_at": "2026-08-19T16:10:31.603Z",
   "warehouse": {
     "file": "warehouse-2026-08-19T15-48-58.sqlite",
     "sha256": "baf17b77015ea527b5b5c29669d8b408ddf56476a28def8858823311d6c1409e",
@@ -10,20 +10,20 @@
   "published_rows": 500,
   "excluded": {
     "vetoed": 10742,
-    "no_scorable_signal": 26018,
-    "ranked_below_cutoff": 198161,
+    "no_scorable_signal": 26236,
+    "ranked_below_cutoff": 197943,
     "cutoff": 500
   },
   "signals": {
     "known": {
-      "per_acre": 207164
+      "per_acre": 206499
     },
     "unknown": {
       "discount": 235421,
       "distress": 235421,
       "water": 235421,
       "livability": 235421,
-      "per_acre": 28257
+      "per_acre": 28922
     }
   },
   "veto_by_reason": {
@@ -32,9 +32,23 @@
     "use_class_excluded": 1773
   },
   "cohorts": {
-    "total": 755,
-    "usable": 134,
+    "total": 753,
+    "usable": 133,
     "min_cohort": 50
+  },
+  "value_floors": {
+    "37009": {
+      "value": 100,
+      "rows_at_floor": 269
+    },
+    "37121": {
+      "value": 100,
+      "rows_at_floor": 109
+    },
+    "37189": {
+      "value": 100,
+      "rows_at_floor": 359
+    }
   },
   "enrichment_present": {
     "water": false,

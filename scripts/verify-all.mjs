@@ -25,6 +25,7 @@ const GATES = [
   ['verify-ingest-guards.mjs', 'the trust boundary rejects every known-bad payload'],
   ['verify-no-pii.mjs', 'no owner PII on any published surface (D1)'],
   ['verify-provenance.mjs', 'every source link shows the RECORD, never a homepage'],
+  ['verify-ledger-reconciles.mjs', 'the county ledger agrees with the parcels table'],
   ['verify-controls.mjs', 'META: every gate proven to go RED against its fixture'],
 ];
 

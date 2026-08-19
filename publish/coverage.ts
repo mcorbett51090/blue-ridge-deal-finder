@@ -42,6 +42,9 @@ export type CoverageRow = {
   rows: number | null;
   /** Rows of this county in the PUBLISHED payload. 0 is a real measurement here. */
   published: number;
+  /** Rows that scored at least ONE signal. 0 here means the county publishes
+   *  nothing we can price — a different fact from "none of them ranked". */
+  scorable: number;
   ledger_status: string | null;
   last_ingested_at: string | null;
   /** Rendered verbatim. The three data_states never share a sentence. */
@@ -95,6 +98,10 @@ export const NOTE_NOT_RUN =
 export const NOTE_ZERO_DEALS =
   'Collected and scored: we hold this county\'s parcels and NONE of them ranked into the published ' +
   'set. This is a real zero, measured.';
+export const NOTE_NO_SCORABLE_SIGNAL =
+  'Collected, but NOTHING HERE CAN BE SCORED: this county publishes no assessed values, so every ' +
+  'signal we have is unknown for every one of its parcels. That is a gap in what the county ' +
+  'publishes, not a judgement about its land.';
 export const NOTE_INGESTED = 'Collected and scored — the rows below are published from real parcel records.';
 
 export function buildCoverage(
@@ -102,12 +109,14 @@ export function buildCoverage(
   ledger: readonly CountyLedgerRow[],
   rowsByFips: ReadonlyMap<string, number>,
   publishedByFips: ReadonlyMap<string, number>,
+  scorableByFips: ReadonlyMap<string, number> = new Map(),
 ): CoverageRow[] {
   const ledgerByFips = new Map(ledger.map((l) => [l.fips, l]));
   return seeds.map((s) => {
     const led = ledgerByFips.get(s.fips) ?? null;
     const rows = rowsByFips.get(s.fips) ?? 0;
     const published = publishedByFips.get(s.fips) ?? 0;
+    const scorable = scorableByFips.get(s.fips) ?? 0;
 
     let dataState: DataState;
     if (rows > 0) dataState = 'ingested';
@@ -117,7 +126,8 @@ export function buildCoverage(
     let note: string;
     if (dataState === 'no-source') note = NOTE_NO_SOURCE;
     else if (dataState === 'not-run') note = NOTE_NOT_RUN;
-    else note = published === 0 ? NOTE_ZERO_DEALS : NOTE_INGESTED;
+    else if (published > 0) note = NOTE_INGESTED;
+    else note = scorable === 0 ? NOTE_NO_SCORABLE_SIGNAL : NOTE_ZERO_DEALS;
 
     // The disagreement is NAMED, not smoothed over.
     if (dataState === 'ingested' && led !== null && led.ingest_status !== 'complete') {
@@ -137,6 +147,7 @@ export function buildCoverage(
       data_state: dataState,
       rows: rows > 0 ? rows : null,
       published,
+      scorable,
       ledger_status: led?.ingest_status ?? null,
       last_ingested_at: led && led.ingest_status === 'complete' ? led.ingested_at : null,
       note,

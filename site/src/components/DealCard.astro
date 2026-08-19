@@ -199,10 +199,17 @@ const vintage = (() => {
         {saleDate?.known && <> · sale {saleDate.text}</>}
         <br />
         {
-          (ev.record_url ?? ev.source_url) ? (
-            <a href={ev.record_url ?? ev.source_url} rel="noopener nofollow external" target="_blank">
+          ev.record_url ? (
+            <a href={ev.record_url} rel="noopener nofollow external" target="_blank">
               Evidence source ↗
             </a>
+          ) : ev.source_url ? (
+            <>
+              <a href={ev.source_url} rel="noopener nofollow external" target="_blank">
+                {ev.source_label ?? 'County source'} ↗
+              </a>
+              <span class="dcard__scope"> — general source, not this record</span>
+            </>
           ) : (
             <span class="dcard__howto" title={ev.how_to_verify}>
               No direct link — {ev.how_to_verify}
@@ -226,10 +233,20 @@ const vintage = (() => {
   */}
   <p class="dcard__src">
     {
-      (l.record_url ?? l.source_url) ? (
-        <a href={l.record_url ?? l.source_url} rel="noopener nofollow external" target="_blank">
-          Parcel source ↗
+      l.record_url ? (
+        <a href={l.record_url} rel="noopener nofollow external" target="_blank">
+          Exact parcel record ↗
         </a>
+      ) : l.source_url ? (
+        /* Owner ruling: a generic link is wanted where no per-record page
+           exists — but it must SAY it is generic, or it reads as record-level
+           provenance and is not. The label is the honesty, not the link. */
+        <>
+          <a href={l.source_url} rel="noopener nofollow external" target="_blank">
+            {l.source_label ?? 'County source'} ↗
+          </a>
+          <span class="dcard__scope"> — general source, not this record</span>
+        </>
       ) : (
         <span class="dcard__howto">No direct link — {l.how_to_verify}</span>
       )
@@ -240,6 +257,10 @@ const vintage = (() => {
 <style>
   /* Instructions stand in for a link where no per-record page exists. Styled
      as prose, deliberately NOT as a link, so it never looks clickable. */
+  .dcard__scope {
+    color: var(--ink-3, #667575);
+    font-size: 0.86em;
+  }
   .dcard__howto {
     color: var(--ink-3, #667575);
     font-style: italic;

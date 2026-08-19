@@ -38,6 +38,7 @@ const ALLOWED = new Set([
   'id', 'fips', 'county', 'state', 'lat', 'lng', 'acres', 'assessed_value', 'price',
   'score', 'score_breakdown', 'for_sale_evidence', 'water', 'flood_zone', 'parcel_use',
   'source_url', 'record_url', 'how_to_verify', 'source_id', 'source_note',
+  'source_scope', 'source_label',
   'first_seen', 'last_seen',
   'confidence', 'acreage_basis', 'assessment_year', 'reappraisal_year',
   'owner_out_of_state', 'owner_is_entity', 'tenure_years', 'note',
@@ -92,8 +93,12 @@ for (const [i, l] of listings.entries()) {
   } else {
     let u = null;
     try { u = new URL(rec); } catch { fail(4, `${at}: record_url is unparseable`); }
-    if (u && (u.pathname === '' || u.pathname === '/') && !u.search) {
-      fail(4, `${at}: record_url is a BARE HOMEPAGE — it does not show the record`);
+    const generic = l?.source_scope === 'generic';
+    if (u && (u.pathname === '' || u.pathname === '/') && !u.search && !generic) {
+      fail(4, `${at}: bare homepage not labelled source_scope:'generic' — it reads as record-level provenance and is not`);
+    }
+    if (generic && (typeof l?.source_label !== 'string' || l.source_label.trim().length < 4)) {
+      fail(4, `${at}: source_scope 'generic' with no source_label — a generic link must say what it is`);
     }
   }
 

@@ -137,9 +137,70 @@ export type CohortIndex = {
   basisByKey: Map<string, string>;
   /** How many rows contributed a value at all. Not the row count. */
   scoredRows: number;
+  /** The administrative floor per county, when one was detected. */
+  floors: ReadonlyMap<string, ValueFloor>;
 };
 
 export type ValuedRow = CohortRow & { value: number | null };
+
+export type ValueFloor = { value: number; count: number };
+
+/**
+ * ⛔ THE ADMINISTRATIVE FLOOR — RT-3, ONE LAYER OUT FROM THE ZERO SENTINEL.
+ *
+ * sentinel.ts catches `parval = 0`. It does not catch `parval = 100`, and the
+ * measured corpus is full of the latter: 764 rows carry EXACTLY $100, and only
+ * ONE row in 214,588 carries less than $100 anywhere in the corpus. $100 is the
+ * minimum assessed value in 5 of the 7 ingested counties (Watauga 359 rows,
+ * Ashe 269, Mitchell 109). That is a PILE-UP AT A FLOOR, which is the same
+ * shape the 1753-01-01 SQL Server date floor has and is read the same way: an
+ * administrative placeholder, not a valuation. G.S. 105-283 requires assessment
+ * at "true value in money", and $100 on 134 acres is not an assessment anyone
+ * performed.
+ *
+ * Left in, these rows are the cheapest $/acre in every cohort they touch and
+ * own the entire top of the ranking — the HOA-commons defect wearing a
+ * different use class, and the reason the first real publish produced 500
+ * listings that were all placeholder assessments.
+ *
+ * ⛔ THE RULE IS MEASURED, NOT A HARDCODED DOLLAR AMOUNT. A county's floor is
+ * whatever value that county piles rows up on at its minimum; a county with no
+ * pile-up has no floor and loses nothing. `min_pileup` reuses the cohort
+ * minimum, because the argument is identical: below that count it is a
+ * coincidence, not a distribution.
+ *
+ * The rows become `unknown` — NOT vetoed, NOT zero. "The county did not price
+ * this parcel" is exactly true, and it leaves the denominator.
+ */
+export function detectValueFloors(
+  rows: readonly ValuedRow[],
+  minPileup: number,
+): Map<string, ValueFloor> {
+  const perCounty = new Map<string, Map<number, number>>();
+  for (const r of rows) {
+    if (r.value === null || !(r.value > 0)) continue;
+    const counts = perCounty.get(r.fips) ?? new Map<number, number>();
+    counts.set(r.value, (counts.get(r.value) ?? 0) + 1);
+    perCounty.set(r.fips, counts);
+  }
+  const floors = new Map<string, ValueFloor>();
+  for (const [fips, counts] of perCounty) {
+    let min = Infinity;
+    for (const v of counts.keys()) if (v < min) min = v;
+    const count = counts.get(min) ?? 0;
+    if (count >= minPileup) floors.set(fips, { value: min, count });
+  }
+  return floors;
+}
+
+/** True when this row sits ON its county's administrative floor. */
+export function isAtValueFloor(
+  row: { fips: string; value: number | null },
+  floors: ReadonlyMap<string, ValueFloor>,
+): boolean {
+  const floor = floors.get(row.fips);
+  return floor !== undefined && row.value !== null && row.value === floor.value;
+}
 
 /**
  * Build the per-cohort populations of assessed $/acre.
@@ -149,7 +210,11 @@ export type ValuedRow = CohortRow & { value: number | null };
  * makes the whole bucket look expensive by comparison — the failure
  * sentinel.partitionForScoring exists to prevent, one layer up.
  */
-export function buildCohorts(rows: readonly ValuedRow[], cfg: ScoreConfig): CohortIndex {
+export function buildCohorts(
+  rows: readonly ValuedRow[],
+  cfg: ScoreConfig,
+  floors: ReadonlyMap<string, ValueFloor> = new Map(),
+): CohortIndex {
   const collect = new Map<string, number[]>();
   const basisByKey = new Map<string, string>();
   let scoredRows = 0;
@@ -165,6 +230,9 @@ export function buildCohorts(rows: readonly ValuedRow[], cfg: ScoreConfig): Coho
     }
 
     if (row.value === null || !(row.value > 0)) continue;
+    // A floor row in the POPULATION drags every percentile in its cohort down
+    // and makes the whole bucket read as expensive by comparison.
+    if (isAtValueFloor(row, floors)) continue;
     const perAcre = row.value / (row.acreage as number);
     if (!Number.isFinite(perAcre)) continue;
     const list = collect.get(key);
@@ -175,7 +243,7 @@ export function buildCohorts(rows: readonly ValuedRow[], cfg: ScoreConfig): Coho
 
   const byKey = new Map<string, Population>();
   for (const [key, values] of collect) byKey.set(key, new Population(values));
-  return { byKey, basisByKey, scoredRows };
+  return { byKey, basisByKey, scoredRows, floors };
 }
 
 /** The per-county cohort `discount` ranks in (plan §5.2). `cntyfips` IS the
