@@ -2,7 +2,7 @@ fips,state,county,region,tier,parcel_source,notes
 37189,NC,Watauga,NC High Country,rich,nc-onemap-parcels,
 37009,NC,Ashe,NC High Country,rich,nc-onemap-parcels,parvaltype=Market — not comparable to Assessed counties
 37011,NC,Avery,NC High Country,rich,nc-onemap-parcels,
-37021,NC,Buncombe,Asheville,rich,nc-onemap-parcels,REAPPRAISAL 2026 — 26.8% of corpus repricess this year
+37021,NC,Buncombe,Asheville,rich,nc-onemap-parcels,next reappraisal 2027 per NCDOR (last 2021, 6-yr cycle) — 26.8% of corpus repricess in one refresh; detector required
 37089,NC,Henderson,Asheville,rich,nc-onemap-parcels,
 37087,NC,Haywood,NC High Country,rich,nc-onemap-parcels,parvaltype=Market; A19 tax-foreclosure page confirmed
 37099,NC,Jackson,NC High Country,rich,nc-onemap-parcels,
