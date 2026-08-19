@@ -190,6 +190,13 @@ const coverageLite = coverage.map((c) => ({
         <ul class="res__list" data-list="market">
           {market.map((l) => <DealCard l={l} />)}
         </ul>
+        {/* Structurally empty (no evidence source ingested) is NOT the same as
+            filtered-to-zero, and only one of them is the reader's to fix. */}
+        {market.length === 0 && (
+          <div data-lane-empty="market">
+            <EmptyState tier="rich" sourceMissing lane="market" />
+          </div>
+        )}
         <div data-dir-empty="market" hidden>
           <EmptyState tier="rich" filtered lane="market" />
         </div>
@@ -197,7 +204,7 @@ const coverageLite = coverage.map((c) => ({
 
       <!-- LANE 2 — <details>, so it is CLOSED with no JS at all. The honesty
            requirement must not depend on a script running. -->
-      <details class="lane lane--prospect" data-lane-section="prospect">
+      <details class="lane lane--prospect" data-lane-section="prospect" open={market.length === 0}>
         <summary class="lane__sum">
           <span class="lane__sum-t">{LANE_LABEL.prospect}</span>
           <span class="lane__n num" data-lane-count="prospect">{prospect.length}</span>

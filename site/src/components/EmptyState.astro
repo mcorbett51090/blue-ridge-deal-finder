@@ -22,10 +22,11 @@ interface Props {
   county?: string | undefined;
   state?: string | undefined;
   filtered?: boolean;
+  sourceMissing?: boolean;
   lane?: 'market' | 'prospect';
 }
-const { tier, county, state, filtered = false, lane = 'market' } = Astro.props;
-const c = emptyCopy({ tier, county, state, filtered, lane });
+const { tier, county, state, filtered = false, sourceMissing = false, lane = 'market' } = Astro.props;
+const c = emptyCopy({ tier, county, state, filtered, sourceMissing, lane });
 ---
 
 <div class={`empty empty--${c.tierKey}`} data-empty-tier={c.tierKey}>

@@ -19,6 +19,9 @@ export interface EmptyArgs {
   state?: string | undefined;
   /** true when the reader's filters emptied the list, rather than the data */
   filtered?: boolean;
+  /** TRUE when the lane has no rows in the PAYLOAD at all — a missing source,
+   *  not a filtering outcome. */
+  sourceMissing?: boolean;
   lane?: 'market' | 'prospect';
 }
 
@@ -64,6 +67,24 @@ export function emptyCopy(a: EmptyArgs): EmptyCopy {
       body: `Only a partial or untested source exists here, so most parcel attributes are unknown. Read an empty result as "mostly unknown", not as "nothing here".`,
       showStatusLink: true,
       tierKey: 'thin',
+    };
+  }
+
+  // ⛔ A lane with ZERO rows in the payload is not a filtering result, and
+  // saying "no matches for these filters" invites the reader to widen a filter
+  // that was never the cause. Lane 1 is empty today because no for-sale or
+  // distress source has been ingested yet — the parcel corpus is loaded, the
+  // evidence join is not. Those are different facts and the copy must say which.
+  if (a.lane === 'market' && a.sourceMissing === true) {
+    return {
+      heading: 'No for-sale or distress source is connected yet',
+      body:
+        'The parcel corpus is loaded and scored, but nothing has been joined to it that says a ' +
+        'property is actually for sale — foreclosure notices, tax-sale rosters and estate filings ' +
+        'are a separate ingest that has not run. This lane is empty because that source is missing, ' +
+        'not because your filters excluded anything. The prospecting lane below has every scored parcel.',
+      showStatusLink: true,
+      tierKey: a.tier,
     };
   }
 
