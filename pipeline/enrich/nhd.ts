@@ -306,7 +306,63 @@ export function cellSourceUrl(baseUrl: string, bbox: BBox): string {
  * merely smaller" failure recorded in assert-healthy.ts.
  */
 export async function fetchCell(client: FetchClient, key: string): Promise<NhdCell> {
-  const bbox = cellBboxOf(key);
+  return fetchCellBbox(client, key, cellBboxOf(key), 0);
+}
+
+/** Split a bbox into four. Used only when a cell is too dense to fetch whole. */
+function quarters([xmin, ymin, xmax, ymax]: BBox): BBox[] {
+  const mx = (xmin + xmax) / 2;
+  const my = (ymin + ymax) / 2;
+  return [
+    [xmin, ymin, mx, my],
+    [mx, ymin, xmax, my],
+    [xmin, my, mx, ymax],
+    [mx, my, xmax, ymax],
+  ];
+}
+
+/**
+ * ⛔ REFUSING A TRUNCATED CELL IS RIGHT; ABORTING THE RUN IS TOO BLUNT.
+ *
+ * `assertNotTruncated` correctly refuses a half-read cell, because a missing
+ * creek reads downstream as `has_stream: false` — a measured negative that is
+ * really a partial read. But the first enrichment over the full published set
+ * died on its first dense cell (-82.9,35.8), and one crowded valley must not
+ * cost 658 parcels their water signal.
+ *
+ * So a truncated cell is SUBDIVIDED and retried, up to a bounded depth. The
+ * guarantee is unchanged: every cell that contributes data was read whole. What
+ * changes is that "too much water here" becomes four smaller reads instead of a
+ * dead run — and if it is still truncated at max depth, it still throws rather
+ * than returning a partial answer.
+ */
+const MAX_SPLIT_DEPTH = 3;
+
+async function fetchCellBbox(
+  client: FetchClient,
+  key: string,
+  bbox: BBox,
+  depth: number,
+): Promise<NhdCell> {
+  try {
+    return await fetchCellOnce(client, key, bbox);
+  } catch (err) {
+    const truncated = err instanceof Error && err.message.includes('transfer limit');
+    if (!truncated || depth >= MAX_SPLIT_DEPTH) throw err;
+    const parts = await Promise.all(
+      quarters(bbox).map((q) => fetchCellBbox(client, key, q, depth + 1)),
+    );
+    return {
+      key,
+      bbox,
+      flowlines: parts.flatMap((p) => p.flowlines),
+      waterbodies: parts.flatMap((p) => p.waterbodies),
+      areas: parts.flatMap((p) => p.areas),
+    };
+  }
+}
+
+async function fetchCellOnce(client: FetchClient, key: string, bbox: BBox): Promise<NhdCell> {
   const flowBody = await client.fetchJson(NHD_FLOWLINE_SOURCE, {
     path: '/query',
     searchParams: cellQueryParams(bbox, 'permanent_identifier,gnis_name,ftype,fcode,lengthkm'),

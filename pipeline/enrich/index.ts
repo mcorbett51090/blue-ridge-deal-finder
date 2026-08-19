@@ -27,6 +27,7 @@
  * 'polygon-intersection' rather than a bbox rectangle wearing that label.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { FetchClient } from '../fetch/client.ts';
@@ -83,10 +84,45 @@ export function warehousePath(repoRoot: string): string {
  */
 export function selectCandidates(
   dbPath: string,
-  options: { limit: number; counties?: readonly string[]; minAcres?: number; maxAcres?: number },
+  options: {
+    limit: number;
+    counties?: readonly string[];
+    minAcres?: number;
+    maxAcres?: number;
+    /** Enrich EXACTLY these warehouse record_ids, bypassing the acreage heuristic. */
+    ids?: readonly string[];
+  },
 ): Candidate[] {
   const db = new Db(dbPath, { readOnly: true });
   try {
+    // ⛔ An explicit id list wins over the heuristic, and deliberately drops the
+    // `owner_is_government = 0` filter with it.
+    //
+    // The heuristic exists to pick PROSPECTS worth measuring, and excluding
+    // public land is right for that. But the published set now contains eight
+    // county-owned REO parcels — government-owned AND for sale, which is the
+    // whole point of them — and the acreage window (2–200 ac) excludes every
+    // one besides: they are 0.20 to 1.08 acres. Enriching "what we publish"
+    // must mean exactly that, or the rows the owner is most likely to act on
+    // are the ones left unmeasured.
+    if (options.ids && options.ids.length > 0) {
+      const placeholders = options.ids.map(() => '?').join(',');
+      const rows = db
+        .prepare(
+          `SELECT record_id, county, parno, acreage, value, parusedesc FROM parcels ` +
+            `WHERE record_id IN (${placeholders}) AND status = 'active'`,
+        )
+        .all([...options.ids]);
+      return rows.map((r) => ({
+        record_id: String(r['record_id']),
+        county: String(r['county']),
+        parno: String(r['parno']),
+        acreage: r['acreage'] === null ? null : Number(r['acreage']),
+        value: r['value'] === null ? null : Number(r['value']),
+        parusedesc: String(r['parusedesc'] ?? ''),
+      })) as Candidate[];
+    }
+
     const minAcres = options.minAcres ?? 2;
     const maxAcres = options.maxAcres ?? 200;
     const where = [
@@ -431,10 +467,21 @@ export async function main(argv: readonly string[]): Promise<void> {
     return i >= 0 ? (argv[i + 1] ?? null) : null;
   };
   const limit = Number(arg('limit') ?? '12');
+  // `--ids-from <file>` enriches exactly the rows a published payload contains,
+  // closing the loop between what the site shows and what has been measured.
+  const idsFrom = arg('ids-from');
+  let ids: string[] | undefined;
+  if (idsFrom) {
+    const doc = JSON.parse(readFileSync(idsFrom, 'utf8')) as unknown;
+    const rows = Array.isArray(doc) ? doc : ((doc as { listings?: unknown[] }).listings ?? []);
+    ids = (rows as Array<{ id?: string }>).map((r) => String(r.id)).filter((x) => x && x !== 'undefined');
+    console.log(`  enriching ${ids.length} published row(s) from ${idsFrom}`);
+  }
   const countiesRaw = arg('counties');
   const report = await enrichCandidates({
     repoRoot,
     limit,
+    ...(ids ? { ids } : {}),
     ...(countiesRaw ? { counties: countiesRaw.split(',').map((s) => s.trim()) } : {}),
     withSlope: argv.includes('--slope'),
   });
@@ -453,4 +500,14 @@ export async function main(argv: readonly string[]): Promise<void> {
       `requests: nhd ${report.counters.nhdRequests}, parcel-geom ${report.counters.parcelGeometryRequests}, ` +
       `epqs ${report.counters.epqsRequests}`,
   );
+}
+
+// ⛔ main() was EXPORTED AND NEVER CALLED. Running this file did nothing and
+// exited 0 — a silent no-op that looks exactly like a successful run with
+// nothing to do. Measured: `npx tsx pipeline/enrich/index.ts --ids-from … `
+// produced 0 bytes of output, exit 0, and left the enrichment file untouched.
+//
+// Guarded so importing the module (tests do) still does not execute it.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main(process.argv.slice(2));
 }

@@ -24,7 +24,8 @@
     "enrich": "tsx pipeline/enrich/cli.ts",
     "ingest:distress": "tsx pipeline/ingest-distress.ts",
     "ingest:tn": "tsx pipeline/ingest-tn.ts",
-    "ingest:coords": "tsx pipeline/ingest/coords-run.ts"
+    "ingest:coords": "tsx pipeline/ingest/coords-run.ts",
+    "mirror": "node scripts/mirror.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

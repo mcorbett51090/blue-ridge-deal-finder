@@ -915,3 +915,37 @@ falls inside the Blue Ridge envelope before any row is warehoused. Do not trust 
 `extent`: it is frequently in a projected CRS (2276 here, 2238 for the Florida one), and reading a
 projected extent as lon/lat yields nonsense rather than a clean rejection. An **empty sample is a
 failure, not a pass**. Covered by 7 tests using the two real wrong-state coordinates as controls.
+
+---
+
+## Jackson County delinquent-accounts PDF — NOT JOINABLE (coordinator, 2026-08-19)
+
+`jacksonnc.org/DocumentCenter/View/2221` — 4,855,020 B, 73 pages, **text layer present** (77
+`/Font`), 350,221 characters extracted cleanly with the same zlib reader used for the REO document.
+The document is readable. It is still unusable, and the reason is a join key, not a parse.
+
+| check | result |
+|---|---|
+| text extracted | 350,221 chars ✓ |
+| records parsed | thousands, shape `Name · TaxYear · Bill# · Parcel# · AmountDue` |
+| **PIN-format tokens** (`dddd-dd-dddd`) | **0** |
+| identifiers actually present | 6-digit BILL numbers (`246063`, `244296`, `244245`) |
+| occasional longer token | `100117554762658` — bill+parcel concatenated, 9-digit tail |
+| does that tail match `parno`? | no — Jackson `parno` is `7665-76-5033` |
+| `altparno` in NC OneMap for Jackson | **empty on every sampled row** |
+
+**Verdict: no key reaches our corpus.** The delinquent list is organised by tax bill; the parcel
+number is absent on most rows and, where present, is a different identifier scheme from the one
+NC OneMap publishes. There is no alternate parcel id to bridge them.
+
+⛔ **Not forced.** A fuzzy join here — matching on owner name, or on the 9-digit tail as though it
+were a parcel id — would attach tax-delinquency to the wrong properties. A distress flag on the
+wrong parcel is worse than no flag: it is a false claim about a real address, and the owner is
+spending money on these rows.
+
+**What would settle it:** the county's bill#→parcel mapping (a tax-office request, not a scrape), or
+an NC OneMap county whose `altparno` is populated. Neither is a scrape target, so this stays
+recorded rather than attempted.
+
+**Cost of the gap:** tax delinquency is the highest-volume distress signal available anywhere in the
+corpus, and it is out of reach in the one county where the document is otherwise perfectly readable.
