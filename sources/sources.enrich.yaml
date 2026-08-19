@@ -1,0 +1,299 @@
+# sources/sources.enrich.yaml — the P7 CANDIDATE-ENRICHMENT allowlist.
+#
+# ⛔ WHY THIS IS A SEPARATE FILE FROM sources.yaml. sources.yaml is the PARCEL
+# lane and was being edited by another agent while P7 ran. Splitting the files
+# is coordination, not architecture: pipeline/enrich/sources.ts loads this one
+# and merges the SHARED denylist from sources.denied.yaml, so the denylist still
+# wins every conflict exactly as it does for the parcel lane. Merging the two
+# files later is a mechanical change.
+#
+# Three kinds of entry live here, and the third is the one that matters most:
+#   sources[]        — ArcGIS layers, count-queryable, ordinary `Source` shape
+#   point_services[] — keyless point lookups with no `where` clause at all
+#   refused[]        — MEASURED and NOT PERMITTED. Loaded into no registry, so
+#                      the fetcher cannot reach them even by id.
+#
+# ⛔ EVERY robots VERDICT BELOW WAS MEASURED 2026-08-19 WITH THE HONEST UA, AND
+# TWO OF THE FOUR SERVICES P0 CALLED "LIVE AND KEYLESS" TURN OUT TO BE CLOSED TO
+# US. Live is not the same question as permitted, and P0 only asked the first.
+
+sources:
+  # ── USGS NHD — the water signal (plan §5.5), the owner's own added signal ──
+  #
+  # Three layers, three entries: the schema fingerprint is per LAYER, and one
+  # entry cannot carry three of them. Same host, so the client's per-host token
+  # bucket rate-limits all three together at 0.5 rps.
+  #
+  # ⛔ FIELD-NAME CASING IS NOT CONSISTENT ACROSS THESE THREE LAYERS.
+  # Measured on the same service, same request, same day:
+  #   layer  6 returns `fcode`, `ftype`, `gnis_name`   (lowercase)
+  #   layer  9 returns `FCODE`, `FTYPE`, `GNIS_NAME`   (UPPERCASE)
+  #   layer 12 returns `FCODE`, `FTYPE`, `GNIS_NAME`   (UPPERCASE)
+  # `outFields` is case-insensitive, so the REQUEST looks identical either way
+  # and only the response keys differ. A reader keying on `fcode` reads
+  # `undefined` for layers 9 and 12 — and `undefined === 46006` is `false`, i.e.
+  # "not perennial", silently, for every waterbody in the corpus. nhd.ts reads
+  # every attribute case-insensitively AND asserts presence; see attr().
+
+  - id: usgs-nhd-flowline
+    kind: arcgis-map-server
+    # Layer 6 = "Flowline - Large Scale": streams, creeks and rivers as LINES.
+    # This is the layer that answers "does a creek cross this property and how
+    # much of it", which is the whole point of holding parcel polygons.
+    url: https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6
+    legal_basis: government-published
+    robots:
+      # ⛔ MEASURED: GET https://hydro.nationalmap.gov/robots.txt -> HTTP 403,
+      # 630 bytes, and the body is the ArcGIS REST Framework's own HTML error
+      # page ("Error: Access to this resource is not allowed") — not a robots
+      # file and not an access-control decision about crawling. Every path
+      # outside /arcgis on this host answers that way. There IS no robots.txt,
+      # so the honest verdict is `absent`, the same ruling sources.yaml already
+      # records for services.nconemap.gov's 404. Nobody granted anything; there
+      # is simply no file to grant it.
+      #
+      # `evidence_sha256` is the digest of the DIRECTIVE TEXT, and for a non-2xx
+      # response that text is the empty string — which is what client.ts hashes
+      # (`res.ok ? await res.text() : ''`). The 403 body itself is cached beside
+      # this file so `absent` is auditable rather than asserted.
+      verdict: absent
+      checked_at: "2026-08-19"
+      evidence_url: https://hydro.nationalmap.gov/robots.txt
+      evidence_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    tos:
+      verdict: permissive
+      checked_at: "2026-08-19"
+      evidence_url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+    rate:
+      rps: 0.5
+      concurrency: 1
+      crawl_delay_s: null
+      backoff: exponential
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    # ⛔ A STABLE control block, and stability is the hard part here. A national
+    # hydrography layer has no county partition and no count that stays put, so
+    # `count(fcode=46006)` would be a control that fails for reasons that are not
+    # faults. `permanent_identifier` is stable BY CONSTRUCTION — it is what the
+    # field is for — so a single named feature is the one thing that can be
+    # asserted exactly. 89954987 is a Valley Creek segment in Watauga County NC.
+    # MEASURED live 2026-08-19: positive -> {"count":1}, negative -> {"count":0}.
+    control_block:
+      positive:
+        where: "permanent_identifier='89954987'"
+        returnCountOnly: true
+        expect_count: 1
+      negative:
+        where: "permanent_identifier='brdf-no-such-identifier'"
+        returnCountOnly: true
+        expect_count: 0
+    expect:
+      per_county_min_rows: {}
+      rolling_median_floor_pct: 0
+      max_delta_pct: 100
+      max_zero_parval_pct: 100
+    # Computed by pipeline/fetch/schema-fingerprint.ts over the canonical schema
+    # (18 fields, esriGeometryPolyline, maxRecordCount 2000, OID `OBJECTID`)
+    # cached at sources/evidence/schema/usgs-nhd.MapServer-6.f-json.json.
+    schema_fingerprint: "8f70c841d3cff055fe64d265452e4064b84ea2aa9fe1a7bfae93976132cfb092"
+    enabled: true
+
+  - id: usgs-nhd-waterbody
+    kind: arcgis-map-server
+    # Layer 12 = "Waterbody - Large Scale": ponds, lakes, reservoirs as POLYGONS.
+    url: https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/12
+    legal_basis: government-published
+    robots:
+      verdict: absent
+      checked_at: "2026-08-19"
+      evidence_url: https://hydro.nationalmap.gov/robots.txt
+      evidence_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    tos:
+      verdict: permissive
+      checked_at: "2026-08-19"
+      evidence_url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+    rate:
+      rps: 0.5
+      concurrency: 1
+      crawl_delay_s: null
+      backoff: exponential
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    # MEASURED live 2026-08-19: positive -> {"count":1}, negative -> {"count":0}.
+    # 89956909 is a perennial lake/pond (FCODE 39004) in the Watauga sample cell.
+    control_block:
+      positive:
+        where: "PERMANENT_IDENTIFIER='89956909'"
+        returnCountOnly: true
+        expect_count: 1
+      negative:
+        where: "PERMANENT_IDENTIFIER='brdf-no-such-identifier'"
+        returnCountOnly: true
+        expect_count: 0
+    expect:
+      per_county_min_rows: {}
+      rolling_median_floor_pct: 0
+      max_delta_pct: 100
+      max_zero_parval_pct: 100
+    schema_fingerprint: "b5784389dc20d1cfd7eee734d51fdfb835f7d089b71f72ae52d5822723351eba"
+    enabled: true
+
+  - id: usgs-nhd-area
+    kind: arcgis-map-server
+    # Layer 9 = "Area - Large Scale". This is how `has_river` is answered from
+    # GEOMETRY rather than from a name. NHD maps a watercourse as an AREA only
+    # once it is wide enough to have two banks worth drawing; a creek is a line
+    # in layer 6 and nothing in layer 9. So "an NHD Area feature of FTYPE 460
+    # (StreamRiver) overlaps this parcel" is a river claim resting on measured
+    # width, not on the word "River" appearing in a GNIS label.
+    url: https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/9
+    legal_basis: government-published
+    robots:
+      verdict: absent
+      checked_at: "2026-08-19"
+      evidence_url: https://hydro.nationalmap.gov/robots.txt
+      evidence_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    tos:
+      verdict: permissive
+      checked_at: "2026-08-19"
+      evidence_url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+    rate:
+      rps: 0.5
+      concurrency: 1
+      crawl_delay_s: null
+      backoff: exponential
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    # MEASURED live 2026-08-19: positive -> {"count":1}, negative -> {"count":0}.
+    control_block:
+      positive:
+        where: "PERMANENT_IDENTIFIER='89956859'"
+        returnCountOnly: true
+        expect_count: 1
+      negative:
+        where: "PERMANENT_IDENTIFIER='brdf-no-such-identifier'"
+        returnCountOnly: true
+        expect_count: 0
+    expect:
+      per_county_min_rows: {}
+      rolling_median_floor_pct: 0
+      max_delta_pct: 100
+      max_zero_parval_pct: 100
+    schema_fingerprint: "03c53bc84d3921e815107413df1ac9284285daffa88db611064327625d351e67"
+    enabled: true
+
+point_services:
+  # ── USGS EPQS — the slope half of `livability` (plan §5.6, C31) ────────────
+  - id: usgs-epqs
+    kind: point-lookup
+    url: https://epqs.nationalmap.gov/v1/json
+    legal_basis: government-published
+    robots:
+      # ⛔ MEASURED: GET https://epqs.nationalmap.gov/robots.txt -> HTTP 403, 42
+      # bytes, `{"message":"Missing Authentication Token"}`. That is AWS API
+      # Gateway's response for a path with no route attached — it is not a
+      # refusal aimed at crawlers, it is "there is nothing at this path". Same
+      # ruling as the NHD host: `absent`, evidence cached, digest of the empty
+      # directive text.
+      verdict: absent
+      checked_at: "2026-08-19"
+      evidence_url: https://epqs.nationalmap.gov/robots.txt
+      evidence_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    tos:
+      verdict: permissive
+      checked_at: "2026-08-19"
+      evidence_url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+    rate:
+      # Slower than the ArcGIS layers on purpose: this is ONE REQUEST PER SAMPLE
+      # POINT and P7 samples 5 points per parcel, so it is the only enrichment
+      # whose request count scales with the candidate set rather than with the
+      # number of geographic cells.
+      rps: 0.4
+      concurrency: 1
+      crawl_delay_s: null
+      backoff: exponential
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    # Both halves MEASURED live 2026-08-19 — see the ProbeExpectation comment in
+    # pipeline/fetch/types.ts for the exact bodies. The negative control is the
+    # important one: it asserts that this service's ERROR path is still the
+    # plain-text-at-HTTP-200 shape epqs.ts is written to catch. If that ever
+    # becomes real JSON, the parser must be revisited, and the control going red
+    # is how we find out.
+    control_probe:
+      positive:
+        params:
+          x: "-81.6746"
+          y: "36.2168"
+          units: "Meters"
+          wkid: "4326"
+          includeDate: "true"
+        expect: json-numeric-value
+      negative:
+        params:
+          x: "-999"
+          y: "-999"
+          units: "Meters"
+          wkid: "4326"
+          includeDate: "true"
+        expect: non-json-body
+    # sha256 over the SORTED KEY SET of a known-good response body — a point
+    # service publishes no schema document, so the response shape is the only
+    # thing there is to fingerprint. Keys: attributes, location, locationId,
+    # rasterId, resolution, value.
+    schema_fingerprint: "074874afc3746cfa9267eff1e51c1e801fa63ab13486132c27e79b7cd3bb8b2d"
+    enabled: true
+
+refused:
+  # ⛔ THESE TWO ARE WHY `livability` IS STILL MOSTLY UNKNOWN AFTER P7.
+  # P0 recorded all four federal enrichment services as "live and keyless" and
+  # marked the gate PASS. That was true and it was not the question. Live says
+  # the server answers; permitted says we may ask. Nobody asked the second
+  # question until P7, and for two of the four the answer is no.
+
+  - id: fema-nfhl
+    url: https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer
+    refusal: robots-disallow
+    checked_at: "2026-08-19"
+    evidence_url: https://hazards.fema.gov/robots.txt
+    evidence_file: sources/evidence/robots/hazards.fema.gov.robots.txt
+    evidence_sha256: "580cf09c14035844cfb2fe0b5f892d71aa94090b758cb94ae852e0702d53a8a8"
+    measured: >-
+      GET https://hazards.fema.gov/robots.txt -> HTTP 200, 806 bytes, a real
+      robots.txt whose FIRST TWO DIRECTIVES under `User-agent: *` are
+      `Disallow: /*?*` and `Disallow: /arcgis`. Our target path begins /arcgis
+      AND every ArcGIS REST query carries a query string, so it is disallowed
+      twice over. Digest identical across two fetches on the same day.
+      Reproduced 2/2; a third attempt was reset by the host mid-handshake,
+      which is itself a reason not to hammer it.
+    consequence: >-
+      Flood is UNKNOWN for every parcel, with reason `nfhl_robots_disallow`. It
+      is not "no flood risk" and it is not a zero penalty — a parcel we are not
+      allowed to check is exactly as unmeasured as one outside NFHL coverage.
+      pipeline/enrich/nfhl.ts implements the derivation and is unit-tested
+      against fixtures, but NOTHING CALLS IT OVER THE NETWORK and the orchestrator
+      refuses to. Re-check this file if FEMA's robots.txt changes; flipping the
+      lane back on is a registry edit, not a code change.
+
+  - id: census-tigerweb
+    url: https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Transportation/MapServer
+    refusal: robots-unobtainable
+    checked_at: "2026-08-19"
+    evidence_url: https://tigerweb.geo.census.gov/robots.txt
+    evidence_file: sources/evidence/robots/tigerweb.geo.census.gov.robots-200-waf-body.html
+    evidence_sha256: "1e82b0c554d548bcfdd61347cb4b70ad5bb27397e2a68fd6b9854cf0065fe61d"
+    measured: >-
+      GET https://tigerweb.geo.census.gov/robots.txt -> HTTP **200**, 189 bytes,
+      body `<html><head><title>Request Rejected</title>…Your support ID is:
+      13427891559852892367`. An F5 WAF answering for the origin. Reproduced 5/5
+      with the honest UA and 1/1 with curl's default UA, so it is not UA-keyed.
+      The support ID CHANGES ON EVERY REQUEST, so the body has no stable digest.
+      The service itself answers normally (Transportation/MapServer?f=json ->
+      200 / 9,455 bytes, 10 road layers), which is precisely the trap: the data
+      path works and only the permission path is unreadable.
+    consequence: >-
+      Road access is UNKNOWN for every parcel, with reason
+      `tiger_robots_unobtainable`, which is the branch plan §5.6 pre-authorised
+      ("if it fails, road access renders `unknown` permanently"). Two things
+      would have gone wrong had this been treated as a normal robots.txt:
+      robots-parser finds zero directives in HTML and returns ALLOWED, and the
+      rotating support ID would move the source to ingest_paused on every single
+      run. guard.ts looksLikeRobotsTxt() now refuses a non-empty body carrying
+      no recognisable directive, so the false permit is closed for every host,
+      not just this one.

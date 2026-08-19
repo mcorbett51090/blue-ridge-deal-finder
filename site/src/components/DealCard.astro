@@ -198,9 +198,17 @@ const vintage = (() => {
         <strong>{ev.label}</strong>
         {saleDate?.known && <> · sale {saleDate.text}</>}
         <br />
-        <a href={ev.source_url} rel="noopener nofollow external" target="_blank">
-          Evidence source ↗
-        </a>
+        {
+          (ev.record_url ?? ev.source_url) ? (
+            <a href={ev.record_url ?? ev.source_url} rel="noopener nofollow external" target="_blank">
+              Evidence source ↗
+            </a>
+          ) : (
+            <span class="dcard__howto" title={ev.how_to_verify}>
+              No direct link — {ev.how_to_verify}
+            </span>
+          )
+        }
         {observed?.known && <span class="dcard__sub"> observed {observed.text}</span>}
       </p>
     ) : (
@@ -210,12 +218,32 @@ const vintage = (() => {
     )
   }
 
+  {/*
+    A source link must show the RECORD. Where a county publishes no per-record
+    page we say so and give instructions — never a homepage standing in for
+    provenance, which is what shipped before and is worse than nothing because
+    it looks like verification.
+  */}
   <p class="dcard__src">
-    <a href={l.source_url} rel="noopener nofollow external" target="_blank">Parcel source ↗</a>
+    {
+      (l.record_url ?? l.source_url) ? (
+        <a href={l.record_url ?? l.source_url} rel="noopener nofollow external" target="_blank">
+          Parcel source ↗
+        </a>
+      ) : (
+        <span class="dcard__howto">No direct link — {l.how_to_verify}</span>
+      )
+    }
   </p>
 </li>
 
 <style>
+  /* Instructions stand in for a link where no per-record page exists. Styled
+     as prose, deliberately NOT as a link, so it never looks clickable. */
+  .dcard__howto {
+    color: var(--ink-3, #667575);
+    font-style: italic;
+  }
   .dcard {
     padding: var(--space-m);
     border: var(--hairline) solid var(--rule);

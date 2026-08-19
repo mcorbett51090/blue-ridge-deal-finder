@@ -248,16 +248,30 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
           <p class="d__boxnote">Every figure above traces to one of these. Confirm before acting.</p>
           <ul class="d__srcs">
             <li>
-              <a href={l.source_url} rel="noopener nofollow external" target="_blank">
-                Parcel record source ↗
-              </a>
+              {
+                (l.record_url ?? l.source_url) ? (
+                  <a href={l.record_url ?? l.source_url} rel="noopener nofollow external" target="_blank">
+                    Parcel record source ↗
+                  </a>
+                ) : (
+                  <span class="d__howto">
+                    <strong>No direct link.</strong> {l.how_to_verify}
+                  </span>
+                )
+              }
             </li>
             {
               ev && (
                 <li>
-                  <a href={ev.source_url} rel="noopener nofollow external" target="_blank">
-                    {ev.label} ↗
-                  </a>
+                  {(ev.record_url ?? ev.source_url) ? (
+                    <a href={ev.record_url ?? ev.source_url} rel="noopener nofollow external" target="_blank">
+                      {ev.label} ↗
+                    </a>
+                  ) : (
+                    <span class="d__howto">
+                      <strong>{ev.label} — no direct link.</strong> {ev.how_to_verify}
+                    </span>
+                  )}
                   {observed?.known && <span class="d__basis">Observed {observed.text}</span>}
                 </li>
               )
@@ -319,6 +333,8 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
 </BaseLayout>
 
 <style>
+  /* Prose, never link-styled: it must not look clickable when it is not. */
+  .d__howto { color: var(--ink-3, #667575); font-style: italic; display: block; }
   .crumbs ol {
     list-style: none;
     padding: 0;

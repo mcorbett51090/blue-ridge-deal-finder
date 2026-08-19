@@ -1,0 +1,17 @@
+User-agent: *
+Disallow: /*?*
+Disallow: /arcgis
+Disallow: /nri/report/viewer
+Disallow: /nri/report/viewer?
+Disallow: /flood-maps/archived-flood-data/guided-requests
+Disallow: /flood-maps/archived-flood-data/home-request
+Disallow: /flood-maps/archived-flood-data/payment-request
+Disallow: /flood-maps/archived-flood-data/request-confirmation
+Disallow: /flood-maps/archived-flood-data/request-payment
+Disallow: /flood-maps/archived-flood-data/staff
+Disallow: /flood-maps/archived-flood-data/staff/manage-request
+Disallow: /flood-maps/archived-flood-data/view-request
+Disallow: /flood-maps/archived-flood-data/zipline
+Disallow: /flood-maps/archived-flood-data/zipline-requests
+Disallow: /flood-maps/archived-flood-data/zipline/request-summary
+Disallow: /flood-maps/archived-flood-data/workspace

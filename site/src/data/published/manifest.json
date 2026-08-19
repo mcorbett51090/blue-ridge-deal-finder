@@ -1,0 +1,53 @@
+{
+  "generated_at": "2026-08-19T16:07:34.304Z",
+  "warehouse": {
+    "file": "warehouse-2026-08-19T15-48-58.sqlite",
+    "sha256": "baf17b77015ea527b5b5c29669d8b408ddf56476a28def8858823311d6c1409e",
+    "written_at": "2026-08-19T15:53:06.288Z"
+  },
+  "run_id": "2026-08-19T15-48-58",
+  "corpus_rows": 235421,
+  "published_rows": 500,
+  "excluded": {
+    "vetoed": 10742,
+    "no_scorable_signal": 26018,
+    "ranked_below_cutoff": 198161,
+    "cutoff": 500
+  },
+  "signals": {
+    "known": {
+      "per_acre": 207164
+    },
+    "unknown": {
+      "discount": 235421,
+      "distress": 235421,
+      "water": 235421,
+      "livability": 235421,
+      "per_acre": 28257
+    }
+  },
+  "veto_by_reason": {
+    "acreage_below_min": 7289,
+    "owner_is_government": 3492,
+    "use_class_excluded": 1773
+  },
+  "cohorts": {
+    "total": 755,
+    "usable": 134,
+    "min_cohort": 50
+  },
+  "enrichment_present": {
+    "water": false,
+    "livability": false,
+    "for_sale": false,
+    "distress": false
+  },
+  "provenance": {
+    "with_record_url": 500,
+    "with_how_to_verify": 0
+  },
+  "geometry": {
+    "rows_with_coordinates": 0,
+    "note": "The parcel ingest stores attributes only — lat/lng and bbox are NULL on every warehouse row, so no published row can be placed on the map yet. Published as null with a stated reason, never as 0,0."
+  }
+}

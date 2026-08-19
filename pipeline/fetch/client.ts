@@ -21,6 +21,7 @@ import {
   RegistryGuardError,
   assertLiveRobotsAllows,
   assertNotPaused,
+  assertPointServicePermitted,
   assertRequestPermitted,
   evaluateLiveRobots,
   robotsDrift,
@@ -28,7 +29,7 @@ import {
 } from './guard.ts';
 import type { Registry } from './registry.ts';
 import { getSource } from './registry.ts';
-import type { Source } from './types.ts';
+import type { PointService, Source } from './types.ts';
 
 export { HONEST_USER_AGENT };
 
@@ -42,6 +43,15 @@ export type FetchOptions = {
 };
 
 export type FetchResult = { url: string; status: number; body: unknown; bytes: number };
+
+/** A point-service response, UNPARSED. The caller owns the parse — see fetchPointService. */
+export type PointFetchResult = {
+  url: string;
+  status: number;
+  text: string;
+  contentType: string | null;
+  bytes: number;
+};
 
 /** Per-host token bucket. Concurrency 1 per host by default (plan §3.1). */
 class HostLimiter {
@@ -127,7 +137,61 @@ export class FetchClient {
     return this.#requestWithBackoff(source, target, options.signal);
   }
 
-  async #liveRobots(source: Source, target: string) {
+  /**
+   * Fetch one keyless POINT service, returning the RAW BODY TEXT.
+   *
+   * ⛔ WHY THIS IS NOT fetchJson. fetchJson does `JSON.parse(text)` inside the
+   * retry loop, so a service that answers an error with PLAIN TEXT at HTTP 200
+   * gets five parse failures, five backoffs and a generic "failed after 5
+   * attempts" — the caller never sees the body that would have explained it.
+   * USGS EPQS does exactly that, measured 2026-08-19:
+   *   x=-999&y=-999 -> 200, Content-Type: application/json, body
+   *   `The operation was attempted on an empty geometry.`
+   * The parse therefore belongs to the CALLER, which is the only code that
+   * knows what a healthy body for this service looks like. This method's job is
+   * the guard chain and the socket, and nothing else.
+   *
+   * Same order of refusal as fetchJson: PAUSE, denylist, completeness, recorded
+   * verdicts, UA honesty, live robots for the exact path, rate limit, request.
+   */
+  async fetchPointService(
+    service: PointService,
+    params: Record<string, string>,
+    signal?: AbortSignal,
+  ): Promise<PointFetchResult> {
+    assertNotPaused(this.#registry.repoRoot);
+
+    const url = new URL(service.url);
+    for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+    const target = url.toString();
+
+    assertPointServicePermitted(service, target, this.#registry.denials);
+
+    const live = await this.#liveRobots(service, target);
+    assertLiveRobotsAllows(service.id, live, target);
+
+    const host = new URL(target).hostname;
+    const rpsIntervalMs = 1000 / service.rate.rps;
+    const crawlDelayMs = (live.crawlDelaySeconds ?? service.rate.crawl_delay_s ?? 0) * 1000;
+    await this.#limiter.acquire(host, Math.max(rpsIntervalMs, crawlDelayMs));
+
+    const init: RequestInit = {
+      headers: { 'user-agent': service.user_agent, accept: 'application/json' },
+      redirect: 'follow',
+    };
+    if (signal) init.signal = signal;
+    const res = await globalThis.fetch(target, init);
+    const text = await res.text();
+    return {
+      url: target,
+      status: res.status,
+      text,
+      contentType: res.headers.get('content-type'),
+      bytes: Buffer.byteLength(text),
+    };
+  }
+
+  async #liveRobots(source: Source | PointService, target: string) {
     const origin = new URL(target).origin;
     const robotsUrl = `${origin}/robots.txt`;
     let cached = this.#robotsCache.get(robotsUrl);

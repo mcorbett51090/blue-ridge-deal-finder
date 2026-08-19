@@ -37,7 +37,8 @@ if (!Array.isArray(listings) || listings.length === 0) {
 const ALLOWED = new Set([
   'id', 'fips', 'county', 'state', 'lat', 'lng', 'acres', 'assessed_value', 'price',
   'score', 'score_breakdown', 'for_sale_evidence', 'water', 'flood_zone', 'parcel_use',
-  'source_url', 'first_seen', 'last_seen',
+  'source_url', 'record_url', 'how_to_verify', 'source_id', 'source_note',
+  'first_seen', 'last_seen',
   'confidence', 'acreage_basis', 'assessment_year', 'reappraisal_year',
   'owner_out_of_state', 'owner_is_entity', 'tenure_years', 'note',
 ]);
@@ -56,7 +57,7 @@ for (const [i, l] of listings.entries()) {
   }
 
   // --- 2. Required fields present and of the right kind ---------------------
-  for (const k of ['id', 'fips', 'county', 'state', 'parcel_use', 'source_url', 'first_seen', 'last_seen']) {
+  for (const k of ['id', 'fips', 'county', 'state', 'parcel_use', 'first_seen', 'last_seen']) {
     if (typeof l?.[k] !== 'string' || l[k] === '') fail(2, `${at}: missing or empty "${k}"`);
   }
   if (typeof l?.lat !== 'number' || typeof l?.lng !== 'number') fail(2, `${at}: lat/lng must be numbers`);
@@ -65,8 +66,36 @@ for (const [i, l] of listings.entries()) {
   if (seen.has(l?.id)) fail(3, `${at}: duplicate id`);
   seen.add(l?.id);
 
-  // --- 4. EVERY row links to its primary source (an owner requirement) ------
-  if (!/^https?:\/\//.test(l?.source_url ?? '')) fail(4, `${at}: source_url is not an http(s) URL`);
+  // --- 4. EVERY row is TRACEABLE to its primary source (an owner requirement)
+  //
+  // ⛔ This check used to read "source_url must be an http URL", and that is how
+  // the defect the owner reported got in. Many counties publish no per-record
+  // page at all, so a required-URL field with nothing to put in it got a
+  // HOMEPAGE — and one of those homepages (gsccca.org) is a host on our own
+  // sources.denied.yaml, which we never fetched and could not have. The schema
+  // made honesty impossible, so the data lied.
+  //
+  // The owner's requirement is traceability, not the presence of a URL. It has
+  // exactly two legal shapes, and a homepage is neither:
+  //   • record_url  — resolves to THAT record. For the NC anchor this is a real
+  //                   ArcGIS /query filtered to cntyname + parno (verified live:
+  //                   1 row for a real parno, 0 for a bogus one).
+  //   • record_url: null + how_to_verify — plain instructions a human can follow.
+  const rec = l?.record_url ?? l?.source_url ?? null;
+  if (rec === null || rec === '') {
+    const how = l?.how_to_verify;
+    if (typeof how !== 'string' || how.trim().length < 12) {
+      fail(4, `${at}: no record_url and no usable how_to_verify — the row is untraceable`);
+    }
+  } else if (!/^https?:\/\//.test(rec)) {
+    fail(4, `${at}: record_url is not an http(s) URL`);
+  } else {
+    let u = null;
+    try { u = new URL(rec); } catch { fail(4, `${at}: record_url is unparseable`); }
+    if (u && (u.pathname === '' || u.pathname === '/') && !u.search) {
+      fail(4, `${at}: record_url is a BARE HOMEPAGE — it does not show the record`);
+    }
+  }
 
   // --- 5. UNKNOWN IS NOT ZERO ----------------------------------------------
   // `null` is the only legal spelling of unknown. A 0 in these fields is either
@@ -124,8 +153,10 @@ for (const [i, l] of listings.entries()) {
   // level) applied to the one claim on this site that can actually hurt someone.
   const ev = l?.for_sale_evidence;
   if (ev !== null && ev !== undefined) {
-    if (!/^https?:\/\//.test(ev.source_url ?? '')) {
-      fail(7, `${at}: for_sale_evidence asserted without an http(s) source_url`);
+    const evRec = ev.record_url ?? ev.source_url ?? null;
+    const evHow = typeof ev.how_to_verify === 'string' && ev.how_to_verify.trim().length >= 12;
+    if (!/^https?:\/\//.test(evRec ?? '') && !evHow) {
+      fail(7, `${at}: for_sale_evidence asserted with neither a record link nor how_to_verify`);
     }
     if (!ev.observed_at || Number.isNaN(Date.parse(ev.observed_at))) {
       fail(7, `${at}: for_sale_evidence has no parseable observed_at — "we saw this" needs a when`);

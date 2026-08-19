@@ -13,14 +13,22 @@ import { z } from 'zod';
 const AllowlistFileSchema = z.object({
   parcel: z.array(z.string()),
   notice: z.array(z.string()),
+  /** The PUBLISHED site payload (publish/payload.ts) — a different projection
+   *  from `parcel`, with the site's key names and the structured `provenance`
+   *  object that replaced the bare source URL. */
+  listing: z.array(z.string()),
 });
 
-export type PayloadKind = 'parcel' | 'notice';
+export type PayloadKind = 'parcel' | 'notice' | 'listing';
 
 export function loadAllowlist(repoRoot: string): Record<PayloadKind, Set<string>> {
   const raw: unknown = JSON.parse(readFileSync(join(repoRoot, 'publish', 'allowlist.json'), 'utf8'));
   const parsed = AllowlistFileSchema.parse(raw);
-  return { parcel: new Set(parsed.parcel), notice: new Set(parsed.notice) };
+  return {
+    parcel: new Set(parsed.parcel),
+    notice: new Set(parsed.notice),
+    listing: new Set(parsed.listing),
+  };
 }
 
 export class PublishAllowlistError extends Error {

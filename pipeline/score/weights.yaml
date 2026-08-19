@@ -17,3 +17,68 @@ components:
   water: 15
   # FEMA NFHL (E5.4), USGS EPQS (C31), Census TIGER/Line.
   livability: 10
+
+# ---------------------------------------------------------------------------
+# The rest of the tunables. Same rule as the weights: they live HERE and are
+# read by pipeline/score/config.ts and by nothing else. A threshold that lives
+# in two places disagrees with itself the first time one copy is edited.
+# ---------------------------------------------------------------------------
+
+per_acre:
+  # <50 comparables in a (cntyfips, use-bucket, acreage-band) bucket -> `unknown`
+  # (plan §5.4). A percentile out of 6 rows is a number, not a measurement.
+  min_cohort: 50
+  # Upper edges, in acres. A band is (previous, edge]; the last band is (500, inf).
+  # Bucketing at all is what makes the percentile a comparison between LIKE
+  # parcels — a 0.2-acre town lot and a 300-acre tract share no market.
+  acreage_bands: [1, 5, 10, 25, 50, 100, 500]
+
+discount:
+  # Percentile INSIDE the cntyfips cohort (plan §5.2). Below this the cohort is
+  # too thin to rank in and the absolute band is used, at a stated penalty.
+  min_cohort: 30
+  thin_cohort_penalty: 0.7
+  # CONFIDENCE decay only. 1.00 @0y … 0.50 @8y. It NEVER touches the score:
+  # a 5-year-old denominator is a less trustworthy MEASUREMENT, not a worse DEAL.
+  vintage_decay_per_year: 0.0625
+  # G.S. 105-286 caps the reappraisal cycle at 8 years, so a vintage outside
+  # 0..8 is a bad join, not old data, and fails closed to `unknown`.
+  max_vintage_years: 8
+
+water:
+  # plan §5.5 — computed from GEOMETRY. A listing adjective is not frontage.
+  frontage_score: 100
+  near_m: 100
+  near_score: 70
+  mid_m: 400
+  mid_score: 40
+
+distress:
+  # plan §5.3 — additive, clamped 0..100, every increment needs a cited
+  # observation with a source_url and an observed_at. Nothing model-inferred.
+  increments:
+    tax_sale_listed: 40
+    foreclosure_notice: 35
+    tax_delinquent: 30
+    upset_bid_window_open: 15
+
+vetoes:
+  # ⛔ HARD VETOES, NOT DEDUCTIONS (plan §5.6). A deduction still competes; on
+  # measured data the HOA commons win anyway. A naive `$/acre ASC` on the live
+  # warehouse returned six Watauga rows at $100 for 10-134 acres, EVERY one
+  # `parusedesc = 'EXCLUSIONS (COMMONE AREAS)'` — HOA common land sorting to
+  # first place. None of it is purchasable at any price.
+  #
+  # Matched case-insensitively against the WHOLE parusedesc string. The upstream
+  # typo 'COMMONE' is real and is matched defensively, along with the spelling
+  # it was meant to be.
+  use_class_patterns:
+    - EXCLUSION
+    - COMMON *E? *AREA
+    - COMMONE
+    - GOVERNMENT
+    - CEMETER
+    - RIGHT[- ]OF[- ]WAY
+  # A remnant strip is not a parcel anyone buys. Vetoed rows still carry their
+  # score and their reason — they are removed from the RANKING, not silenced.
+  min_acres: 0.1

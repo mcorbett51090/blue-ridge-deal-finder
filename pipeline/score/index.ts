@@ -55,3 +55,28 @@ export function percentileRank(value: number, population: readonly number[]): nu
 export function invert(pct: number): number {
   return clamp(100 - pct, 0, 100);
 }
+
+/**
+ * Fill in `contribution` once the denominator is known.
+ *
+ * DEFINITION, and it is the one that makes "every score is explainable" a
+ * checkable claim rather than a UI promise: a component's contribution is the
+ * number of POINTS OF THE FINAL TOTAL it is responsible for, so the
+ * contributions sum to the total exactly. Publishing `normalized × weight`
+ * instead — the obvious alternative — produces a column that sums to something
+ * unrelated to the score printed above it, which reads as an arithmetic error
+ * to anyone who checks and is impossible to gate on.
+ *
+ * Unknown components contribute 0 and are NOT part of the denominator, which is
+ * the whole rule of this file restated one layer down.
+ */
+export function withContributions(components: readonly ScoreComponent[]): ScoreComponent[] {
+  const denom = components
+    .filter((c) => c.status === 'scored')
+    .reduce((a, c) => a + c.effective_weight, 0);
+  return components.map((c) =>
+    c.status === 'scored' && denom > 0
+      ? { ...c, contribution: ((c.normalized ?? 0) * c.effective_weight) / denom }
+      : { ...c, contribution: 0 },
+  );
+}

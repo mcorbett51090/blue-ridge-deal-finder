@@ -184,12 +184,18 @@ if (!existsSync(allowlistPath)) {
 } else {
   const allow = readJson(allowlistPath);
   const pii = new Set(PII_FIELDS.map((f) => f.toLowerCase()));
-  for (const kind of ['parcel', 'notice']) {
+  // ⛔ EVERY kind in the file, discovered from the file — not a hardcoded pair.
+  // A payload kind added later (the site `listing` projection was) would
+  // otherwise ship UNCHECKED while this gate reported green about the two kinds
+  // it happened to know the names of.
+  const kinds = Object.keys(allow).filter((k) => !k.startsWith('_') && Array.isArray(allow[k]));
+  if (kinds.length === 0) gate.fail('publish/allowlist.json declares no payload kinds — nothing was checked');
+  for (const kind of kinds) {
     for (const field of allow[kind] ?? []) {
       if (pii.has(String(field).toLowerCase())) gate.fail(`publish/allowlist.json ${kind}: permits PII field '${field}'`);
     }
   }
-  gate.ok('publish allowlist carries no PII field');
+  gate.ok(`publish allowlist carries no PII field (${kinds.length} kind(s): ${kinds.join(', ')})`);
 }
 
 gate.finish();

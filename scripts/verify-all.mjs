@@ -24,6 +24,7 @@ const GATES = [
   ['verify-coverage.mjs', 'exactly 37 counties, every one tiered'],
   ['verify-ingest-guards.mjs', 'the trust boundary rejects every known-bad payload'],
   ['verify-no-pii.mjs', 'no owner PII on any published surface (D1)'],
+  ['verify-provenance.mjs', 'every source link shows the RECORD, never a homepage'],
   ['verify-controls.mjs', 'META: every gate proven to go RED against its fixture'],
 ];
 

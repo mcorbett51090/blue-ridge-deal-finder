@@ -11,7 +11,7 @@ import robotsParser from 'robots-parser';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { Denial, Source } from './types.ts';
+import type { Denial, PointService, Source } from './types.ts';
 import { matchDenylist } from './denylist.ts';
 
 export const HONEST_USER_AGENT =
@@ -212,6 +212,12 @@ export type LiveRobots = {
  * `Crawl-Delay` is honoured literally; a stated 20 s means 20 s.
  */
 export function evaluateLiveRobots(robotsUrl: string, robotsText: string, targetUrl: string): LiveRobots {
+  // ⛔ FIRST: is this even a robots.txt? A WAF interstitial served at HTTP 200
+  // parses to zero directives, and zero directives reads as "allowed". See
+  // looksLikeRobotsTxt() below for the measured case that put this line here.
+  if (!looksLikeRobotsTxt(robotsText)) {
+    return { allowed: false, crawlDelaySeconds: null };
+  }
   const parsed = robotsParser(robotsUrl, robotsText);
   const verdict = parsed.isAllowed(targetUrl, UA_TOKEN);
   const delay = parsed.getCrawlDelay(UA_TOKEN);
@@ -239,4 +245,108 @@ export function evidenceAgeDays(checkedAt: string, now: Date = new Date()): numb
   const t = Date.parse(`${checkedAt}T00:00:00Z`);
   if (Number.isNaN(t)) return Number.POSITIVE_INFINITY;
   return (now.getTime() - t) / 86_400_000;
+}
+
+/**
+ * Fields without which no POINT-SERVICE request is permitted. Same argument as
+ * REQUIRED_PATHS above, with `control_probe` where a queryable layer has
+ * `control_block` — see the PointServiceSchema comment in types.ts for why the
+ * two cannot be the same field.
+ */
+const REQUIRED_POINT_SERVICE_PATHS = [
+  'legal_basis',
+  'robots.verdict',
+  'robots.evidence_sha256',
+  'tos.verdict',
+  'rate.rps',
+  'user_agent',
+  'schema_fingerprint',
+  'control_probe',
+] as const;
+
+/** The offline permission decision for a point service. Throws on refusal. */
+export function assertPointServicePermitted(
+  service: PointService,
+  url: string,
+  denials: readonly Denial[],
+): void {
+  const hit = matchDenylist(url, denials);
+  if (hit) {
+    throw new RegistryGuardError(
+      'denylist',
+      service.id,
+      `${url} matches denied ${hit.matchedOn} rule ${hit.denial.host}`,
+    );
+  }
+  const declared = matchDenylist(service.url, denials);
+  if (declared) {
+    throw new RegistryGuardError(
+      'denylist',
+      service.id,
+      `registry url ${service.url} matches denied rule ${declared.denial.host}`,
+    );
+  }
+
+  const missing = REQUIRED_POINT_SERVICE_PATHS.filter((p) => {
+    const v = readPath(service, p);
+    return v === undefined || v === null || v === '';
+  });
+  if (missing.length > 0) {
+    throw new RegistryGuardError(
+      'incomplete-registry',
+      service.id,
+      `missing required field(s): ${missing.join(', ')}`,
+    );
+  }
+
+  if (service.robots.verdict === 'disallow') {
+    throw new RegistryGuardError('robots-disallow', service.id, 'robots.verdict == disallow');
+  }
+  if (service.robots.verdict === 'unreachable') {
+    // ⛔ NOT the same as `absent`. `absent` means we asked and there is no file;
+    // `unreachable` means we asked and could not be told. Unknown is not
+    // permission — see tigerweb.geo.census.gov in sources/sources.enrich.yaml.
+    throw new RegistryGuardError(
+      'robots-live-disallow',
+      service.id,
+      'robots.verdict == unreachable — we could not obtain the directives, and unknown is not permission',
+    );
+  }
+  if (service.tos.verdict === 'prohibitive') {
+    throw new RegistryGuardError('tos-prohibitive', service.id, 'tos.verdict == prohibitive');
+  }
+
+  assertHonestUserAgent(service);
+
+  if (!service.enabled) {
+    throw new RegistryGuardError('disabled', service.id, 'enabled: false');
+  }
+}
+
+/**
+ * ⛔ IS THIS BODY ACTUALLY A robots.txt?
+ *
+ * MEASURED 2026-08-19 on tigerweb.geo.census.gov:
+ *   GET /robots.txt -> HTTP **200**, 189 bytes,
+ *   `<html><head><title>Request Rejected</title>…Your support ID is: 1342789…`
+ * An F5 WAF answering FOR the origin. Three separate things go wrong if this
+ * body is treated as robots.txt:
+ *   1. robots-parser finds zero directives in HTML, so `isAllowed()` returns
+ *      TRUE — a WAF refusal read as a grant of permission.
+ *   2. the support ID changes on every request, so the CE-4 evidence digest
+ *      never matches and the source pauses itself on every run for a reason
+ *      nobody can act on.
+ *   3. the status is 200, so no status-based branch anywhere sees a problem.
+ * Reproduced 5/5 times, with our honest UA and with curl's default UA.
+ *
+ * A robots.txt is a line-oriented directive file. A non-empty body containing
+ * not one recognisable directive is not one, and the honest verdict for it is
+ * `unreachable`. An EMPTY body is a different thing entirely (the 404/410 case,
+ * which client.ts turns into `''`) and is deliberately NOT flagged here.
+ */
+const ROBOTS_DIRECTIVE_RE = /^\s*(user-agent|disallow|allow|crawl-delay|sitemap|host)\s*:/im;
+
+export function looksLikeRobotsTxt(text: string): boolean {
+  if (text.trim() === '') return true; // absent, not malformed — caller's problem
+  return ROBOTS_DIRECTIVE_RE.test(text);
 }

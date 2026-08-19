@@ -1,0 +1,10 @@
+[
+  {
+    "id": "control-row",
+    "county": "Fannin",
+    "state": "GA",
+    "_why": "The exact shape the owner reported: a bare homepage standing in for provenance, on a host that is on our own denylist. verify-provenance MUST go red on this file.",
+    "source_url": "https://www.gsccca.org/",
+    "record_url": "https://www.gsccca.org/"
+  }
+]

@@ -10,7 +10,7 @@
     "ingest:parcels": "tsx pipeline/ingest-parcels.ts",
     "ingest:notices": "tsx pipeline/ingest-notices.ts",
     "score": "tsx pipeline/score/index.ts",
-    "publish": "tsx publish/export.ts",
+    "publish": "tsx publish/run.ts",
     "probe:county": "tsx pipeline/discover/probe-county.ts",
     "verify": "node scripts/verify-all.mjs",
     "verify:egress": "node scripts/verify-egress-allowlist.mjs",

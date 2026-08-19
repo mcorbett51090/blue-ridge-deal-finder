@@ -52,7 +52,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -60,11 +60,12 @@
     },
     "for_sale_evidence": {
       "kind": "tax-foreclosure",
-      "label": "Tax foreclosure — upset-bid period open",
-      "source_url": "https://www.nccourts.gov/locations",
+      "label": "Tax foreclosure \u2014 upset-bid period open",
+      "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Watauga%27+AND+parno%3D%2737189-0001%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
       "observed_at": "2026-08-18T11:04:00Z",
       "sale_date": "2026-09-09",
-      "opening_bid": 39500
+      "opening_bid": 39500,
+      "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Watauga%27+AND+parno%3D%2737189-0001%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json"
     },
     "water": {
       "has_stream": true,
@@ -74,14 +75,16 @@
     },
     "flood_zone": "X",
     "parcel_use": "Vacant land",
-    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Watauga%27+AND+parno%3D%2737189-0001%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
     "first_seen": "2026-06-02",
     "last_seen": "2026-08-18",
     "confidence": 0.82,
     "acreage_basis": "gis",
     "assessment_year": 2022,
     "owner_out_of_state": true,
-    "tenure_years": 21
+    "tenure_years": 21,
+    "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Watauga%27+AND+parno%3D%2737189-0001%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
+    "source_id": "nc-onemap-parcels"
   },
   {
     "id": "37009-0002",
@@ -136,7 +139,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 0.2,
-          "note": "FEMA zone AE — inside the 1% annual-chance floodplain. Scored DOWN, not excluded."
+          "note": "FEMA zone AE \u2014 inside the 1% annual-chance floodplain. Scored DOWN, not excluded."
         }
       ],
       "denominator": 100,
@@ -144,11 +147,12 @@
     },
     "for_sale_evidence": {
       "kind": "auction",
-      "label": "Public auction — estate liquidation",
-      "source_url": "https://www.nccourts.gov/locations",
+      "label": "Public auction \u2014 estate liquidation",
+      "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Ashe%27+AND+parno%3D%2737009-0002%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
       "observed_at": "2026-08-17T15:20:00Z",
       "sale_date": "2026-09-27",
-      "opening_bid": 112500
+      "opening_bid": 112500,
+      "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Ashe%27+AND+parno%3D%2737009-0002%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json"
     },
     "water": {
       "has_stream": true,
@@ -158,7 +162,7 @@
     },
     "flood_zone": "AE",
     "parcel_use": "Agricultural",
-    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Ashe%27+AND+parno%3D%2737009-0002%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
     "first_seen": "2026-05-11",
     "last_seen": "2026-08-18",
     "confidence": 0.88,
@@ -167,7 +171,9 @@
     "owner_out_of_state": false,
     "owner_is_entity": true,
     "tenure_years": 34,
-    "note": "Ashe reports parvaltype=Market, which is not comparable to the Assessed counties — the value-gap signal is discounted accordingly."
+    "note": "Ashe reports parvaltype=Market, which is not comparable to the Assessed counties \u2014 the value-gap signal is discounted accordingly.",
+    "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Ashe%27+AND+parno%3D%2737009-0002%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
+    "source_id": "nc-onemap-parcels"
   },
   {
     "id": "47155-0003",
@@ -194,7 +200,7 @@
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — this county publishes no assessed value. Excluded from the denominator, not scored zero."
+          "note": "UNKNOWN \u2014 this county publishes no assessed value. Excluded from the denominator, not scored zero."
         },
         {
           "key": "acreage",
@@ -222,7 +228,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 75,
@@ -231,10 +237,12 @@
     "for_sale_evidence": {
       "kind": "listing",
       "label": "Listed for sale",
-      "source_url": "https://www.tn.gov/finance/sts-gis.html",
+      "source_url": null,
       "observed_at": "2026-08-18T09:12:00Z",
       "sale_date": null,
-      "opening_bid": null
+      "opening_bid": null,
+      "record_url": null,
+      "how_to_verify": "Tennessee's statewide parcel layer has no per-record public page. Verify via the Sevier County Assessor of Property, parcel 47155-0003."
     },
     "water": {
       "has_stream": false,
@@ -244,12 +252,16 @@
     },
     "flood_zone": "X",
     "parcel_use": "Residential",
-    "source_url": "https://www.tn.gov/finance/sts-gis.html",
+    "source_url": null,
     "first_seen": "2026-07-01",
     "last_seen": "2026-08-18",
     "confidence": 0.51,
     "acreage_basis": "gis",
-    "note": "Sevier publishes boundaries without assessed value; the TPAD hop that would carry it is unsettled."
+    "note": "Sevier publishes boundaries without assessed value; the TPAD hop that would carry it is unsettled.",
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Tennessee's statewide parcel layer has no per-record public page. Verify via the Sevier County Assessor of Property, parcel 47155-0003.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "47029-0004",
@@ -283,7 +295,7 @@
           "label": "Parcel size",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — the published geometry is a point, not a polygon. Excluded from the denominator, not scored zero."
+          "note": "UNKNOWN \u2014 the published geometry is a point, not a polygon. Excluded from the denominator, not scored zero."
         },
         {
           "key": "water",
@@ -304,7 +316,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": null,
-          "note": "UNKNOWN — no FEMA layer joined for this county yet. Excluded from the denominator."
+          "note": "UNKNOWN \u2014 no FEMA layer joined for this county yet. Excluded from the denominator."
         }
       ],
       "denominator": 80,
@@ -313,10 +325,12 @@
     "for_sale_evidence": {
       "kind": "tax-foreclosure",
       "label": "Delinquent-tax sale",
-      "source_url": "https://www.tn.gov/finance/sts-gis.html",
+      "source_url": null,
       "observed_at": "2026-08-16T13:41:00Z",
       "sale_date": "2026-10-14",
-      "opening_bid": 12800
+      "opening_bid": 12800,
+      "record_url": null,
+      "how_to_verify": "Tennessee's statewide parcel layer has no per-record public page. Verify via the Cocke County Assessor of Property, parcel 47029-0004."
     },
     "water": {
       "has_stream": true,
@@ -326,10 +340,14 @@
     },
     "flood_zone": null,
     "parcel_use": "Vacant land",
-    "source_url": "https://www.tn.gov/finance/sts-gis.html",
+    "source_url": null,
     "first_seen": "2026-06-19",
     "last_seen": "2026-08-18",
-    "confidence": 0.44
+    "confidence": 0.44,
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Tennessee's statewide parcel layer has no per-record public page. Verify via the Cocke County Assessor of Property, parcel 47029-0004.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "37021-0005",
@@ -384,7 +402,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 0,
-          "note": "FEMA zone AE — inside the 1% annual-chance floodplain."
+          "note": "FEMA zone AE \u2014 inside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -393,10 +411,11 @@
     "for_sale_evidence": {
       "kind": "listing",
       "label": "Listed for sale",
-      "source_url": "https://www.nccourts.gov/locations",
+      "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Buncombe%27+AND+parno%3D%2737021-0005%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
       "observed_at": "2026-08-18T08:02:00Z",
       "sale_date": null,
-      "opening_bid": null
+      "opening_bid": null,
+      "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Buncombe%27+AND+parno%3D%2737021-0005%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json"
     },
     "water": {
       "has_stream": false,
@@ -406,7 +425,7 @@
     },
     "flood_zone": "AE",
     "parcel_use": "Residential",
-    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Buncombe%27+AND+parno%3D%2737021-0005%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
     "first_seen": "2026-04-22",
     "last_seen": "2026-08-18",
     "confidence": 0.79,
@@ -415,7 +434,9 @@
     "reappraisal_year": 2026,
     "owner_out_of_state": false,
     "tenure_years": 4,
-    "note": "Buncombe reappraises in 2026 — 26.8% of the corpus reprices this year, so the 2021 value is about to move."
+    "note": "Buncombe reappraises in 2026 \u2014 26.8% of the corpus reprices this year, so the 2021 value is about to move.",
+    "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Buncombe%27+AND+parno%3D%2737021-0005%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
+    "source_id": "nc-onemap-parcels"
   },
   {
     "id": "37087-0006",
@@ -470,7 +491,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -478,11 +499,12 @@
     },
     "for_sale_evidence": {
       "kind": "sheriff-sale",
-      "label": "Sheriff sale — execution on judgment",
-      "source_url": "https://www.nccourts.gov/locations",
+      "label": "Sheriff sale \u2014 execution on judgment",
+      "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Haywood%27+AND+parno%3D%2737087-0006%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
       "observed_at": "2026-08-15T16:30:00Z",
       "sale_date": "2026-09-18",
-      "opening_bid": null
+      "opening_bid": null,
+      "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Haywood%27+AND+parno%3D%2737087-0006%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json"
     },
     "water": {
       "has_stream": false,
@@ -492,7 +514,7 @@
     },
     "flood_zone": "X",
     "parcel_use": "Vacant land",
-    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Haywood%27+AND+parno%3D%2737087-0006%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
     "first_seen": "2026-03-08",
     "last_seen": "2026-08-17",
     "confidence": 0.71,
@@ -500,7 +522,9 @@
     "assessment_year": 2023,
     "owner_out_of_state": true,
     "owner_is_entity": true,
-    "tenure_years": 12
+    "tenure_years": 12,
+    "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Haywood%27+AND+parno%3D%2737087-0006%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
+    "source_id": "nc-onemap-parcels"
   },
   {
     "id": "51125-0007",
@@ -527,21 +551,21 @@
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — no assessed value collected for this county."
+          "note": "UNKNOWN \u2014 no assessed value collected for this county."
         },
         {
           "key": "acreage",
           "label": "Parcel size",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel polygon collected for this county."
+          "note": "UNKNOWN \u2014 no parcel polygon collected for this county."
         },
         {
           "key": "water",
           "label": "Water on or adjacent to parcel",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no water layer joined for this county."
+          "note": "UNKNOWN \u2014 no water layer joined for this county."
         },
         {
           "key": "access",
@@ -555,7 +579,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": null,
-          "note": "UNKNOWN — no FEMA layer joined for this county."
+          "note": "UNKNOWN \u2014 no FEMA layer joined for this county."
         }
       ],
       "denominator": 40,
@@ -564,10 +588,12 @@
     "for_sale_evidence": {
       "kind": "listing",
       "label": "Listed for sale",
-      "source_url": "https://vgin.vdem.virginia.gov/",
+      "source_url": null,
       "observed_at": "2026-08-18T07:45:00Z",
       "sale_date": null,
-      "opening_bid": null
+      "opening_bid": null,
+      "record_url": null,
+      "how_to_verify": "Virginia's statewide parcel layer carries geometry only and publishes no per-record page. Verify with the Nelson County Commissioner of the Revenue, parcel 51125-0007."
     },
     "water": {
       "has_stream": false,
@@ -577,11 +603,15 @@
     },
     "flood_zone": null,
     "parcel_use": "Unknown",
-    "source_url": "https://vgin.vdem.virginia.gov/",
+    "source_url": null,
     "first_seen": "2026-08-04",
     "last_seen": "2026-08-18",
     "confidence": 0.22,
-    "note": "Nelson runs a custom county GIS that the qPublic probe never tested — the parcel attributes behind this row are thin by construction."
+    "note": "Nelson runs a custom county GIS that the qPublic probe never tested \u2014 the parcel attributes behind this row are thin by construction.",
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Virginia's statewide parcel layer carries geometry only and publishes no per-record page. Verify with the Nelson County Commissioner of the Revenue, parcel 51125-0007.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "13111-0008",
@@ -608,35 +638,35 @@
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — no parcel data source exists for this county."
+          "note": "UNKNOWN \u2014 no parcel data source exists for this county."
         },
         {
           "key": "acreage",
           "label": "Parcel size",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel data source exists for this county."
+          "note": "UNKNOWN \u2014 no parcel data source exists for this county."
         },
         {
           "key": "water",
           "label": "Water on or adjacent to parcel",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry to join water against."
+          "note": "UNKNOWN \u2014 no parcel geometry to join water against."
         },
         {
           "key": "access",
           "label": "Road access & use code",
           "weight": 10,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         },
         {
           "key": "flood",
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         }
       ],
       "denominator": 30,
@@ -644,11 +674,13 @@
     },
     "for_sale_evidence": {
       "kind": "tax-foreclosure",
-      "label": "Tax-sale notice (county seat location — parcel not geocoded)",
-      "source_url": "https://www.gsccca.org/",
+      "label": "Tax-sale notice (county seat location \u2014 parcel not geocoded)",
+      "source_url": null,
       "observed_at": "2026-08-12T10:00:00Z",
       "sale_date": "2026-09-01",
-      "opening_bid": 4300
+      "opening_bid": 4300,
+      "record_url": null,
+      "how_to_verify": "No public per-record URL exists for Fannin County. The county parcel viewer is behind a bot wall we do not attempt, and the state deed index requires an account we never create. Verify in person or by phone: Fannin County Tax Commissioner, parcel 13111-0008."
     },
     "water": {
       "has_stream": false,
@@ -658,11 +690,15 @@
     },
     "flood_zone": null,
     "parcel_use": "Unknown",
-    "source_url": "https://www.gsccca.org/",
+    "source_url": null,
     "first_seen": "2026-08-12",
     "last_seen": "2026-08-18",
     "confidence": 0.18,
-    "note": "Fannin has no parcel source: qPublic blocks automated access (E1.1-E1.4). This row is a NOTICE only — there is no parcel record behind it, and its location is the county seat, not the property."
+    "note": "Fannin has no parcel source: qPublic blocks automated access (E1.1-E1.4). This row is a NOTICE only \u2014 there is no parcel record behind it, and its location is the county seat, not the property.",
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "No public per-record URL exists for Fannin County. The county parcel viewer is behind a bot wall we do not attempt, and the state deed index requires an account we never create. Verify in person or by phone: Fannin County Tax Commissioner, parcel 13111-0008.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "45077-0009",
@@ -689,35 +725,35 @@
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — no parcel data source exists for this county."
+          "note": "UNKNOWN \u2014 no parcel data source exists for this county."
         },
         {
           "key": "acreage",
           "label": "Parcel size",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel data source exists for this county."
+          "note": "UNKNOWN \u2014 no parcel data source exists for this county."
         },
         {
           "key": "water",
           "label": "Water on or adjacent to parcel",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         },
         {
           "key": "access",
           "label": "Road access & use code",
           "weight": 10,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         },
         {
           "key": "flood",
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         }
       ],
       "denominator": 30,
@@ -726,10 +762,12 @@
     "for_sale_evidence": {
       "kind": "master-in-equity",
       "label": "Master-in-Equity foreclosure sale",
-      "source_url": "https://www.sccourts.org/",
+      "source_url": null,
       "observed_at": "2026-08-14T12:00:00Z",
       "sale_date": "2026-09-01",
-      "opening_bid": 58000
+      "opening_bid": 58000,
+      "record_url": null,
+      "how_to_verify": "Pickens County Master-in-Equity publishes sale rosters as periodic documents, not per-record pages. Check the current roster for case/parcel 45077-0009."
     },
     "water": {
       "has_stream": false,
@@ -739,11 +777,15 @@
     },
     "flood_zone": null,
     "parcel_use": "Unknown",
-    "source_url": "https://www.sccourts.org/",
+    "source_url": null,
     "first_seen": "2026-08-06",
     "last_seen": "2026-08-18",
     "confidence": 0.2,
-    "note": "Pickens publishes a Master-in-Equity sales roster; there is no parcel source, so this notice is not joined to a parcel."
+    "note": "Pickens publishes a Master-in-Equity sales roster; there is no parcel source, so this notice is not joined to a parcel.",
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Pickens County Master-in-Equity publishes sale rosters as periodic documents, not per-record pages. Check the current roster for case/parcel 45077-0009.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "47091-0010",
@@ -763,14 +805,14 @@
           "label": "Distress / for-sale evidence",
           "weight": 30,
           "value": 0.66,
-          "note": "An estate notice is a soft signal — it may never reach a sale."
+          "note": "An estate notice is a soft signal \u2014 it may never reach a sale."
         },
         {
           "key": "value_gap",
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — this county publishes no assessed value."
+          "note": "UNKNOWN \u2014 this county publishes no assessed value."
         },
         {
           "key": "acreage",
@@ -798,7 +840,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 75,
@@ -806,11 +848,13 @@
     },
     "for_sale_evidence": {
       "kind": "estate-notice",
-      "label": "Estate notice — heirs unknown",
-      "source_url": "https://www.tn.gov/finance/sts-gis.html",
+      "label": "Estate notice \u2014 heirs unknown",
+      "source_url": null,
       "observed_at": "2026-08-11T14:15:00Z",
       "sale_date": null,
-      "opening_bid": null
+      "opening_bid": null,
+      "record_url": null,
+      "how_to_verify": "Tennessee's statewide parcel layer has no per-record public page. Verify via the Johnson County Assessor of Property, parcel 47091-0010."
     },
     "water": {
       "has_stream": true,
@@ -820,12 +864,16 @@
     },
     "flood_zone": "X",
     "parcel_use": "Agricultural",
-    "source_url": "https://www.tn.gov/finance/sts-gis.html",
+    "source_url": null,
     "first_seen": "2026-05-30",
     "last_seen": "2026-08-18",
     "confidence": 0.47,
     "acreage_basis": "gis",
-    "tenure_years": 41
+    "tenure_years": 41,
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Tennessee's statewide parcel layer has no per-record public page. Verify via the Johnson County Assessor of Property, parcel 47091-0010.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "37089-0011",
@@ -880,7 +928,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -888,11 +936,12 @@
     },
     "for_sale_evidence": {
       "kind": "listing",
-      "label": "Listed for sale — price reduced",
-      "source_url": "https://www.nccourts.gov/locations",
+      "label": "Listed for sale \u2014 price reduced",
+      "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Henderson%27+AND+parno%3D%2737089-0011%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
       "observed_at": "2026-08-18T06:31:00Z",
       "sale_date": null,
-      "opening_bid": null
+      "opening_bid": null,
+      "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Henderson%27+AND+parno%3D%2737089-0011%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json"
     },
     "water": {
       "has_stream": false,
@@ -902,14 +951,16 @@
     },
     "flood_zone": "X",
     "parcel_use": "Residential",
-    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Henderson%27+AND+parno%3D%2737089-0011%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
     "first_seen": "2026-06-25",
     "last_seen": "2026-08-18",
     "confidence": 0.74,
     "acreage_basis": "gis",
     "assessment_year": 2023,
     "owner_out_of_state": true,
-    "tenure_years": 8
+    "tenure_years": 8,
+    "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Henderson%27+AND+parno%3D%2737089-0011%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
+    "source_id": "nc-onemap-parcels"
   },
   {
     "id": "13241-0012",
@@ -936,35 +987,35 @@
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — no parcel data source exists for this county."
+          "note": "UNKNOWN \u2014 no parcel data source exists for this county."
         },
         {
           "key": "acreage",
           "label": "Parcel size",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel data source exists for this county."
+          "note": "UNKNOWN \u2014 no parcel data source exists for this county."
         },
         {
           "key": "water",
           "label": "Water on or adjacent to parcel",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         },
         {
           "key": "access",
           "label": "Road access & use code",
           "weight": 10,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         },
         {
           "key": "flood",
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         }
       ],
       "denominator": 30,
@@ -972,11 +1023,13 @@
     },
     "for_sale_evidence": {
       "kind": "tax-foreclosure",
-      "label": "Tax-sale notice (county seat location — parcel not geocoded)",
-      "source_url": "https://www.gsccca.org/",
+      "label": "Tax-sale notice (county seat location \u2014 parcel not geocoded)",
+      "source_url": null,
       "observed_at": "2026-08-09T10:00:00Z",
       "sale_date": "2026-09-01",
-      "opening_bid": 2900
+      "opening_bid": 2900,
+      "record_url": null,
+      "how_to_verify": "No public per-record URL exists for Rabun County. The county parcel viewer is behind a bot wall we do not attempt, and the state deed index requires an account we never create. Verify in person or by phone: Rabun County Tax Commissioner, parcel 13241-0012."
     },
     "water": {
       "has_stream": false,
@@ -986,10 +1039,14 @@
     },
     "flood_zone": null,
     "parcel_use": "Unknown",
-    "source_url": "https://www.gsccca.org/",
+    "source_url": null,
     "first_seen": "2026-08-09",
     "last_seen": "2026-08-18",
-    "confidence": 0.16
+    "confidence": 0.16,
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "No public per-record URL exists for Rabun County. The county parcel viewer is behind a bot wall we do not attempt, and the state deed index requires an account we never create. Verify in person or by phone: Rabun County Tax Commissioner, parcel 13241-0012.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "37199-0013",
@@ -1044,7 +1101,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -1059,7 +1116,7 @@
     },
     "flood_zone": "X",
     "parcel_use": "Agricultural",
-    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Yancey%27+AND+parno%3D%2737199-0013%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
     "first_seen": "2026-02-14",
     "last_seen": "2026-08-18",
     "confidence": 0.8,
@@ -1067,7 +1124,9 @@
     "assessment_year": 2023,
     "owner_out_of_state": true,
     "owner_is_entity": false,
-    "tenure_years": 29
+    "tenure_years": 29,
+    "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Yancey%27+AND+parno%3D%2737199-0013%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
+    "source_id": "nc-onemap-parcels"
   },
   {
     "id": "37115-0014",
@@ -1122,7 +1181,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -1137,14 +1196,16 @@
     },
     "flood_zone": "X",
     "parcel_use": "Vacant land",
-    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Madison%27+AND+parno%3D%2737115-0014%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
     "first_seen": "2026-02-14",
     "last_seen": "2026-08-18",
     "confidence": 0.77,
     "acreage_basis": "gis",
     "assessment_year": 2022,
     "owner_out_of_state": true,
-    "tenure_years": 18
+    "tenure_years": 18,
+    "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Madison%27+AND+parno%3D%2737115-0014%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
+    "source_id": "nc-onemap-parcels"
   },
   {
     "id": "37175-0015",
@@ -1171,7 +1232,7 @@
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — no assessed value on this record. Excluded from the denominator, not scored zero."
+          "note": "UNKNOWN \u2014 no assessed value on this record. Excluded from the denominator, not scored zero."
         },
         {
           "key": "acreage",
@@ -1199,7 +1260,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": null,
-          "note": "UNKNOWN — no FEMA layer joined for this parcel."
+          "note": "UNKNOWN \u2014 no FEMA layer joined for this parcel."
         }
       ],
       "denominator": 70,
@@ -1214,11 +1275,13 @@
     },
     "flood_zone": null,
     "parcel_use": "Vacant land",
-    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Transylvania%27+AND+parno%3D%2737175-0015%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
     "first_seen": "2026-03-02",
     "last_seen": "2026-08-18",
     "confidence": 0.39,
-    "acreage_basis": "gis"
+    "acreage_basis": "gis",
+    "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Transylvania%27+AND+parno%3D%2737175-0015%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
+    "source_id": "nc-onemap-parcels"
   },
   {
     "id": "37011-0016",
@@ -1252,7 +1315,7 @@
           "label": "Parcel size",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — the published geometry is a point, not a polygon."
+          "note": "UNKNOWN \u2014 the published geometry is a point, not a polygon."
         },
         {
           "key": "water",
@@ -1273,7 +1336,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 85,
@@ -1288,13 +1351,15 @@
     },
     "flood_zone": "X",
     "parcel_use": "Residential",
-    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Avery%27+AND+parno%3D%2737011-0016%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
     "first_seen": "2026-02-14",
     "last_seen": "2026-08-18",
     "confidence": 0.35,
     "assessment_year": 2023,
     "owner_out_of_state": false,
-    "tenure_years": 6
+    "tenure_years": 6,
+    "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Avery%27+AND+parno%3D%2737011-0016%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
+    "source_id": "nc-onemap-parcels"
   },
   {
     "id": "37099-0017",
@@ -1349,7 +1414,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 0.15,
-          "note": "FEMA zone AE — inside the 1% annual-chance floodplain."
+          "note": "FEMA zone AE \u2014 inside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -1364,14 +1429,16 @@
     },
     "flood_zone": "AE",
     "parcel_use": "Timber",
-    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Jackson%27+AND+parno%3D%2737099-0017%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
     "first_seen": "2026-02-14",
     "last_seen": "2026-08-18",
     "confidence": 0.85,
     "acreage_basis": "deed",
     "assessment_year": 2023,
     "owner_is_entity": true,
-    "tenure_years": 47
+    "tenure_years": 47,
+    "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Jackson%27+AND+parno%3D%2737099-0017%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
+    "source_id": "nc-onemap-parcels"
   },
   {
     "id": "37121-0018",
@@ -1426,7 +1493,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -1441,14 +1508,16 @@
     },
     "flood_zone": "X",
     "parcel_use": "Vacant land",
-    "source_url": "https://www.nconemap.gov/pages/parcels",
+    "source_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Mitchell%27+AND+parno%3D%2737121-0018%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
     "first_seen": "2026-02-14",
     "last_seen": "2026-08-18",
     "confidence": 0.72,
     "acreage_basis": "gis",
     "assessment_year": 2022,
     "owner_out_of_state": true,
-    "tenure_years": 15
+    "tenure_years": 15,
+    "record_url": "https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1/query?where=cntyname%3D%27Mitchell%27+AND+parno%3D%2737121-0018%27&outFields=parno%2Cownname%2Cparval%2Clandval%2Cimprovval%2Cgisacres%2Csaledate%2Cparusedesc%2Ccntyname&returnGeometry=false&f=json",
+    "source_id": "nc-onemap-parcels"
   },
   {
     "id": "47171-0019",
@@ -1475,7 +1544,7 @@
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — this county publishes no assessed value."
+          "note": "UNKNOWN \u2014 this county publishes no assessed value."
         },
         {
           "key": "acreage",
@@ -1503,7 +1572,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 75,
@@ -1518,11 +1587,15 @@
     },
     "flood_zone": "X",
     "parcel_use": "Agricultural",
-    "source_url": "https://www.tn.gov/finance/sts-gis.html",
+    "source_url": null,
     "first_seen": "2026-04-03",
     "last_seen": "2026-08-18",
     "confidence": 0.43,
-    "acreage_basis": "gis"
+    "acreage_basis": "gis",
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Tennessee's statewide parcel layer has no per-record public page. Verify via the Unicoi County Assessor of Property, parcel 47171-0019.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "47019-0020",
@@ -1549,7 +1622,7 @@
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — this county publishes no assessed value."
+          "note": "UNKNOWN \u2014 this county publishes no assessed value."
         },
         {
           "key": "acreage",
@@ -1577,7 +1650,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": null,
-          "note": "UNKNOWN — no FEMA layer joined for this county."
+          "note": "UNKNOWN \u2014 no FEMA layer joined for this county."
         }
       ],
       "denominator": 70,
@@ -1592,11 +1665,15 @@
     },
     "flood_zone": null,
     "parcel_use": "Residential",
-    "source_url": "https://www.tn.gov/finance/sts-gis.html",
+    "source_url": null,
     "first_seen": "2026-04-03",
     "last_seen": "2026-08-18",
     "confidence": 0.31,
-    "acreage_basis": "gis"
+    "acreage_basis": "gis",
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Tennessee's statewide parcel layer has no per-record public page. Verify via the Carter County Assessor of Property, parcel 47019-0020.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "51003-0021",
@@ -1651,7 +1728,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -1666,14 +1743,18 @@
     },
     "flood_zone": "X",
     "parcel_use": "Residential",
-    "source_url": "https://vgin.vdem.virginia.gov/",
+    "source_url": null,
     "first_seen": "2026-08-04",
     "last_seen": "2026-08-18",
     "confidence": 0.55,
     "acreage_basis": "gis",
     "assessment_year": 2024,
     "owner_out_of_state": false,
-    "tenure_years": 11
+    "tenure_years": 11,
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Virginia's statewide parcel layer carries geometry only and publishes no per-record page. Verify with the Albemarle County Commissioner of the Revenue, parcel 51003-0021.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "51163-0022",
@@ -1700,21 +1781,21 @@
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — no assessed value collected for this county."
+          "note": "UNKNOWN \u2014 no assessed value collected for this county."
         },
         {
           "key": "acreage",
           "label": "Parcel size",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel polygon collected for this county."
+          "note": "UNKNOWN \u2014 no parcel polygon collected for this county."
         },
         {
           "key": "water",
           "label": "Water on or adjacent to parcel",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no water layer joined for this county."
+          "note": "UNKNOWN \u2014 no water layer joined for this county."
         },
         {
           "key": "access",
@@ -1728,7 +1809,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": null,
-          "note": "UNKNOWN — no FEMA layer joined for this county."
+          "note": "UNKNOWN \u2014 no FEMA layer joined for this county."
         }
       ],
       "denominator": 40,
@@ -1743,11 +1824,15 @@
     },
     "flood_zone": null,
     "parcel_use": "Unknown",
-    "source_url": "https://vgin.vdem.virginia.gov/",
+    "source_url": null,
     "first_seen": "2026-08-04",
     "last_seen": "2026-08-18",
     "confidence": 0.14,
-    "note": "A thin-tier row: everything except location and use came back unknown. It is published so the gap is visible, not hidden."
+    "note": "A thin-tier row: everything except location and use came back unknown. It is published so the gap is visible, not hidden.",
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Virginia's statewide parcel layer carries geometry only and publishes no per-record page. Verify with the Rockbridge County Commissioner of the Revenue, parcel 51163-0022.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "51063-0023",
@@ -1802,7 +1887,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -1817,14 +1902,18 @@
     },
     "flood_zone": "X",
     "parcel_use": "Agricultural",
-    "source_url": "https://vgin.vdem.virginia.gov/",
+    "source_url": null,
     "first_seen": "2026-08-04",
     "last_seen": "2026-08-18",
     "confidence": 0.58,
     "acreage_basis": "gis",
     "assessment_year": 2024,
     "owner_out_of_state": true,
-    "tenure_years": 23
+    "tenure_years": 23,
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Virginia's statewide parcel layer carries geometry only and publishes no per-record page. Verify with the Floyd County Commissioner of the Revenue, parcel 51063-0023.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "51141-0024",
@@ -1879,7 +1968,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -1894,14 +1983,18 @@
     },
     "flood_zone": "X",
     "parcel_use": "Vacant land",
-    "source_url": "https://vgin.vdem.virginia.gov/",
+    "source_url": null,
     "first_seen": "2026-08-04",
     "last_seen": "2026-08-18",
     "confidence": 0.52,
     "acreage_basis": "gis",
     "assessment_year": 2023,
     "owner_out_of_state": true,
-    "tenure_years": 31
+    "tenure_years": 31,
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Virginia's statewide parcel layer carries geometry only and publishes no per-record page. Verify with the Patrick County Commissioner of the Revenue, parcel 51141-0024.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "51015-0025",
@@ -1956,7 +2049,7 @@
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": 1,
-          "note": "FEMA zone X — outside the 1% annual-chance floodplain."
+          "note": "FEMA zone X \u2014 outside the 1% annual-chance floodplain."
         }
       ],
       "denominator": 100,
@@ -1971,7 +2064,7 @@
     },
     "flood_zone": "X",
     "parcel_use": "Residential",
-    "source_url": "https://vgin.vdem.virginia.gov/",
+    "source_url": null,
     "first_seen": "2026-08-04",
     "last_seen": "2026-08-18",
     "confidence": 0.49,
@@ -1979,7 +2072,11 @@
     "assessment_year": 2024,
     "owner_out_of_state": false,
     "tenure_years": 3,
-    "note": "Augusta sits on VGSI (gis.vgsi.com); the 2025 VamaNet migration may have moved this source."
+    "note": "Augusta sits on VGSI (gis.vgsi.com); the 2025 VamaNet migration may have moved this source.",
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Virginia's statewide parcel layer carries geometry only and publishes no per-record page. Verify with the Augusta County Commissioner of the Revenue, parcel 51015-0025.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "13291-0026",
@@ -2006,35 +2103,35 @@
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — no parcel data source exists for this county."
+          "note": "UNKNOWN \u2014 no parcel data source exists for this county."
         },
         {
           "key": "acreage",
           "label": "Parcel size",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel data source exists for this county."
+          "note": "UNKNOWN \u2014 no parcel data source exists for this county."
         },
         {
           "key": "water",
           "label": "Water on or adjacent to parcel",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         },
         {
           "key": "access",
           "label": "Road access & use code",
           "weight": 10,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         },
         {
           "key": "flood",
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         }
       ],
       "denominator": 30,
@@ -2049,11 +2146,15 @@
     },
     "flood_zone": null,
     "parcel_use": "Unknown",
-    "source_url": "https://www.gsccca.org/",
+    "source_url": null,
     "first_seen": "2026-08-09",
     "last_seen": "2026-08-18",
     "confidence": 0.12,
-    "note": "Union has no parcel source (qPublic wall E1.1-E1.4). Everything about this row except its county is unknown."
+    "note": "Union has no parcel source (qPublic wall E1.1-E1.4). Everything about this row except its county is unknown.",
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "No public per-record URL exists for Union County. The county parcel viewer is behind a bot wall we do not attempt, and the state deed index requires an account we never create. Verify in person or by phone: Union County Tax Commissioner, parcel 13291-0026.",
+    "source_note": "no public per-record URL for this county"
   },
   {
     "id": "45073-0027",
@@ -2080,35 +2181,35 @@
           "label": "Assessed value vs county median per acre",
           "weight": 25,
           "value": null,
-          "note": "UNKNOWN — no parcel data source exists for this county."
+          "note": "UNKNOWN \u2014 no parcel data source exists for this county."
         },
         {
           "key": "acreage",
           "label": "Parcel size",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel data source exists for this county."
+          "note": "UNKNOWN \u2014 no parcel data source exists for this county."
         },
         {
           "key": "water",
           "label": "Water on or adjacent to parcel",
           "weight": 15,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         },
         {
           "key": "access",
           "label": "Road access & use code",
           "weight": 10,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         },
         {
           "key": "flood",
           "label": "Outside the 1% annual-chance floodplain",
           "weight": 5,
           "value": null,
-          "note": "UNKNOWN — no parcel geometry."
+          "note": "UNKNOWN \u2014 no parcel geometry."
         }
       ],
       "denominator": 30,
@@ -2123,10 +2224,14 @@
     },
     "flood_zone": null,
     "parcel_use": "Unknown",
-    "source_url": "https://www.sccourts.org/",
+    "source_url": null,
     "first_seen": "2026-08-06",
     "last_seen": "2026-08-18",
     "confidence": 0.11,
-    "note": "Oconee’s Master-in-Equity page returned HTTP 500 on probe — UNKNOWN, not absent. Recheck before drawing any conclusion from this county being quiet."
+    "note": "Oconee\u2019s Master-in-Equity page returned HTTP 500 on probe \u2014 UNKNOWN, not absent. Recheck before drawing any conclusion from this county being quiet.",
+    "record_url": null,
+    "source_id": null,
+    "how_to_verify": "Oconee County Master-in-Equity publishes sale rosters as periodic documents, not per-record pages. Check the current roster for case/parcel 45073-0027.",
+    "source_note": "no public per-record URL for this county"
   }
 ]
