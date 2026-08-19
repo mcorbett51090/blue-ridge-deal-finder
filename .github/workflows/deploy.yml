@@ -1,0 +1,51 @@
+name: Deploy to GitHub Pages
+
+# Decoupled from ingest ON PURPOSE (claim C9): a push made by GITHUB_TOKEN does
+# NOT trigger downstream workflows. Chaining ingest -> deploy via push would look
+# correct and silently never fire. This runs on its own schedule instead, which
+# also avoids introducing a PAT — a secret we do not want in a public repo.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'data/**'
+      - '.github/workflows/deploy.yml'
+  schedule:
+    # 06:40 UTC daily — offset off the hour because GitHub documents that
+    # scheduled runs are delayed or DROPPED at high-load times (top of the hour).
+    - cron: '40 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Build Astro site
+        uses: withastro/action@v6
+        with:
+          path: ./site
+          node-version: 22
+          package-manager: npm
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

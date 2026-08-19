@@ -1,0 +1,38 @@
+fips,state,county,region,tier,parcel_source,notes
+37189,NC,Watauga,NC High Country,rich,nc-onemap-parcels,
+37009,NC,Ashe,NC High Country,rich,nc-onemap-parcels,parvaltype=Market — not comparable to Assessed counties
+37011,NC,Avery,NC High Country,rich,nc-onemap-parcels,
+37021,NC,Buncombe,Asheville,rich,nc-onemap-parcels,REAPPRAISAL 2026 — 26.8% of corpus repricess this year
+37089,NC,Henderson,Asheville,rich,nc-onemap-parcels,
+37087,NC,Haywood,NC High Country,rich,nc-onemap-parcels,parvaltype=Market; A19 tax-foreclosure page confirmed
+37099,NC,Jackson,NC High Country,rich,nc-onemap-parcels,
+37115,NC,Madison,NC High Country,rich,nc-onemap-parcels,
+37175,NC,Transylvania,NC High Country,rich,nc-onemap-parcels,
+37199,NC,Yancey,NC High Country,rich,nc-onemap-parcels,
+37121,NC,Mitchell,NC High Country,rich,nc-onemap-parcels,
+47155,TN,Sevier,East TN,partial,tn-property-boundaries,no assessed value; TPAD hop unsettled
+47029,TN,Cocke,East TN,partial,tn-property-boundaries,no assessed value; TPAD hop unsettled
+47171,TN,Unicoi,East TN,partial,tn-property-boundaries,no assessed value; TPAD hop unsettled
+47091,TN,Johnson,East TN,partial,tn-property-boundaries,no assessed value; TPAD hop unsettled
+47019,TN,Carter,East TN,partial,tn-property-boundaries,no assessed value; TPAD hop unsettled
+51125,VA,Nelson,VA Blue Ridge,thin,,custom county GIS — untested by the qPublic probe
+51003,VA,Albemarle,VA Blue Ridge,thin,,
+51163,VA,Rockbridge,VA Blue Ridge,thin,,
+51015,VA,Augusta,VA Blue Ridge,thin,,VGSI gis.vgsi.com — 2025 VamaNet migration may have moved it
+51017,VA,Bath,VA Blue Ridge,thin,,
+51063,VA,Floyd,VA Blue Ridge,thin,,
+51141,VA,Patrick,VA Blue Ridge,thin,,
+51165,VA,Rockingham,VA Blue Ridge,thin,,
+51139,VA,Page,VA Blue Ridge,thin,,
+13111,GA,Fannin,North GA,notices-only,,qPublic wall E1.1-E1.4
+13123,GA,Gilmer,North GA,notices-only,,
+13291,GA,Union,North GA,notices-only,,qPublic wall E1.1-E1.4
+13281,GA,Towns,North GA,notices-only,,
+13241,GA,Rabun,North GA,notices-only,,
+13187,GA,Lumpkin,North GA,notices-only,,
+13311,GA,White,North GA,notices-only,,
+13137,GA,Habersham,North GA,notices-only,,
+13085,GA,Dawson,North GA,notices-only,,
+45073,SC,Oconee,Upstate SC,notices-only,,Master-in-Equity page returned HTTP 500 — UNKNOWN not absent
+45077,SC,Pickens,Upstate SC,notices-only,,Master-in-Equity Sales Rosters CONFIRMED online
+45045,SC,Greenville,Upstate SC,notices-only,,Master-in-Equity roster confirmed; self-hosted gcgis.org untested

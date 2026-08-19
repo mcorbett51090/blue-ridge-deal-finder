@@ -1,0 +1,36 @@
+name: Freshness heartbeat
+
+# E4 — this guards "GitHub silently disabled the schedule after 60 days of no
+# repository activity". A check that itself runs on that schedule CANNOT detect
+# that failure: when the scheduler dies the monitor dies with it and reports
+# nothing, forever, which reads exactly like healthy.
+#
+# So this is only HALF the mitigation. It writes the freshness fact into the
+# published site ("data as of <ts>"), where staleness is visible on the artifact
+# Matt actually looks at. The out-of-band half — a monitor that does NOT live in
+# this repo — is tracked in docs/decisions/0006-heartbeat.md.
+#
+# It also cheaply resets the 60-day clock under any reading of GitHub's
+# undocumented definition of "repository activity".
+on:
+  schedule:
+    - cron: '25 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Compute data age; fail loudly if stale
+        run: node scripts/check-freshness.mjs --max-age-days 10

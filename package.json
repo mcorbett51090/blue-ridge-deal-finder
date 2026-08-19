@@ -1,0 +1,36 @@
+{
+  "name": "blue-ridge-deal-finder",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "ingest:parcels": "tsx pipeline/ingest-parcels.ts",
+    "ingest:notices": "tsx pipeline/ingest-notices.ts",
+    "score": "tsx pipeline/score/index.ts",
+    "publish": "tsx publish/export.ts",
+    "probe:county": "tsx pipeline/discover/probe-county.ts",
+    "verify": "node scripts/verify-all.mjs",
+    "verify:egress": "node scripts/verify-egress-allowlist.mjs",
+    "verify:sources": "node scripts/verify-sources.mjs",
+    "verify:pii": "node scripts/verify-no-pii.mjs",
+    "verify:coverage": "node scripts/verify-coverage.mjs",
+    "verify:controls": "node scripts/verify-controls.mjs",
+    "test": "node --test tests/",
+    "site:dev": "npm --prefix site run dev",
+    "site:build": "npm --prefix site run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@turf/turf": "^7.1.0",
+    "better-sqlite3": "^11.7.0",
+    "cheerio": "^1.0.0",
+    "js-yaml": "^4.1.0",
+    "robots-parser": "^3.0.1",
+    "zod": "^3.24.1"
+  }
+}

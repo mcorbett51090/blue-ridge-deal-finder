@@ -1,0 +1,62 @@
+name: Ingest parcels
+
+# ---------------------------------------------------------------------------
+# CADENCE JUSTIFICATION — a TERMS requirement, not a politeness knob.
+#
+# GitHub's Additional Product Terms forbid using hosted runners for "any
+# activity that places a burden on our servers... disproportionate to the
+# benefits provided", and for work "unrelated to the production, testing,
+# deployment, or publication of the software project associated with the
+# repository". The stated penalty is "disabling of repositories".
+#
+# This job IS the publication path for this repo's own project, satisfying the
+# relatedness test. Proportionality is satisfied by cadence:
+#   - WEEKLY, not daily. County assessment rolls move on a multi-YEAR
+#     reappraisal cycle; a daily pull of 500k parcels re-fetches data that is
+#     identical 364 days in 365. Weekly is already generous.
+#   - Incremental, per county, ~0.5 req/sec, concurrency 1.
+#   - No unbounded historical backfill on hosted runners, ever.
+#
+# The restraint that keeps a county IT admin comfortable keeps GitHub
+# comfortable. One rate posture, two audiences.
+# ---------------------------------------------------------------------------
+on:
+  schedule:
+    # 04:17 UTC Sundays — off-hour and off-:00 for the documented high-load drop.
+    - cron: '17 4 * * 0'
+  workflow_dispatch:
+    inputs:
+      counties:
+        description: 'Comma-separated county names (blank = all NC targets)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ingest-parcels
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Gate family — must pass BEFORE any socket opens
+        run: npm run verify
+      - name: Ingest NC parcels
+        run: npm run ingest:parcels -- --counties="${{ inputs.counties }}"
+      - name: Commit event log + manifest
+        run: |
+          git config user.name  "blue-ridge-bot"
+          git config user.email "matt@ravenpower.net"
+          git add data/events data/runs data/coverage.json
+          git diff --staged --quiet || git commit -m "ingest(parcels): $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push

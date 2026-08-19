@@ -1,0 +1,21 @@
+node_modules/
+site/node_modules/
+site/dist/
+site/.astro/
+.DS_Store
+*.log
+
+# ---- D1 / D2: things that must NEVER be committed -------------------------
+# Owner PII retained locally for lookup only (D1). Never published.
+local/
+*.local.json
+*.local.ndjson
+# The owner's watchlist + private notes (D2). Public repo == public watchlist
+# if this ever lands, and git history is permanent.
+watchlist.json
+notes/
+# Warehouse + raw tiers live as Release assets / off-platform mirror, never in git.
+data/warehouse/
+data/raw/
+*.sqlite
+*.sqlite-journal
