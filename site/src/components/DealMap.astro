@@ -338,6 +338,20 @@ const payload = JSON.stringify({ fc, bounds: bb });
         filter: ['has', 'point_count'],
         layout: {
           'text-field': ['get', 'point_count_abbreviated'],
+          // ⛔ text-font is REQUIRED here, not optional. Omitting it makes
+          // MapLibre fall back to its built-in default fontstack
+          // ["Open Sans Regular","Arial Unicode MS Regular"], which
+          // OpenFreeMap does not host: every page load then 404s
+          // /fonts/Open%20Sans%20Regular,Arial%20Unicode%20MS%20Regular/0-255.pbf
+          // and logs "Unable to load glyph range" once per visible codepoint.
+          // The counts still render (MapLibre draws them locally), so this is
+          // invisible without opening a console — it was caught by a browser
+          // check, not by the build, which passed clean.
+          // Measured 2026-08-19: the default stack -> HTTP 404 (146 B);
+          // 'Noto Sans Regular' -> HTTP 200 (76,580 B). The positron style's
+          // own layers use Noto Sans, so this matches the basemap rather than
+          // merely avoiding the 404.
+          'text-font': ['Noto Sans Regular'],
           'text-size': 12,
           'text-allow-overlap': true,
         },
