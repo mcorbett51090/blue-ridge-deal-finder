@@ -1,0 +1,395 @@
+# sources.candidates.yaml — P0 output, 2026-08-19
+#
+# ONLY sources that PASSED a P0 probe with a control block that could fail.
+# Schema per plan.md §3.1. Nothing here is enabled: P1 must promote an entry into
+# sources.yaml deliberately, after re-running its control_block.
+#
+# Every robots.txt body cited below is cached under sources/evidence/robots/ with the
+# sha256 recorded on the entry. Full probe transcript: docs/probe-log.md.
+#
+# ⛔ Sources that FAILED P0 and belong in sources.denied.yaml are listed at the bottom of
+#    this file under `denied_by_p0:` so the two lists cannot drift apart.
+
+candidates:
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # ANCHOR — the parcel substrate. Probe §8.
+  # ─────────────────────────────────────────────────────────────────────────────
+  - id: nc-onemap-parcels
+    kind: arcgis-map-server
+    url: https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1
+    legal_basis: public-records-open-data
+    covers: { states: [NC], counties: 11 }
+    robots:
+      verdict: allow
+      checked_at: 2026-08-19
+      evidence_url: https://services.nconemap.gov/robots.txt
+      evidence_sha256: null            # ⚠️ not cached this phase — P1 must fetch before first use
+    tos: { verdict: unknown, checked_at: null, evidence_url: null }
+    rate: { rps: 0.5, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      positive: { where: "cntyname='Watauga'", returnCountOnly: true, expect_count: 47388 }
+      negative: { where: "cntyname='Zzzznotacounty'", returnCountOnly: true, expect_count: 0 }
+    pagination:
+      # §8 — measured, not assumed.
+      object_id_field: objectid          # ⛔ LOWERCASE. `objectIdFieldName` is ABSENT from the
+                                         #    layer metadata; a client reading it gets undefined.
+      order_by_required: true            # always send orderByFields=objectid
+      page_size: 500
+      max_record_count: 5000
+      stability: verified-identical-across-two-runs
+      overlap_between_adjacent_pages: 0
+      objectid_envelope_watauga: { min: 33897567, max: 33944954, span: 47388, contiguous: true }
+    expect:
+      per_county_min_rows: { Watauga: 45000, Buncombe: 128000, Henderson: 71000, Haywood: 50000,
+                             Jackson: 39000, Ashe: 36000, Transylvania: 30000, Avery: 23000,
+                             Madison: 20000, Mitchell: 16500, Yancey: 16500 }
+      assert_on: response-body           # ⛔ NEVER on %{http_code} — see E7.4 and §7/§8 traps
+      treat_as_failure: ["error.code", "status=='error'"]
+    geometry_type: esriGeometryPolygon
+    probe_ref: "docs/probe-log.md §8"
+    verdict: PASS
+    enabled: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # DISTRESS — three NC counties, three unrelated mechanisms. Probe §2.
+  # ─────────────────────────────────────────────────────────────────────────────
+  - id: buncombe-tax-foreclosures-trumba
+    kind: ics-feed
+    url: https://www.trumba.com/calendars/tax-foreclosures-all.ics
+    required_query: { startdate: "YYYYMMDD", enddate: "YYYYMMDD" }
+    # ⛔ WITHOUT an explicit date window this feed returns 0 events with a valid VCALENDAR
+    #    header and HTTP 200 — it reads as "no inventory". See §2.4.
+    legal_basis: public-records-open-data
+    covers: { states: [NC], counties: [Buncombe] }
+    robots:
+      verdict: allow
+      checked_at: 2026-08-19
+      evidence_url: https://www.trumba.com/robots.txt
+      evidence_sha256: "3ae934824d7e2cda302ff48483c19929a45c55636893f21e5965cb66aa85d000"
+      note: "body is 'User-agent: * / Disallow: ' + comment '# allows all robots'"
+    tos: { verdict: unknown, checked_at: null, evidence_url: null }
+    rate: { rps: 0.5, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      positive: { url_suffix: "?startdate=20190101&enddate=20271231", expect_min_vevents: 55 }
+      negative: { url: "https://www.trumba.com/calendars/zzz-no-such-calendar-xyz.ics", expect_http: 410 }
+    fields_available:
+      - SUMMARY                # property / party name
+      - GEO                    # ✅ latitude;longitude, ready to map
+      - DTSTART / DTEND        # bidding window
+      - "X-TRUMBA-CUSTOMFIELD Opening/Current Bid"   # Currency
+      - "X-TRUMBA-CUSTOMFIELD Redeemed"              # Boolean — No == actually sold
+      - "X-TRUMBA-CUSTOMFIELD Case Number"
+      - "X-TRUMBA-CUSTOMFIELD Property Type"
+      - "PIN lookup"           # ✅ parcel PIN — joins to nc-onemap-parcels.parno
+      - "acreage (free text in DESCRIPTION, e.g. '0.83 ACRES, MORE OR LESS')"
+    measured_2026_08_19:
+      vevents_total: 60
+      span: "2022-01-18 .. 2026-08-07"
+      annual_rate: 13
+      redeemed_no: 35          # ~7.7/yr actually reach sale
+      open_today: 0
+      feed_last_build: "2026-08-07"   # ⚠️ 12 days stale at probe time
+    alt_formats: [".rss", ".json"]
+    probe_ref: "docs/probe-log.md §2.4"
+    verdict: PASS
+    enabled: false
+
+  - id: haywood-tax-foreclosures-civicengage
+    kind: html-list + pdf-detail
+    url: https://www.haywoodcountync.gov/Bids.aspx?CatID=17&txtSort=Category&showAllBids=&Status=open
+    history_url: https://www.haywoodcountync.gov/Bids.aspx?CatID=17&txtSort=Category&showAllBids=Y&Status=
+    legal_basis: public-records-open-data
+    covers: { states: [NC], counties: [Haywood] }
+    robots:
+      verdict: allow
+      checked_at: 2026-08-19
+      evidence_url: https://www.haywoodcountync.gov/robots.txt
+      evidence_sha256: "6771bf6465ddd6e600a7866b5e41825007c4a20433b378e56746547c40d205c5"
+      note: "/Bids.aspx and /DocumentCenter/ not disallowed; /RSS.aspx and /Search* are"
+    tos: { verdict: unknown, checked_at: null, evidence_url: null }
+    rate: { rps: 0.5, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      # ⛔ A bogus CatID returns HTTP 200, not 404. Status cannot discriminate; the <title> can.
+      positive: { url: "https://www.haywoodcountync.gov/Bids.aspx", expect_title_contains: "Bid Postings" }
+      negative: { url: "https://www.haywoodcountync.gov/Bids.aspx?CatID=99917", expect_title_not_contains: "Tax Foreclosures" }
+    extraction:
+      list_pattern: 'bidID=(\d+)'      # case-insensitive; detail page is Bids.aspx?bidID=N
+      detail_fields: [Bid Title, Category, Status, Publication Date/Time, Closing Date/Time]
+    blocker:
+      # ⛔ The property address/parcel is ONLY inside a scanned-image PDF.
+      issue: "detail PDF has 0 /Font objects and 3 /DCTDecode image streams — NO TEXT LAYER"
+      consequence: "OCR required for address/parcel. Unbudgeted cost. P1 must not assume text extraction."
+      example: "/DocumentCenter/View/7777/FCDavis — 1,352,410 B, scanned"
+    measured_2026_08_19: { open_postings: 3, historical_postings: 122, span: "2019-06 .. 2026-08", annual_rate: 17 }
+    probe_ref: "docs/probe-log.md §2.2–§2.3"
+    verdict: PASS (list) / BLOCKED (detail, needs OCR)
+    enabled: false
+
+  - id: jackson-county-reo-pdf
+    kind: pdf-table
+    url: https://www.jacksonnc.org/DocumentCenter/View/2164
+    parent_url: https://www.jacksonnc.org/456/Tax-Collections
+    legal_basis: public-records-open-data
+    covers: { states: [NC], counties: [Jackson] }
+    robots:
+      verdict: allow
+      checked_at: 2026-08-19
+      evidence_url: https://www.jacksonnc.org/robots.txt
+      evidence_sha256: "6771bf6465ddd6e600a7866b5e41825007c4a20433b378e56746547c40d205c5"
+      note: "byte-identical to Haywood's — shared CivicEngage template"
+    tos: { verdict: unknown, checked_at: null, evidence_url: null }
+    rate: { rps: 0.5, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      positive: { assert: "pdf has >=1 /Font object (text layer present)", measured: 5 }
+      negative: { assert: "jacksonnc.org sitemap contains no 'foreclos' URL", measured: 0, grep_control: "tax=5, zzqqx=0" }
+    fields_available: [parcel_pin, assessed_value, owner_and_lot_description, amount_owed, interest, date_acquired]
+    measured_2026_08_19:
+      county_owned_properties_for_sale: 8      # directly purchasable, contact named on the document
+      note: "'Upcoming Property Tax Foreclosure Sales' states 'None Currently Scheduled'"
+    sibling:
+      id: jackson-delinquent-accounts
+      url: https://www.jacksonnc.org/DocumentCenter/View/2221
+      note: "73-page, 4.85 MB delinquent-account list, text layer present — pre-foreclosure lead pool"
+    probe_ref: "docs/probe-log.md §2.5"
+    verdict: PASS
+    enabled: false
+
+  - id: oconee-sc-delinquent-tax-sale-list
+    kind: html-table
+    url: https://oconeesc.com/delinquent-tax/sale-list
+    legal_basis: public-records-open-data
+    covers: { states: [SC], counties: [Oconee] }
+    robots:
+      verdict: allow
+      checked_at: 2026-08-19
+      evidence_url: https://www.oconeesc.com/robots.txt
+      evidence_sha256: "0e3847d2135b8a3710df31df979aed463ea7f52f23c69c295eabdd47d7212e8f"
+    tos: { verdict: unknown, checked_at: null, evidence_url: null }
+    rate: { rps: 0.5, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      # ⛔ This host returns HTTP 500 / 0 B for ANY unknown path — 500 means "no such page", not "outage".
+      # ⛔ /departments returns 200 with a body byte-identical to the homepage (soft alias).
+      positive: { url: "https://oconeesc.com/delinquent-tax/sale-list", expect_title: "Sale List", expect_sha_differs_from: "homepage" }
+      negative: { url: "https://www.oconeesc.com/departments/zzqqx-not-a-real-department", expect_http: 500, expect_bytes: 0 }
+    table_columns: [Item Number, Owner Name, Map Number, Description, Total Tax Due]
+    availability:
+      rows_populated: false
+      publishes_at: "2026-10-21"
+      sale_date: "2026-11-09"
+      note: "Structure confirmed; rows do not exist yet. NOT an absence — a scheduled future availability."
+    probe_ref: "docs/probe-log.md §10"
+    verdict: INCONCLUSIVE — re-probe on or after 2026-10-21
+    enabled: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # ENRICHMENT — free federal geometry. Probe §7. All keyless.
+  # ⛔ ALL FOUR return HTTP 200 on error. Assert on the response BODY, never the status.
+  # ─────────────────────────────────────────────────────────────────────────────
+  - id: usgs-nhd
+    kind: arcgis-map-server
+    url: https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer
+    legal_basis: us-federal-public-domain
+    robots: { verdict: not-checked, checked_at: null, evidence_url: null, note: "P1 must fetch before first use" }
+    tos: { verdict: permissive, checked_at: 2026-08-19, evidence_url: "https://www.usgs.gov/information-policies-and-instructions" }
+    rate: { rps: 1.0, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      positive: { url: "?f=json", expect_min_bytes: 12000, expect_layer_count: 13 }
+      negative: { url: "https://hydro.nationalmap.gov/arcgis/rest/services/NO_SUCH_SERVICE_XYZ/MapServer?f=json",
+                  expect_http: 200, expect_body_contains: '"error"' }   # ⛔ 200 on a dead service
+    layers_of_interest: { 6: "Flowline - Large Scale", 9: "Area - Large Scale", 12: "Waterbody - Large Scale" }
+    powers_signal: "owner signal #5 — WATER (has_stream / has_river / has_pond / distance_to_water_m)"
+    measured_2026_08_19: { http: 200, bytes: 12629, layers: 13, version: 11.3 }
+    probe_ref: "docs/probe-log.md §7"
+    verdict: PASS
+    enabled: false
+
+  - id: fema-nfhl
+    kind: arcgis-map-server
+    url: https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer
+    legal_basis: us-federal-public-domain
+    robots: { verdict: not-checked, checked_at: null, evidence_url: null, note: "P1 must fetch before first use" }
+    tos: { verdict: permissive, checked_at: 2026-08-19, evidence_url: "https://www.fema.gov/about/website-information" }
+    rate: { rps: 1.0, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      positive: { url: "?f=json", expect_min_bytes: 9000, expect_layer_count: 33 }
+      negative: { url: "https://hazards.fema.gov/arcgis/rest/services/public/NO_SUCH_XYZ/MapServer?f=json",
+                  expect_http: 200, expect_body_contains: '"error"' }
+    powers_signal: "owner signal #4 — livability (floodplain coverage fraction; needs POLYGON parcels)"
+    measured_2026_08_19: { http: 200, bytes: 9520, layers: 33, version: 11.1 }
+    probe_ref: "docs/probe-log.md §7"
+    verdict: PASS
+    enabled: false
+
+  - id: usgs-epqs
+    kind: json-point-query
+    url: https://epqs.nationalmap.gov/v1/json
+    query_shape: "?x=<lon>&y=<lat>&units=Meters&wkid=4326&includeDate=true"
+    legal_basis: us-federal-public-domain
+    robots: { verdict: not-checked, checked_at: null, evidence_url: null, note: "P1 must fetch before first use" }
+    tos: { verdict: permissive, checked_at: 2026-08-19, evidence_url: "https://www.usgs.gov/information-policies-and-instructions" }
+    rate: { rps: 1.0, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      positive: { x: -81.6746, y: 36.2168, expect_value_between: [900, 1100] }   # Boone NC, measured 980.410034180 m
+      negative: { x: -999, y: -999, expect_http: 200, expect_body_is_not_json: true }
+      # ⛔ EPQS returns HTTP 200 with PLAIN TEXT on error:
+      #    "The operation was attempted on an empty geometry."  — a JSON parser will THROW.
+    powers_signal: "owner signal #4 — slope / elevation"
+    measured_2026_08_19: { http: 200, bytes: 206, value_m: 980.410034180, resolution_m: 1, acquired: "2017-10-06" }
+    probe_ref: "docs/probe-log.md §7"
+    verdict: PASS
+    enabled: false
+
+  - id: census-tigerweb
+    kind: arcgis-map-server
+    url: https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer
+    legal_basis: us-federal-public-domain
+    note: "NEVER PROBED BY ANY EARLIER GATE IN THIS RUN — gap-delta fork #10, closed here."
+    robots: { verdict: not-checked, checked_at: null, evidence_url: null, note: "P1 must fetch before first use" }
+    tos: { verdict: permissive, checked_at: 2026-08-19, evidence_url: "https://www.census.gov/about/policies/open-government.html" }
+    rate: { rps: 1.0, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      positive: { url: "?f=json", expect_min_bytes: 20000, expect_body_contains: "Census Current (2025) WMS" }
+      negative: { url: "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/NO_SUCH_XYZ/MapServer?f=json",
+                  expect_http: 200, expect_body_contains: '"error"' }
+    powers_signal: "county boundaries, roads (road-access proxy for owner signal #4), place names"
+    measured_2026_08_19: { http: 200, bytes: 25205, version: 11.5, vintage: "2025-01-01" }
+    probe_ref: "docs/probe-log.md §7"
+    verdict: PASS
+    enabled: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SEED — probe §9. Already materialised, not fetched at runtime.
+  # ─────────────────────────────────────────────────────────────────────────────
+  - id: ncdor-reappraisal-schedule
+    kind: xlsx-download
+    url: https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open
+    landing_url: https://www.ncdor.gov/fiscal-year-2026-2027
+    legal_basis: public-records-open-data
+    robots:
+      verdict: allow
+      checked_at: 2026-08-19
+      evidence_url: https://www.ncdor.gov/robots.txt
+      evidence_sha256: "e964bb96227307d12d713bf23ac53d65a8e4919e715ba974c4268db7aec22012"
+    tos: { verdict: unknown, checked_at: null, evidence_url: null }
+    rate: { rps: 0.2, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      positive: { assert: "all 11 NC target counties present in the XLSX", measured: "11/11" }
+      negative: { assert: "'Zzzznotacounty' absent AND 'Alamance' present", measured: true }
+    materialised_to: seeds/dim_county_assessment.csv
+    cadence: annual                       # re-pull each fiscal year
+    finding:
+      # ⛔ Load-bearing: assessment vintage spans 2021..2025 across the 11 NC counties.
+      # A raw price-vs-assessed discount is NOT cross-county comparable without normalising by
+      # last_reappraisal_year. G.S. 105-287 bars inter-reappraisal adjustment for economic change.
+      vintage_spread_years: 4
+      stalest: [Buncombe (2021), Haywood (2021)]
+      freshest: [Jackson (2025), Transylvania (2025)]
+      discrepancy_flagged: "seeds/counties.csv notes Buncombe 'REAPPRAISAL 2026'; NCDOR says last=2021, next=2027. Team Lead's call — I did not edit P1's file."
+    probe_ref: "docs/probe-log.md §9"
+    verdict: PASS
+    enabled: false
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FAILED P0 — promote these into sources.denied.yaml before any fetcher code runs.
+# ═══════════════════════════════════════════════════════════════════════════════
+denied_by_p0:
+
+  - host: "www.landsearch.com, landsearch.com"
+    claim_ref: B35
+    reason: >-
+      Cloudflare managed challenge on EVERY content path including the 7 sitemaps its own
+      robots.txt advertises. Response header `cf-mitigated: challenge`. HTTP 403 under the honest
+      UA, the default curl UA and a browser UA alike. robots.txt (200/540 B) is the sole exempt
+      path, which is exactly why a robots-only probe rated it GREEN.
+    downgrade: "🟢 GREEN (B35) → 🔴 RED"
+    probe_ref: "docs/probe-log.md §1"
+
+  - host: "www.georgiapublicnotice.com"
+    claim_ref: B8, B9
+    reason: >-
+      robots.txt ALLOWS our UA (0 of 31 named agents match; ClaudeBot positive control matches 1)
+      — but /Terms-of-Use.aspx states verbatim: "You may not engage in any screen scraping,
+      database scraping, or spidering ... or use of any other automated means to collect
+      information from the site" and "You may not ... incorporate the content in any database,
+      compilation, archive or cache." tos.verdict = PROHIBITIVE. ToS is the stricter instrument.
+    downgrade: "🟡 YELLOW (B-scorecard) → 🔴 RED"
+    probe_ref: "docs/probe-log.md §3"
+
+  - host: "www.publicnoticevirginia.com"
+    claim_ref: B12, B13
+    reason: "Identical prohibitive Terms of Use to the Georgia site. Same vendor platform."
+    downgrade: "🟡 YELLOW → 🔴 RED"
+    probe_ref: "docs/probe-log.md §3"
+
+  - host: "www.vapublicnotices.com"
+    claim_ref: B12
+    reason: "NXDOMAIN re-confirmed (curl exit 6). Never use."
+    probe_ref: "docs/probe-log.md §3"
+
+  - host: "qpublic.schneidercorp.com, beacon.schneidercorp.com, qpublic.net, gis.qpublic.net"
+    claim_ref: E1.1-E1.4
+    reason: >-
+      PRE-COMMITTED KILL FIRED. Two independent grounds: (a) robots.txt itself carries
+      `User-agent: * / Disallow: /Application.aspx` (+ case variants, /print.aspx, /renderpdf.aspx,
+      /filedata/) — E1 did not record this; (b) every non-robots path returns HTTP 403 / ~5,798 B.
+      The separate host gis.qpublic.net returns Cloudflare error 1016 (Origin DNS error, HTTP 530)
+      — a dead origin, not a bot wall. CLOSED PERMANENTLY. Spend no further time.
+    probe_ref: "docs/probe-log.md §5"
+
+  - host: "vginmaps.vdem.virginia.gov"
+    path: "/arcgis/, /Download/, /VGIN/, /websites/"
+    claim_ref: A4, E3.5
+    reason: >-
+      Host is LIVE (ArcGIS 11.3, 9 folders, HTTP 200) but its robots.txt disallows /arcgis/ —
+      the exact path the REST services live on. A4 recorded "fetched OK" and was silent on robots.
+      Sibling host gismaps.vdem.virginia.gov is NXDOMAIN (E3.5 confirmed).
+    probe_ref: "docs/probe-log.md §6"
+
+unresolved_by_p0:
+
+  - host: "www.tnpublicnotice.com"
+    claim_ref: B14, B15
+    status: INCONCLUSIVE — do not use pending a human decision
+    reason: >-
+      Reachability PASS — the site is live (200 / 200,314 B), closing B15's gap (both prior fetches
+      failed). But its /Terms-of-Use.aspx is an UN-EDITED COPY of the Illinois site's: it cites
+      "Illinois Public Act 96-1144", names "Illinois Press Association, Inc." as the counterparty
+      and refers to the "State of Illinois", while the contact is publicnotice@tnpress.com.
+      The anti-scraping clause present on the GA/VA siblings is absent — but that absence is a
+      transcription defect, not a grant of permission.
+    next_action: "Email publicnotice@tnpress.com for the applicable terms."
+    probe_ref: "docs/probe-log.md §4"
+
+  - host: "publicnoticeads.com"
+    claim_ref: B15
+    status: "path wrong — /tn/ returns HTTP 404 (site itself is live, robots.txt 200/77 B)"
+    probe_ref: "docs/probe-log.md §4"
+
+not_run_by_p0:
+
+  - item: "B14 — the named TN third-party foreclosure posting site (>=20 continuous days)"
+    reason: "This agent had no web-search tool, only curl. Finding the site's NAME requires reading a newspaper ad. NOT RUN — not 'not found'."
+    next_action: "Re-assign to an agent with WebSearch. Timebox 30 min as originally scoped."
+    probe_ref: "docs/probe-log.md §4"
+
+  - item: "LandSearch MLS-derived vs. disjoint inventory"
+    reason: "Unanswerable — no listing page is reachable. Moot for the build: the source is unusable either way."
+    next_action: "15 minutes of human browsing, if the owner wants the answer for its own sake."
+    probe_ref: "docs/probe-log.md §1.5"
+
+  - item: "Oconee SC sale-list row count"
+    reason: "Rows do not publish until 2026-10-21. Table structure confirmed; contents do not exist yet."
+    next_action: "Re-probe on or after 2026-10-21."
+    probe_ref: "docs/probe-log.md §10"

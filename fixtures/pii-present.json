@@ -1,0 +1,26 @@
+{
+  "_why": "The PII canary (D1). ZZCANARY-OWNER-DO-NOT-PUBLISH is a planted, searchable token: verify-no-pii.mjs plants THIS FILE into a scratch copy of every published surface and asserts each surface flags it. A run where the canary is NOT flagged is a BROKEN GATE, not a clean surface. Panel A's version grepped only dist/ while the Release asset shipped ~500k owner names.",
+  "features": [
+    {
+      "attributes": {
+        "OBJECTID": 31,
+        "parno": "1809-31-9999-000",
+        "stcntyfips": "37189",
+        "ownname": "ZZCANARY-OWNER-DO-NOT-PUBLISH",
+        "ownname2": "ZZCANARY-SPOUSE-DO-NOT-PUBLISH",
+        "ownfrst": "ZZCANARY",
+        "ownlast": "DO-NOT-PUBLISH",
+        "mailadd": "1 ZZCANARY LANE",
+        "mailadd2": "APT 2",
+        "munit": "2",
+        "mcity": "BOONE",
+        "mstate": "TN",
+        "mzip": "37601",
+        "parval": 245000,
+        "gisacres": 12.4,
+        "saledate": 1104537600000,
+        "parusedesc": "RESIDENTIAL"
+      }
+    }
+  ]
+}

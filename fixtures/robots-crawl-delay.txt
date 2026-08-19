@@ -1,0 +1,12 @@
+# Fixture robots.txt. Crawl-Delay is honoured LITERALLY — B6 states 20 s and
+# B33 states 5 s, and "20 seconds" does not mean "20 seconds unless we are busy".
+User-agent: *
+Crawl-Delay: 20
+Disallow: /private/
+Allow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /

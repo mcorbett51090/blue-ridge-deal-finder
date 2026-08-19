@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "ingest:parcels": "tsx pipeline/ingest-parcels.ts",
     "ingest:notices": "tsx pipeline/ingest-notices.ts",
@@ -16,7 +18,7 @@
     "verify:pii": "node scripts/verify-no-pii.mjs",
     "verify:coverage": "node scripts/verify-coverage.mjs",
     "verify:controls": "node scripts/verify-controls.mjs",
-    "test": "node --test tests/",
+    "test": "node --test \"tests/**/*.test.ts\"",
     "site:dev": "npm --prefix site run dev",
     "site:build": "npm --prefix site run build"
   },

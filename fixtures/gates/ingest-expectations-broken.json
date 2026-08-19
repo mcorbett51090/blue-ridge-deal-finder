@@ -1,0 +1,7 @@
+{
+  "_why": "FAILING FIXTURE for verify-ingest-guards.mjs itself. It declares the HEALTHY payload as must_reject. The guards correctly accept it, so the gate must report an accepted-but-should-have-been-rejected payload and exit non-zero. This is the meta-gate's proof that verify-ingest-guards can go RED — i.e. that it is actually observing the guards rather than counting fixtures.",
+  "must_reject": [
+    { "guard": "health", "file": "healthy-response.json", "min_rows": 1, "expect_check": "in-band-error" }
+  ],
+  "must_accept": []
+}

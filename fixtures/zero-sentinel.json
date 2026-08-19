@@ -1,0 +1,11 @@
+{
+  "_why": "RT-3. The upstream never emits NULL; it emits 0. parval=0 on 797 Watauga rows, gisacres=0 on 3,326. Sampled parval=0 rows are government land and HOA common areas — structurally unpurchasable — and parval/gisacres = 0 is the CHEAPEST value in every percentile bucket, so a naive ranking puts them first. Note `owntype` is '' (its only distinct value in Watauga) and `presentval` is empty, so the veto has no structured field except parusedesc — and 'COMMONE' is upstream's misspelling, matched verbatim. saledate 1900-01-01 is -2208988800000 in epoch ms.",
+  "objectIdFieldName": "OBJECTID",
+  "exceededTransferLimit": false,
+  "features": [
+    { "attributes": { "OBJECTID": 21, "parno": "3901-00-0001-000", "stcntyfips": "37189", "parval": 0, "gisacres": 84.0, "owntype": "", "presentval": "", "parusedesc": "GOVERNMENT", "saledate": -2208988800000 } },
+    { "attributes": { "OBJECTID": 22, "parno": "3901-00-0002-000", "stcntyfips": "37189", "parval": 0, "gisacres": 0, "owntype": "", "presentval": "", "parusedesc": "EXCLUSIONS (COMMONE AREAS)", "saledate": -2208988800000 } },
+    { "attributes": { "OBJECTID": 23, "parno": "3901-00-0003-000", "stcntyfips": "37189", "parval": 125000, "gisacres": 0, "owntype": "", "presentval": "", "parusedesc": "RESIDENTIAL", "saledate": 1451606400000 } },
+    { "attributes": { "OBJECTID": 24, "parno": "3901-00-0004-000", "stcntyfips": "37189", "parval": 125000, "gisacres": 0, "owntype": "", "presentval": "", "reviseyear": "1/1/1900 12:00:00 AM", "parusedesc": "RESIDENTIAL", "saledate": 0 } }
+  ]
+}

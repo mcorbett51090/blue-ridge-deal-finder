@@ -1,0 +1,12 @@
+fips,county,last_reappraisal_year,next_reappraisal_year,cycle_years,source_url,retrieved_at
+37009,Ashe,2023,2027,4,https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open,2026-08-19
+37011,Avery,2022,2027,5,https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open,2026-08-19
+37021,Buncombe,2021,2027,6,https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open,2026-08-19
+37087,Haywood,2021,2027,6,https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open,2026-08-19
+37089,Henderson,2023,2027,4,https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open,2026-08-19
+37099,Jackson,2025,2029,4,https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open,2026-08-19
+37115,Madison,2024,2032,8,https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open,2026-08-19
+37121,Mitchell,2022,2027,5,https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open,2026-08-19
+37175,Transylvania,2025,2029,4,https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open,2026-08-19
+37189,Watauga,2022,2027,5,https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open,2026-08-19
+37199,Yancey,2024,2032,8,https://www.ncdor.gov/2026-2027countytaxratesfinalxlsx/open,2026-08-19

@@ -1,0 +1,10 @@
+{
+  "_why": [
+    "The canary token lives HERE, in fixtures/, and not in scripts/verify-no-pii.mjs,",
+    "for the same reason the egress permit list lives in JSON: the gate scans the git",
+    "tree, so a literal canary written into the gate would make the gate flag the gate.",
+    "tests/ read the token from this file too, never as a literal."
+  ],
+  "token": "ZZCANARY-OWNER-DO-NOT-PUBLISH",
+  "planted_in": "fixtures/pii-present.json"
+}

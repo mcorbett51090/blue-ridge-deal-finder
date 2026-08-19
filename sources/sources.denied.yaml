@@ -1,0 +1,116 @@
+# sources/sources.denied.yaml — the do-not-fetch list (plan §3.2).
+#
+# THE DENYLIST WINS EVERY CONFLICT. pipeline/fetch/client.ts matches the request
+# host and path against these rules BEFORE it reads anything from sources.yaml,
+# and a match is a hard throw regardless of what the source entry claims —
+# including `enabled: true`, including a `robots.verdict: allow`. A registry
+# entry is an assertion by us; this file is an assertion by them.
+#
+# Every row carries a claim ref so the reason is auditable, not remembered.
+# `host` matches the hostname exactly or as a suffix when written `*.example.com`.
+# `paths` are path PREFIXES (case-insensitive); absent `paths` denies the host
+# entirely.
+
+- host: "*.craigslist.org"
+  claims: [B39, B40, B41, B42]
+  reason: >-
+    Explicit ToS ban on automated access, $3,000/day liquidated damages, live
+    403 confirmed twice, and Craigslist v. 3Taps is directly on point. Excluded
+    outright — there is no "scrape it politely" version of this one.
+
+- host: hudhomestore.gov
+  claims: [B19]
+  reason: "robots.txt is a blanket Disallow: /"
+
+- host: realestatesales.gov
+  claims: [B25]
+  reason: "GSA — robots.txt is a blanket Disallow: /"
+
+- host: auction.com
+  paths: ["/foreclosures/", "/bank-owned/"]
+  claims: [B29]
+  reason: "robots.txt blocks exactly the two paths that carry the useful data"
+
+- host: homesteps.com
+  paths: ["/search/"]
+  claims: [B22]
+  reason: "robots.txt blocks the only useful path"
+
+- host: forsalebyowner.com
+  paths: ["/listing/", "/listings/", "/homes-for-sale/"]
+  claims: [B37]
+  reason: "robots.txt disallows exactly the listing paths"
+
+- host: xome.com
+  paths: ["/exportlistingincsv.ashx", "/services/exportlistingincsv.ashx"]
+  claims: [B31]
+  reason: "the CSV export path is self-blocked in robots.txt"
+
+- host: ten-x.com
+  claims: [B34, B38]
+  reason: "edge-walled at robots.txt itself"
+
+- host: realtybid.com
+  claims: [B34, B38]
+  reason: "edge-walled at robots.txt itself"
+
+- host: landwatch.com
+  claims: [B34, B38]
+  reason: "edge-walled at robots.txt itself"
+
+- host: landandfarm.com
+  claims: [B34, B38]
+  reason: "edge-walled at robots.txt itself"
+
+- host: landsofamerica.com
+  claims: [B34, B38]
+  reason: "edge-walled at robots.txt itself"
+
+- host: byowner.com
+  claims: [B34, B38]
+  reason: "edge-walled at robots.txt itself"
+
+- host: foreclosure.com
+  claims: []
+  reason: >-
+    Paid lead-generation. Violates the $0 constraint independently of robots,
+    so it is denied on cost grounds and stays denied if robots ever opens up.
+
+- host: bid4assets.com
+  claims: [B32]
+  reason: >-
+    DEFAULT-DENY pending a ToS read — genuine 404 on robots.txt and the ToS page
+    returned 403. Absence of a prohibition is not permission.
+
+- host: sales.hutchenslawfirm.com
+  claims: [B4]
+  reason: >-
+    DEFAULT-DENY pending a ToS read — the data page was never fetched, so there
+    is no evidence either way. Unknown is denied, not assumed open.
+
+- host: qpublic.schneidercorp.com
+  claims: [E1.1, E1.2, E1.3, E1.4]
+  reason: >-
+    Confirmed bot wall (E1.1–E1.4). Scraping it is a disconfirmed premise, not a
+    hard problem — E1.2 proves UA spoofing would not have worked either.
+
+- host: qpublic.net
+  claims: [E1.1, E1.2, E1.3, E1.4]
+  reason: "qPublic app pages — same confirmed bot wall"
+
+- host: search.gsccca.org
+  claims: [A8, B43, B44, B45]
+  reason: >-
+    GA deeds require an account. OUR FETCHER NEVER AUTHENTICATES TO A THIRD-PARTY
+    SITE — a login is precisely where the hiQ / Van Buren safe-harbour argument
+    stops. This rule is about our conduct, not their robots.txt.
+
+- host: gsccca.org
+  claims: [A8, B43, B44, B45]
+  reason: "GA deeds — account required; we never authenticate to a third party"
+
+- host: risweb.courts.state.va.us
+  claims: [A17]
+  reason: >-
+    VA Circuit Court deeds (Secure Remote Access) — $35–50/mo per locality.
+    The $0 constraint forbids it.

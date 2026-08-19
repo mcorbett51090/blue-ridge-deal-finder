@@ -1,0 +1,85 @@
+# sources/sources.yaml — the allowlist of things this system may fetch.
+#
+# pipeline/fetch/client.ts refuses to open a socket for any source that does not
+# carry EVERY field below. The schema is not documentation; it is the argument
+# the fetcher checks before it is permitted to act (plan §3.1, §3.3 mech. 2).
+#
+# ⛔ P1 STATE — READ BEFORE FLIPPING `enabled`.
+# `robots.evidence_sha256` and `schema_fingerprint` are the only two fields that
+# cannot be authored offline: both are digests of a LIVE response. P1 makes no
+# network call, so they are `null` and the anchor is `enabled: false`. This is
+# not a stub — it is the guard working. verify-sources.mjs requires both to be
+# non-null before `enabled: true` is legal, and the fetch client refuses the
+# source outright while they are null. P2 fills them from P0's cached evidence
+# under sources/evidence/robots/ and flips `enabled` in the same commit.
+# Writing a placeholder digest here would be fabricated evidence; a null that
+# hard-blocks the fetcher is the honest encoding.
+
+- id: nc-onemap-parcels
+  kind: arcgis-map-server
+
+  # ⛔ MapServer/1 is `Parcels (polys)` — esriGeometryPolygon, 71 fields (E6.2).
+  # NOT FeatureServer/0, which is `Parcels (pts)` and cannot answer three of the
+  # five deal signals (stream crossing, frontage length, floodplain fraction).
+  # See docs/decisions/0001-polygons-not-points.md. A gate greps for the point
+  # layer's path and fails if it ever appears in this file.
+  url: https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1
+
+  legal_basis: public-records-open-data
+
+  robots:
+    verdict: allow                 # allow | disallow | absent | unreachable
+    checked_at: "2026-08-19"
+    evidence_url: https://services.nconemap.gov/robots.txt
+    evidence_sha256: null          # ← P0 evidence; see the P1 STATE note above
+
+  tos:
+    verdict: permissive            # permissive | restrictive | prohibitive | unknown
+    checked_at: "2026-08-19"
+    evidence_url: https://www.nconemap.gov/pages/terms
+
+  rate:
+    rps: 0.5
+    concurrency: 1
+    crawl_delay_s: null            # honoured LITERALLY when robots.txt states one
+    backoff: exponential
+
+  # Honest UA. Never a browser string; never contains bot/AI/Claude/GPT.
+  # docs/decisions/0003-honest-ua.md records the judgment call and its tension.
+  user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+
+  # RT-1 — asserted EVERY batch, not once at setup. The two bodies must DIFFER.
+  # A batch whose positive control misses its count is a FAILED run, not a clean
+  # one: a `/secure/` endpoint that no longer exists answers HTTP 200 with an
+  # in-band error body, and `undefined < 45000` is `false`.
+  control_block:
+    positive:
+      where: "cntyname='Watauga'"
+      returnCountOnly: true
+      expect_count: 47388
+    negative:
+      where: "cntyname='Zzzznotacounty'"
+      returnCountOnly: true
+      expect_count: 0
+
+  expect:
+    # MEASURED (E2.7) minus ~5%. Guessed floors do not catch a fake failover;
+    # these would have caught the 866-row mirror instantly.
+    per_county_min_rows:
+      Watauga: 45000
+      Buncombe: 128000
+      Henderson: 71000
+      Haywood: 50000
+      Jackson: 39000
+      Ashe: 36000
+      Transylvania: 30000
+      Avery: 23000
+      Madison: 20000
+      Mitchell: 16500
+      Yancey: 16500
+    rolling_median_floor_pct: 50   # moving floor, on top of the static one
+    max_delta_pct: 5
+    max_zero_parval_pct: 4         # RT-3 value-distribution gate (1.7% measured, Watauga)
+
+  schema_fingerprint: null         # ← P0 evidence; see the P1 STATE note above
+  enabled: false                   # ← flips true in P2 with the two digests

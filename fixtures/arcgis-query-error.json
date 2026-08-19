@@ -1,0 +1,4 @@
+{
+  "_why": "Query-level in-band error, reproduced live (RT-1). Also HTTP 200. Same trap, different code: the endpoint exists and the query is malformed.",
+  "error": { "code": 400, "message": "Unable to complete operation.", "details": ["Invalid field: cntynam"] }
+}

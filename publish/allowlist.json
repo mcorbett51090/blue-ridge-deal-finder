@@ -1,0 +1,25 @@
+{
+  "_comment": [
+    "The field allowlist for every published payload (plan §4.4 surface 4).",
+    "It FAILS CLOSED: a key not on this list is a hard error, not a warning.",
+    "That direction matters — the failure mode being defended against is a new",
+    "upstream field arriving with owner data in it and riding to dist/ because",
+    "nobody added it to a denylist. No PII field appears here and none may be",
+    "added; scripts/verify-no-pii.mjs asserts that independently."
+  ],
+  "parcel": [
+    "record_id", "fips", "state", "county", "parno", "part_seq", "part_count",
+    "acreage", "acreage_basis", "value", "value_basis", "value_basis_raw",
+    "deed_date", "assessment_year",
+    "geometry",
+    "owner_out_of_state", "owner_is_entity", "owner_is_government", "tenure_years",
+    "for_sale_evidence",
+    "status", "first_seen", "last_seen",
+    "score", "confidence", "components", "gates", "lane"
+  ],
+  "notice": [
+    "notice_id", "source_id", "kind", "state", "county", "fips",
+    "source_url", "observed_at", "parcel_ref", "matched_record_id",
+    "sale_date", "opening_bid", "upset_bid_deadline", "posting_days"
+  ]
+}

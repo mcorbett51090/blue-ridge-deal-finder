@@ -1,0 +1,4 @@
+{
+  "_why": "THE canonical silent-green trap of this project (E7.4/E7.5, RT-1). Served with HTTP 200. There is no `features` key and no `count` key, so a naive row-floor check `count < 45000` evaluates `undefined < 45000`, which is FALSE — the gate returns PASS on a total outage. assertHealthy must reject this on the in-band-error check, BEFORE any number is compared.",
+  "error": { "code": 499, "message": "Token Required", "details": [] }
+}

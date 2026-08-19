@@ -1,0 +1,5 @@
+{
+  "_why": "RT-1 fix #3. The positive control returned a plausible-but-wrong count. A batch whose positive control misses its expected count is a FAILED run, not a clean one — this is what a mid-run republish, a silently narrowed WHERE, or a partial index looks like from the outside.",
+  "positiveCount": 866,
+  "negativeCount": 0
+}

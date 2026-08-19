@@ -1,0 +1,10 @@
+{
+  "_why": "A COMPLETE run manifest with an old timestamp. Paired with --max-age-days it proves check-freshness's age comparison is live: red at a 10-day budget, green at an absurd one. Same bytes, opposite verdicts — which is the only way to show the comparison is doing work.",
+  "run_id": "2026-01-01T03-17-00Z-nc-onemap-parcels",
+  "source_id": "nc-onemap-parcels",
+  "status": "complete",
+  "started_at": "2026-01-01T03:17:00.000Z",
+  "finished_at": "2026-01-01T03:41:12.000Z",
+  "rows": 503674,
+  "pages": 101
+}

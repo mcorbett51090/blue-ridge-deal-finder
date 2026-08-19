@@ -1,0 +1,27 @@
+# FAILING FIXTURE: the WRONG anchor layer. FeatureServer/0 is `Parcels (pts)` —
+# esriGeometryPoint, 68 fields. Its attribute table mirrors the polygon layer's,
+# so every attribute-level test passes and three of the five deal signals
+# (stream crossing, frontage length, floodplain fraction) become uncomputable
+# with no error anywhere. See docs/decisions/0001-polygons-not-points.md.
+- id: nc-onemap-parcels
+  kind: arcgis-feature-server
+  url: https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/FeatureServer/0
+  legal_basis: public-records-open-data
+  robots:
+    verdict: allow
+    checked_at: "2026-08-19"
+    evidence_url: https://services.nconemap.gov/robots.txt
+    evidence_sha256: null
+  tos: { verdict: permissive, checked_at: "2026-08-19", evidence_url: "https://www.nconemap.gov/pages/terms" }
+  rate: { rps: 0.5, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+  user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+  control_block:
+    positive: { where: "cntyname='Watauga'", returnCountOnly: true, expect_count: 47388 }
+    negative: { where: "cntyname='Zzzznotacounty'", returnCountOnly: true, expect_count: 0 }
+  expect:
+    per_county_min_rows: { Watauga: 45000 }
+    rolling_median_floor_pct: 50
+    max_delta_pct: 5
+    max_zero_parval_pct: 4
+  schema_fingerprint: null
+  enabled: false

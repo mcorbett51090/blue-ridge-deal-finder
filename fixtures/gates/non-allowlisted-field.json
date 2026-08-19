@@ -1,0 +1,10 @@
+{
+  "_why": "The publish allowlist must FAIL CLOSED. `owner_full_name` is not on publish/allowlist.json; under a denylist it would ride to dist/ because nobody had heard of it yet.",
+  "kind": "parcel",
+  "record": {
+    "record_id": "37189:180931999900:0",
+    "fips": "37189",
+    "county": "Watauga",
+    "owner_full_name": "ZZCANARY-OWNER-DO-NOT-PUBLISH"
+  }
+}

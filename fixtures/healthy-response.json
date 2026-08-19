@@ -1,0 +1,9 @@
+{
+  "_why": "The GREEN control. A gate that only ever sees bad input cannot distinguish 'rejects everything' from 'rejects the right things'.",
+  "objectIdFieldName": "OBJECTID",
+  "exceededTransferLimit": false,
+  "features": [
+    { "attributes": { "OBJECTID": 1, "parno": "1809-31-1234-000", "stcntyfips": "37189", "cntyname": "Watauga", "parval": 245000, "gisacres": 12.4, "parvaltype": "Assessed", "saledate": 1451606400000, "siteadd": "", "parusedesc": "RESIDENTIAL" } },
+    { "attributes": { "OBJECTID": 2, "parno": "1809-31-5678-000", "stcntyfips": "37189", "cntyname": "Watauga", "parval": 88000, "gisacres": 40.1, "parvaltype": "Assessed", "saledate": 1104537600000, "siteadd": "", "parusedesc": "VACANT" } }
+  ]
+}

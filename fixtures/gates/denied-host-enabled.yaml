@@ -1,0 +1,26 @@
+# FAILING FIXTURE: a denied host smuggled into the registry with every field
+# filled in correctly and `enabled: true`. THE DENYLIST WINS EVERY CONFLICT —
+# a complete, well-formed, confidently-enabled entry for craigslist.org is the
+# exact shape this rule exists to refuse.
+- id: craigslist-land
+  kind: html-listing
+  url: https://boone.craigslist.org/search/rea
+  legal_basis: public-records-open-data
+  robots:
+    verdict: allow
+    checked_at: "2026-08-19"
+    evidence_url: https://boone.craigslist.org/robots.txt
+    evidence_sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+  tos: { verdict: permissive, checked_at: "2026-08-19", evidence_url: "https://www.craigslist.org/about/terms.of.use" }
+  rate: { rps: 0.2, concurrency: 1, crawl_delay_s: 5, backoff: exponential }
+  user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+  control_block:
+    positive: { where: "county='Watauga'", returnCountOnly: true, expect_count: 10 }
+    negative: { where: "county='Zzzznotacounty'", returnCountOnly: true, expect_count: 0 }
+  expect:
+    per_county_min_rows: { Watauga: 1 }
+    rolling_median_floor_pct: 50
+    max_delta_pct: 5
+    max_zero_parval_pct: 4
+  schema_fingerprint: "1111111111111111111111111111111111111111111111111111111111111111"
+  enabled: true

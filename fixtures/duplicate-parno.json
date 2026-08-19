@@ -1,0 +1,12 @@
+{
+  "_why": "RT-2, measured in Watauga: 47,388 rows / 46,253 distinct parno, and the 9.4% duplication concentrates in the >20-acre band — exactly the large tracts this tool exists to find. Row 2 is an EXACT duplicate of row 1 (collapses). Rows 3 and 4 share one parno with DIFFERING acreage: a multi-part parcel that must aggregate to 40.0 acres, never overwrite down to 12.0. Row 5 has parno = '' — the empty STRING, so `if (id === null)` does not catch it.",
+  "objectIdFieldName": "OBJECTID",
+  "exceededTransferLimit": false,
+  "features": [
+    { "attributes": { "OBJECTID": 11, "parno": "2907-88-0001-000", "stcntyfips": "37189", "parval": 310000, "gisacres": 22.5 } },
+    { "attributes": { "OBJECTID": 12, "parno": "2907-88-0001-000", "stcntyfips": "37189", "parval": 310000, "gisacres": 22.5 } },
+    { "attributes": { "OBJECTID": 13, "parno": "2907-88-0002-000", "stcntyfips": "37189", "parval": 190000, "gisacres": 28.0 } },
+    { "attributes": { "OBJECTID": 14, "parno": "2907-88-0002-000", "stcntyfips": "37189", "parval": 95000, "gisacres": 12.0 } },
+    { "attributes": { "OBJECTID": 15, "parno": "", "stcntyfips": "37189", "parval": 41000, "gisacres": 3.2 } }
+  ]
+}

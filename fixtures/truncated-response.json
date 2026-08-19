@@ -1,0 +1,9 @@
+{
+  "_why": "A silently truncated page. `exceededTransferLimit: true` while the caller is not paging means the corpus is partial — and every count-based gate downstream reads a partial corpus as merely 'smaller', which the ±5% delta tolerance then absorbs.",
+  "objectIdFieldName": "OBJECTID",
+  "exceededTransferLimit": true,
+  "features": [
+    { "attributes": { "OBJECTID": 1, "parno": "1809-31-1234-000", "stcntyfips": "37189", "parval": 245000, "gisacres": 12.4 } },
+    { "attributes": { "OBJECTID": 2, "parno": "1809-31-5678-000", "stcntyfips": "37189", "parval": 88000, "gisacres": 40.1 } }
+  ]
+}

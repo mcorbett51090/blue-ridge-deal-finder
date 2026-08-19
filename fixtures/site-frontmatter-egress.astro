@@ -1,0 +1,13 @@
+---
+// FAILING FIXTURE for verify-egress-allowlist.mjs.
+//
+// This is the construct the site/ half of the allowlist exists to catch: a
+// fetch in ASTRO FRONTMATTER. It runs at build time on our runner, under no UA
+// discipline, on our schedule, against a third party — i.e. it IS our crawler,
+// wearing none of the guards in pipeline/fetch/client.ts. A client <script>
+// block doing the same thing is a visitor's browser and is a different thing;
+// this is not.
+const res = await fetch('https://qpublic.schneidercorp.com/Application.aspx');
+const html = await res.text();
+---
+<pre>{html.length}</pre>

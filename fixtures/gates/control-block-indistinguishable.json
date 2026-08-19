@@ -1,0 +1,5 @@
+{
+  "_why": "The registered NC 'failover' (CE-2/E7.1-E7.3) returned {\"count\": 866} for where=1=1 and {\"count\": 0} for Watauga — BYTE-IDENTICAL to the negative control. When positive and negative controls agree, the endpoint is answering a constant and the positive control passing means nothing. A fake failover converts a loud outage into a silent one.",
+  "positiveCount": 0,
+  "negativeCount": 0
+}

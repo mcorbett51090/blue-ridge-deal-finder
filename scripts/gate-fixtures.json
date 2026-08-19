@@ -1,0 +1,128 @@
+{
+  "_why": [
+    "The pairing that verify-controls.mjs enforces: every gate, the fixture that",
+    "must make it exit non-zero, and the baseline that must not.",
+    "A gate listed here with no red fixture is not yet a gate. A gate present in",
+    "scripts/ and absent from here fails the meta-gate outright \u2014 which is what",
+    "stops a new gate from shipping unproven."
+  ],
+  "gates": {
+    "verify-sources.mjs": [
+      {
+        "name": "source-missing-legal-basis",
+        "expect": "red",
+        "plant": {
+          "sources/sources.yaml": "gates/source-missing-legal-basis.yaml"
+        }
+      },
+      {
+        "name": "denied-host-enabled",
+        "expect": "red",
+        "plant": {
+          "sources/sources.yaml": "gates/denied-host-enabled.yaml"
+        }
+      },
+      {
+        "name": "points-layer-url",
+        "expect": "red",
+        "plant": {
+          "sources/sources.yaml": "gates/points-layer-url.yaml"
+        }
+      }
+    ],
+    "verify-egress-allowlist.mjs": [
+      {
+        "name": "egress-violation",
+        "expect": "red",
+        "plant": {
+          "pipeline/normalize/egress-violation.ts": "egress-violation.ts"
+        }
+      },
+      {
+        "name": "site-frontmatter-egress",
+        "expect": "red",
+        "plant": {
+          "site/src/pages/leak.astro": "site-frontmatter-egress.astro"
+        }
+      }
+    ],
+    "verify-no-pii.mjs": [
+      {
+        "name": "pii-in-data-surface",
+        "expect": "red",
+        "plant": {
+          "data/parcels-sample.json": "pii-present.json"
+        }
+      },
+      {
+        "name": "pii-in-publish-out-surface",
+        "expect": "red",
+        "plant": {
+          "publish/out/parcels.json": "pii-present.json"
+        }
+      },
+      {
+        "name": "pii-in-site-dist-surface",
+        "expect": "red",
+        "plant": {
+          "site/dist/parcels.json": "pii-present.json"
+        }
+      }
+    ],
+    "verify-coverage.mjs": [
+      {
+        "name": "counties-36-rows",
+        "expect": "red",
+        "plant": {
+          "seeds/counties.csv": "gates/counties-36-rows.csv"
+        }
+      },
+      {
+        "name": "counties-bad-tier",
+        "expect": "red",
+        "plant": {
+          "seeds/counties.csv": "gates/counties-bad-tier.csv"
+        }
+      }
+    ],
+    "verify-ingest-guards.mjs": [
+      {
+        "name": "guard-accepted-a-must-reject",
+        "expect": "red",
+        "plant": {
+          "fixtures/ingest-expectations.json": "gates/ingest-expectations-broken.json"
+        }
+      }
+    ]
+  },
+  "non_verify_gates": {
+    "check-freshness.mjs": [
+      {
+        "name": "stale-run",
+        "expect": "red",
+        "args": [
+          "--max-age-days",
+          "10"
+        ],
+        "plant": {
+          "data/runs/2026-01-01-nc.json": "gates/run-manifest-stale.json"
+        }
+      },
+      {
+        "name": "same-run-generous-budget",
+        "expect": "green",
+        "args": [
+          "--max-age-days",
+          "100000"
+        ],
+        "plant": {
+          "data/runs/2026-01-01-nc.json": "gates/run-manifest-stale.json"
+        }
+      }
+    ]
+  },
+  "exempt_from_pairing": [
+    "verify-all.mjs",
+    "verify-controls.mjs"
+  ]
+}

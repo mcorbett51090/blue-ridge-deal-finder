@@ -1,0 +1,23 @@
+{
+  "_why": [
+    "The manifest verify-ingest-guards.mjs runs. `must_reject` entries are payloads",
+    "the trust boundary has to refuse; `must_accept` is the green control, without",
+    "which 'rejects everything' is indistinguishable from 'rejects the right things'.",
+    "Delete a guard from pipeline/normalize and the corresponding must_reject entry",
+    "stops throwing, and the gate goes red. That is the detector."
+  ],
+  "must_reject": [
+    { "guard": "health", "file": "arcgis-inband-error.json", "min_rows": 1, "expect_check": "in-band-error" },
+    { "guard": "health", "file": "arcgis-query-error.json", "min_rows": 1, "expect_check": "in-band-error" },
+    { "guard": "health", "file": "truncated-response.json", "min_rows": 1, "expect_check": "transfer-limit" },
+    { "guard": "control-block", "file": "gates/control-block-mismatch.json", "expect_check": "control-positive" },
+    { "guard": "control-block", "file": "gates/control-block-indistinguishable.json", "expect_check": "control-positive" },
+    { "guard": "naive-parno-key", "file": "duplicate-parno.json" },
+    { "guard": "zero-sentinel", "file": "zero-sentinel.json" },
+    { "guard": "pii", "file": "pii-present.json" },
+    { "guard": "publish-allowlist", "file": "gates/non-allowlisted-field.json" }
+  ],
+  "must_accept": [
+    { "guard": "health", "file": "healthy-response.json", "min_rows": 2 }
+  ]
+}

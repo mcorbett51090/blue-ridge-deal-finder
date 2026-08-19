@@ -1,0 +1,19 @@
+# The only tunables. pipeline/score/index.ts reads this file and nothing else
+# reads it — a weight that lives in two places is a weight that disagrees with
+# itself the first time one copy is edited.
+#
+# Nominal weights sum to 100. `effective_weight` = nominal × vintage_confidence
+# × cohort_penalty, computed per row at score time, never edited here.
+components:
+  # parval ÷ a price that ONLY for_sale_evidence can supply. There is no sale-
+  # PRICE field among the 71 (TB2 §2, verified across the full field list), so
+  # `discount` is permanently `unknown` for every Lane-2 row, by construction.
+  discount: 30
+  # Cited observations only, each with a source_url. Nothing model-inferred.
+  distress: 25
+  # parval / acreage vs a (cntyfips, use-bucket, acreage-band) percentile.
+  per_acre: 20
+  # USGS NHD geometry (E5.1-E5.3) — computed from GEOMETRY, never from text.
+  water: 15
+  # FEMA NFHL (E5.4), USGS EPQS (C31), Census TIGER/Line.
+  livability: 10

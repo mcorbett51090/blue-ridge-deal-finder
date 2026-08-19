@@ -1,0 +1,11 @@
+User-Agent: *
+Allow: /
+Content-Signal: ai-train=yes,search=yes,ai-input=yes
+
+Sitemap: https://www.landsearch.com/sitemaps/index.xml
+Sitemap: https://www.landsearch.com/sitemaps/listings/index.xml
+Sitemap: https://www.landsearch.com/sitemaps/listings/united-states.xml
+Sitemap: https://www.landsearch.com/sitemaps/directory/index.xml
+Sitemap: https://www.landsearch.com/sitemaps/directory/united-states.xml
+Sitemap: https://www.landsearch.com/sitemaps/directory/profiles/index.xml
+Sitemap: https://www.landsearch.com/corp/sitemaps/index.xml
