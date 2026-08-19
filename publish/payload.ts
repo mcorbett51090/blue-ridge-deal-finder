@@ -51,6 +51,11 @@ export type PublishedListing = {
   water: { has_stream: boolean; has_river: boolean; has_pond: boolean; distance_m: number | null };
   flood_zone: string | null;
   parcel_use: string;
+  /** SITUS address — the property's own location. Never the owner's mailing
+   *  address, which is destroyed at the redaction boundary. `null` (never '')
+   *  on the 26% of parcels the county publishes no address for. */
+  site_address: string | null;
+  site_address_unknown_reason: string | null;
   lane: 'market' | 'prospect';
   source_url: string | null;
   provenance: Provenance;
@@ -139,6 +144,17 @@ export function toListing(s: ScoredParcel & { rank: number }, ctx: ToListingCont
     water: ctx.water,
     flood_zone: ctx.floodZone,
     parcel_use: p.parusedesc.trim() === '' ? 'Unclassified — county publishes no use code' : p.parusedesc.trim(),
+    // SITUS address: the property's own location — the asset being sold. This is
+    // NOT the owner's mailing address (`mailadd`), which is where a named person
+    // lives and is destroyed at the redaction boundary. Publishing the address of
+    // a parcel without publishing who owns it is what every listing does.
+    // Absent on 26% of the corpus, 52% of VACANT parcels, and 100% of Avery
+    // County — so `null` is a normal answer here, never an empty string.
+    site_address: p.siteadd !== null && p.siteadd.trim() !== '' ? p.siteadd.trim() : null,
+    site_address_unknown_reason:
+      p.siteadd === null || p.siteadd.trim() === ''
+        ? 'The county publishes no situs address for this parcel. Common on vacant land, which often has no assigned address at all.'
+        : null,
     lane: 'prospect',
     source_url: ctx.provenance.record_url,
     provenance: ctx.provenance,

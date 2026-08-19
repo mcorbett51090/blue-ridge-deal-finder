@@ -116,13 +116,19 @@ const WaterMeasuredSchema = z.object({
  * every one of them must be non-null when it is absent.
  */
 export const WaterSignalSchema = WaterMeasuredSchema.superRefine((w, ctx) => {
+  // ⛔ THE DISTANCE FIELDS ARE DELIBERATELY NOT IN THIS LIST.
+  // `min_dist_flowline_m: null` alongside `search_radius_m: 500` is a
+  // MEASUREMENT — "we looked out to 500 m and there is no flowline" — not an
+  // unmeasured field. Demanding a number there would force the code to invent
+  // one (Infinity, -1, or 9999), and every one of those becomes a plausible
+  // distance the moment it reaches a template. The first live run of P7 failed
+  // this refinement for exactly that reason, which is the refinement working.
   const measured = [
     w.has_stream, w.has_river, w.has_pond, w.water_frontage_m,
-    w.frontage_by_regime_m, w.min_dist_flowline_m, w.min_dist_waterbody_m,
-    w.waterbody_overlap_m2, w.water_confidence,
+    w.frontage_by_regime_m, w.waterbody_overlap_m2, w.water_confidence,
   ];
   if (w.water_unknown_reason !== null) {
-    if (measured.some((v) => v !== null)) {
+    if ([...measured, w.min_dist_flowline_m, w.min_dist_waterbody_m, w.distance_to_water_m].some((v) => v !== null)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message:

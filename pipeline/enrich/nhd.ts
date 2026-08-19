@@ -423,7 +423,17 @@ export function computeWater(inputs: WaterInputs): WaterSignal {
       // made by USGS, not the word "River" in a label.
       if (!isWatercourseFType(area.ftype)) continue;
       const dist = polygonToPolygonDistanceM(parcel, area.geometry);
+      // ⛔ AN OVERLAPPING RIVER AREA IS WATER **ON** THE PARCEL, and the
+      // distance figures have to agree with that. The first live run produced
+      // `has_river: true` beside `distance_to_water_m: 8.4` on 37199:071900645676000
+      // — a river polygon clipping the parcel while its centreline ran 8.4 m
+      // outside. Both numbers were individually right and together they read as
+      // a contradiction. Area surface now counts toward the same distance and
+      // overlap totals as a lake does; only `has_pond` stays specific to
+      // layer 12, because a river is not a pond.
+      if (dist < minWaterbodyDist) minWaterbodyDist = dist;
       if (dist > 0) continue;
+      waterbodyOverlap += overlapAreaM2(parcel, area.geometry);
       hasRiver = true;
       if (area.gnis_name) named.add(area.gnis_name);
     }

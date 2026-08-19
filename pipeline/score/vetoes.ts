@@ -23,6 +23,9 @@ export type VetoInput = {
   owner_is_government: number | boolean | null;
   parusedesc: string;
   acreage: number | null;
+  /** SITUS address. A second, INDEPENDENT signal of unpurchasability — see the
+   *  `situs_excluded` gate below for why it is not redundant with parusedesc. */
+  siteadd?: string | null;
 };
 
 /** Plan §5 calls these `gates`: reported separately from the score, never folded
@@ -54,6 +57,32 @@ export function evaluateGates(row: VetoInput, cfg: ScoreConfig, patterns = useCl
       hit === undefined
         ? `Use class ${use === '' ? '(none published)' : `'${use}'`} is not on the excluded list.`
         : `Use class '${use}' is structurally not purchasable (HOA common area, government, cemetery or right-of-way).`,
+  });
+
+  // ⛔ THE ADDRESS IS A SECOND, INDEPENDENT VETO SIGNAL — added 2026-08-19 after
+  // publishing addresses exposed a scoring defect.
+  //
+  // Measured: 19 of 500 published rows had an address saying plainly that the
+  // parcel is not purchasable — "Common Area-Windy Gap Ln", "ROAD R/W SILVER
+  // SLIP", "BARBERRY HTS HOA-WELL LOT" — and ALL NINETEEN SCORED 100, the
+  // maximum. They sat at the very top of the ranking.
+  //
+  // They passed `use_class_excluded` because their parusedesc is EMPTY: the
+  // county publishes no use code, so the use-class veto had nothing to match.
+  // A veto with one input fails silently wherever that input is absent, and
+  // absence is exactly where the bad rows were hiding. Two independent signals
+  // do not have the same blind spot.
+  const situs = (row.siteadd ?? '').replace(/\s+/g, ' ').trim();
+  const situsHit = situs === '' ? undefined : patterns.find((re) => re.test(situs));
+  gates.push({
+    id: 'situs_excluded',
+    passed: situsHit === undefined,
+    basis:
+      situs === ''
+        ? 'No situs address published, so it carries no signal either way.'
+        : situsHit === undefined
+          ? `Situs address '${situs}' does not name an excluded use.`
+          : `Situs address '${situs}' names a structurally unpurchasable use (HOA common area, right-of-way, well lot or similar) even though the county published no use code.`,
   });
 
   // Unknown acreage does NOT trip this gate. "We do not know how big it is" is

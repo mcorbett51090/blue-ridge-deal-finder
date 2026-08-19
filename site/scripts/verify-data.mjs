@@ -39,11 +39,38 @@ const ALLOWED = new Set([
   'score', 'score_breakdown', 'for_sale_evidence', 'water', 'flood_zone', 'parcel_use',
   'source_url', 'record_url', 'how_to_verify', 'source_id', 'source_note',
   'source_scope', 'source_label',
+  'site_address', 'site_address_unknown_reason',
   'first_seen', 'last_seen',
   'confidence', 'acreage_basis', 'assessment_year', 'reappraisal_year',
   'owner_out_of_state', 'owner_is_entity', 'tenure_years', 'note',
 ]);
-const FORBIDDEN_SUBSTRINGS = ['owner_name', 'ownername', 'grantor', 'grantee', 'mailing', 'taxpayer', 'addr'];
+// `addr` stays broadly forbidden — a new upstream field carrying an owner's
+// address must never ride to dist/ because nobody thought to ban it.
+// ⛔ 'mailadd', 'munit', 'mcity', 'mstate', 'mzip' are the RAW upstream field
+// names for the owner's mailing address in NC OneMap. None of them contains
+// 'addr' or 'mailing', so this list missed all five — a hole found by a control
+// asserting that mailadd must BLOCK, while writing the situs carve-out below.
+// The repo-level scripts/verify-no-pii.mjs did catch them (it imports the real
+// PII_FIELDS list); this site-level guard did not, and a guard that only works
+// in one of two places is the shape this project keeps getting bitten by.
+const FORBIDDEN_SUBSTRINGS = [
+  'owner_name', 'ownername', 'grantor', 'grantee', 'mailing', 'taxpayer', 'addr',
+  'mailadd', 'ownfrst', 'ownlast', 'ownname',
+];
+
+// …with exactly ONE carve-out, named explicitly rather than pattern-matched.
+//
+// The distinction is not cosmetic. `mailadd` is where the OWNER lives and is
+// destroyed at the redaction boundary; `siteadd` is the PROPERTY'S OWN location
+// — the asset being sold. Publishing a parcel's address while publishing no
+// name is what every property listing does, and without it a row is not
+// actionable: "38 acres somewhere in Ashe County" is not something you can go
+// and look at.
+//
+// Named, not patterned, so that `owner_address`, `mail_address` and any future
+// field carrying a person's address still fail. If this list ever grows, each
+// addition needs the same argument made in writing.
+const SITUS_FIELDS_ALLOWED = new Set(['site_address', 'site_address_unknown_reason']);
 
 const seen = new Set();
 for (const [i, l] of listings.entries()) {
@@ -52,6 +79,7 @@ for (const [i, l] of listings.entries()) {
   for (const k of Object.keys(l ?? {})) {
     if (!ALLOWED.has(k)) fail(1, `${at}: non-allowlisted field "${k}"`);
     const lower = k.toLowerCase();
+    if (SITUS_FIELDS_ALLOWED.has(k)) continue;
     for (const bad of FORBIDDEN_SUBSTRINGS) {
       if (lower.includes(bad)) fail(1, `${at}: field "${k}" looks like owner PII`);
     }
@@ -99,6 +127,14 @@ for (const [i, l] of listings.entries()) {
     }
     if (generic && (typeof l?.source_label !== 'string' || l.source_label.trim().length < 4)) {
       fail(4, `${at}: source_scope 'generic' with no source_label — a generic link must say what it is`);
+    }
+  }
+
+  // A situs address is `null` when absent, NEVER '' — an empty string renders
+  // as a blank line that reads like a missing render rather than a real absence.
+  if ('site_address' in (l ?? {}) && l.site_address !== null) {
+    if (typeof l.site_address !== 'string' || l.site_address.trim() === '') {
+      fail(5, `${at}: site_address must be a non-empty string or null, never ''`);
     }
   }
 

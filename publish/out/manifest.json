@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-19T16:10:31.603Z",
+  "generated_at": "2026-08-19T16:24:37.511Z",
   "warehouse": {
     "file": "warehouse-2026-08-19T15-48-58.sqlite",
     "sha256": "baf17b77015ea527b5b5c29669d8b408ddf56476a28def8858823311d6c1409e",
@@ -9,9 +9,9 @@
   "corpus_rows": 235421,
   "published_rows": 500,
   "excluded": {
-    "vetoed": 10742,
-    "no_scorable_signal": 26236,
-    "ranked_below_cutoff": 197943,
+    "vetoed": 11314,
+    "no_scorable_signal": 26167,
+    "ranked_below_cutoff": 197440,
     "cutoff": 500
   },
   "signals": {
@@ -29,6 +29,7 @@
   "veto_by_reason": {
     "acreage_below_min": 7289,
     "owner_is_government": 3492,
+    "situs_excluded": 616,
     "use_class_excluded": 1773
   },
   "cohorts": {

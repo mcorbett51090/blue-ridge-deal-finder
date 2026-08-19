@@ -79,6 +79,16 @@ vetoes:
     - GOVERNMENT
     - CEMETER
     - RIGHT[- ]OF[- ]WAY
+    # Abbreviations the SITUS ADDRESS actually uses. Measured 2026-08-19 from
+    # real published rows, all of which scored 100 and none of which is buyable:
+    #   "ROAD R/W SILVER SLIP", "R/W LAKE POINT DR"  -> R/W
+    #   "BARBERRY HTS HOA-WELL LOT"                  -> HOA, WELL LOT
+    - \bR/W\b
+    - \bHOA\b
+    - WELL LOT
+    - OPEN SPACE
+    - GREENBELT
+    - DETENTION
   # A remnant strip is not a parcel anyone buys. Vetoed rows still carry their
   # score and their reason — they are removed from the RANKING, not silenced.
   min_acres: 0.1

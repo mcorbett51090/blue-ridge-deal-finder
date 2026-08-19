@@ -63,7 +63,7 @@ export const PARCEL_COLUMNS = [
   'value', 'value_unknown_reason', 'value_basis', 'value_basis_raw',
   'deed_date', 'sale_date', 'assessment_year',
   'owner_out_of_state', 'owner_is_entity', 'owner_is_government', 'tenure_years',
-  'parusedesc', 'lat', 'lng', 'status', 'first_seen', 'last_seen',
+  'parusedesc', 'siteadd', 'lat', 'lng', 'status', 'first_seen', 'last_seen',
 ] as const;
 
 export type WarehouseParcel = {
@@ -89,6 +89,11 @@ export type WarehouseParcel = {
   owner_is_government: number;
   tenure_years: number | null;
   parusedesc: string;
+  /** SITUS address — the property's own location, i.e. the thing being sold.
+   *  NOT `mailadd`, which is where the OWNER lives and is stripped as PII at
+   *  the redaction boundary. Empty on 26% of the corpus and on 52% of VACANT
+   *  parcels, and 100% absent in Avery County, so it is nullable by nature. */
+  siteadd: string | null;
   lat: number | null;
   lng: number | null;
   status: string;

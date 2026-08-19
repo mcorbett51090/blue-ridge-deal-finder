@@ -91,17 +91,29 @@ const vintage = (() => {
   data-water={water ? 'true' : 'false'}
   data-water-unknown={waterUnknown ? 'true' : 'false'}
   data-flood={flood === null ? 'unknown' : flood ? 'true' : 'false'}
-  data-search={`${l.county} ${l.state} ${l.parcel_use} ${l.id}`.toLowerCase()}
+  data-search={`${l.site_address ?? ''} ${l.county} ${l.state} ${l.parcel_use} ${l.id}`.toLowerCase()}
 >
   <div class="dcard__top">
     <h3 class="dcard__name">
       <a href={withBase(`/deal/${l.id}/`)}>
-        {showCounty ? `${l.county} County, ${l.state}` : l.parcel_use}
+        {/* The situs address is how a person identifies a property; the county
+            is how a database does. Lead with the address where one exists.
+            26% of the corpus has none — 52% of VACANT parcels and 100% of
+            Avery County — so the county line is the fallback, never a blank. */}
+        {l.site_address ?? (showCounty ? `${l.county} County, ${l.state}` : l.parcel_use)}
         <span class="dcard__id">#{l.id}</span>
       </a>
     </h3>
     <WatchButton id={l.id} county={l.county} state={l.state} score={l.score} />
   </div>
+
+  <p class="dcard__addr">
+    {
+      l.site_address
+        ? `${l.county} County, ${l.state}`
+        : `${l.county} County, ${l.state} · no street address on record`
+    }
+  </p>
 
   <p class="dcard__lane">
     <span class={`tag tag--lane-${lane}`}>{LANE_LABEL[lane]}</span>
@@ -257,6 +269,11 @@ const vintage = (() => {
 <style>
   /* Instructions stand in for a link where no per-record page exists. Styled
      as prose, deliberately NOT as a link, so it never looks clickable. */
+  .dcard__addr {
+    margin: 0 0 .35rem;
+    font-size: .88rem;
+    color: var(--ink-3, #667575);
+  }
   .dcard__scope {
     color: var(--ink-3, #667575);
     font-size: 0.86em;

@@ -82,6 +82,7 @@ async function main(): Promise<void> {
     const provenance = buildProvenance(
       {
         source_id: src?.id ?? null,
+        fips: c.row.fips,
         county: c.row.county,
         state: c.row.state,
         parno: c.row.parno,

@@ -1,0 +1,655 @@
+{
+  "run_at": "2026-08-19T16:18:59.067Z",
+  "warehouse": "/Users/matthewcorbett/blue-ridge-deal-finder/data/warehouse/warehouse-2026-08-19T15-48-58.sqlite",
+  "candidates": 12,
+  "enriched": 12,
+  "from_cache": 1,
+  "counters": {
+    "nhdRequests": 21,
+    "parcelGeometryRequests": 0,
+    "epqsRequests": 0
+  },
+  "refusals": [
+    {
+      "id": "fema-nfhl",
+      "refusal": "robots-disallow",
+      "consequence": "Flood is UNKNOWN for every parcel, with reason `nfhl_robots_disallow`. It is not \"no flood risk\" and it is not a zero penalty — a parcel we are not allowed to check is exactly as unmeasured as one outside NFHL coverage. pipeline/enrich/nfhl.ts implements the derivation and is unit-tested against fixtures, but NOTHING CALLS IT OVER THE NETWORK and the orchestrator refuses to. Re-check this file if FEMA's robots.txt changes; flipping the lane back on is a registry edit, not a code change."
+    },
+    {
+      "id": "census-tigerweb",
+      "refusal": "robots-unobtainable",
+      "consequence": "Road access is UNKNOWN for every parcel, with reason `tiger_robots_unobtainable`, which is the branch plan §5.6 pre-authorised (\"if it fails, road access renders `unknown` permanently\"). Two things would have gone wrong had this been treated as a normal robots.txt: robots-parser finds zero directives in HTML and returns ALLOWED, and the rotating support ID would move the source to ingest_paused on every single run. guard.ts looksLikeRobotsTxt() now refuses a non-empty body carrying no recognisable directive, so the false permit is closed for every host, not just this one."
+    }
+  ],
+  "results": [
+    {
+      "record_id": "37199:070900973179000:0",
+      "geometry_hash": "25d8ec0d383aa2813a698d63e15ede9e",
+      "enriched_at": "2026-08-19T16:17:35.335Z",
+      "water": {
+        "has_stream": true,
+        "has_river": false,
+        "has_pond": false,
+        "water_frontage_m": 1365,
+        "frontage_by_regime_m": {
+          "perennial": 0,
+          "intermittent": 1365,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 0,
+        "min_dist_flowline_m": 0,
+        "min_dist_waterbody_m": 442.8,
+        "waterbody_overlap_m2": 0,
+        "named_waters": [
+          "Baker Creek"
+        ],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.3546377850404%2C%22ymin%22%3A35.88242225730004%2C%22xmax%22%3A-82.33273193466566%2C%22ymax%22%3A35.904973658079186%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    },
+    {
+      "record_id": "37121:0884-00-38-9571:0",
+      "geometry_hash": "70514ff3497ad54d8f24d2a114e26aa4",
+      "enriched_at": "2026-08-19T16:18:59.067Z",
+      "water": {
+        "has_stream": true,
+        "has_river": false,
+        "has_pond": false,
+        "water_frontage_m": 2481.4,
+        "frontage_by_regime_m": {
+          "perennial": 0,
+          "intermittent": 2481.4,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 0,
+        "min_dist_flowline_m": 0,
+        "min_dist_waterbody_m": null,
+        "waterbody_overlap_m2": 0,
+        "named_waters": [],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.10968570162512%2C%22ymin%22%3A36.032535091651305%2C%22xmax%22%3A-82.08703783118614%2C%22ymax%22%3A36.052677528696684%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    },
+    {
+      "record_id": "37189:2848-64-0758-000:0",
+      "geometry_hash": "11abd78e84f9e7c1a7a61ffbeb65c394",
+      "enriched_at": "2026-08-19T16:18:59.067Z",
+      "water": {
+        "has_stream": false,
+        "has_river": false,
+        "has_pond": false,
+        "water_frontage_m": 0,
+        "frontage_by_regime_m": {
+          "perennial": 0,
+          "intermittent": 0,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 19.8,
+        "min_dist_flowline_m": 19.8,
+        "min_dist_waterbody_m": null,
+        "waterbody_overlap_m2": 0,
+        "named_waters": [],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.57245916827226%2C%22ymin%22%3A36.14643035730809%2C%22xmax%22%3A-81.53988627403939%2C%22ymax%22%3A36.16693362117008%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    },
+    {
+      "record_id": "37199:080100281207000:0",
+      "geometry_hash": "98fb89e704dd8b7d44a2ed18c391ab8d",
+      "enriched_at": "2026-08-19T16:18:59.067Z",
+      "water": {
+        "has_stream": true,
+        "has_river": true,
+        "has_pond": false,
+        "water_frontage_m": 1286.4,
+        "frontage_by_regime_m": {
+          "perennial": 174.7,
+          "intermittent": 1111.6,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 0,
+        "min_dist_flowline_m": 0,
+        "min_dist_waterbody_m": null,
+        "waterbody_overlap_m2": 0,
+        "named_waters": [
+          "Higgins Creek"
+        ],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.38525663972844%2C%22ymin%22%3A35.939956525326785%2C%22xmax%22%3A-82.36083126221823%2C%22ymax%22%3A35.96117921895914%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    },
+    {
+      "record_id": "37189:1961-51-4081-000:0",
+      "geometry_hash": "d7ab75cf60b3527510b2d31308a5c5bc",
+      "enriched_at": "2026-08-19T16:18:59.067Z",
+      "water": {
+        "has_stream": true,
+        "has_river": false,
+        "has_pond": false,
+        "water_frontage_m": 2227.5,
+        "frontage_by_regime_m": {
+          "perennial": 2227.5,
+          "intermittent": 0,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 0,
+        "min_dist_flowline_m": 0,
+        "min_dist_waterbody_m": 118.3,
+        "waterbody_overlap_m2": 0,
+        "named_waters": [
+          "Laurel Creek",
+          "Worley Creek"
+        ],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.84162514975418%2C%22ymin%22%3A36.21167190109705%2C%22xmax%22%3A-81.81662600817108%2C%22ymax%22%3A36.23287111769431%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    },
+    {
+      "record_id": "37189:2838-23-8971-000:0",
+      "geometry_hash": "f64d8911b8ce34e9b20f31f0218f0d6d",
+      "enriched_at": "2026-08-19T16:18:59.067Z",
+      "water": {
+        "has_stream": true,
+        "has_river": false,
+        "has_pond": true,
+        "water_frontage_m": 688.5,
+        "frontage_by_regime_m": {
+          "perennial": 531.7,
+          "intermittent": 156.8,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 0,
+        "min_dist_flowline_m": 0,
+        "min_dist_waterbody_m": 0,
+        "waterbody_overlap_m2": 500.2,
+        "named_waters": [
+          "Joes Creek",
+          "Wolfden Branch"
+        ],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.61254209844205%2C%22ymin%22%3A36.13836791675478%2C%22xmax%22%3A-81.58448801229862%2C%22ymax%22%3A36.15784644112819%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    },
+    {
+      "record_id": "37121:0788-00-39-0290:0",
+      "geometry_hash": "b2d545f2f1bbf3dd09d3223e7991cd5a",
+      "enriched_at": "2026-08-19T16:18:59.067Z",
+      "water": {
+        "has_stream": true,
+        "has_river": false,
+        "has_pond": false,
+        "water_frontage_m": 940.5,
+        "frontage_by_regime_m": {
+          "perennial": 940.5,
+          "intermittent": 0,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 0,
+        "min_dist_flowline_m": 0,
+        "min_dist_waterbody_m": 341.5,
+        "waterbody_overlap_m2": 0,
+        "named_waters": [
+          "Rockhouse Creek"
+        ],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.10920806547573%2C%22ymin%22%3A35.86903272504081%2C%22xmax%22%3A-82.08348032471409%2C%22ymax%22%3A35.88927990969409%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    },
+    {
+      "record_id": "37199:988200324058000:0",
+      "geometry_hash": "f04eddff995a8b5501109cfc51ce66f8",
+      "enriched_at": "2026-08-19T16:18:59.067Z",
+      "water": {
+        "has_stream": true,
+        "has_river": false,
+        "has_pond": false,
+        "water_frontage_m": 1482.6,
+        "frontage_by_regime_m": {
+          "perennial": 1482.6,
+          "intermittent": 0,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 0,
+        "min_dist_flowline_m": 0,
+        "min_dist_waterbody_m": null,
+        "waterbody_overlap_m2": 0,
+        "named_waters": [
+          "Hensley Branch"
+        ],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.44847722590475%2C%22ymin%22%3A35.951187273100274%2C%22xmax%22%3A-82.42376175894434%2C%22ymax%22%3A35.96972694727098%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    },
+    {
+      "record_id": "37189:2848-31-7816-000:0",
+      "geometry_hash": "a7d70c022131aa9e8c0bf7f0e9eb55ee",
+      "enriched_at": "2026-08-19T16:18:59.067Z",
+      "water": {
+        "has_stream": true,
+        "has_river": false,
+        "has_pond": false,
+        "water_frontage_m": 855.5,
+        "frontage_by_regime_m": {
+          "perennial": 50.7,
+          "intermittent": 804.8,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 0,
+        "min_dist_flowline_m": 0,
+        "min_dist_waterbody_m": 18.3,
+        "waterbody_overlap_m2": 0,
+        "named_waters": [
+          "Joes Creek",
+          "Tonys Branch"
+        ],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.57230338472537%2C%22ymin%22%3A36.13266435565791%2C%22xmax%22%3A-81.54880194017586%2C%22ymax%22%3A36.15907416859844%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    },
+    {
+      "record_id": "37199:084000786406000:0",
+      "geometry_hash": "22496c64388211d300a81335c991e617",
+      "enriched_at": "2026-08-19T16:18:59.067Z",
+      "water": {
+        "has_stream": true,
+        "has_river": false,
+        "has_pond": false,
+        "water_frontage_m": 1165,
+        "frontage_by_regime_m": {
+          "perennial": 0,
+          "intermittent": 1165,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 0,
+        "min_dist_flowline_m": 0,
+        "min_dist_waterbody_m": null,
+        "waterbody_overlap_m2": 0,
+        "named_waters": [],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.23504997081905%2C%22ymin%22%3A35.92173470674741%2C%22xmax%22%3A-82.21009197416718%2C%22ymax%22%3A35.941764616858094%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    },
+    {
+      "record_id": "37199:071900645676000:0",
+      "geometry_hash": "0ff8f81dcb3a1c4276db41b1ac16c560",
+      "enriched_at": "2026-08-19T16:18:59.067Z",
+      "water": {
+        "has_stream": false,
+        "has_river": true,
+        "has_pond": false,
+        "water_frontage_m": 0,
+        "frontage_by_regime_m": {
+          "perennial": 0,
+          "intermittent": 0,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 8.4,
+        "min_dist_flowline_m": 8.4,
+        "min_dist_waterbody_m": 379.9,
+        "waterbody_overlap_m2": 0,
+        "named_waters": [],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.3322268974497%2C%22ymin%22%3A35.881544441269924%2C%22xmax%22%3A-82.30950418639111%2C%22ymax%22%3A35.90407071406532%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    },
+    {
+      "record_id": "37199:071600284195000:0",
+      "geometry_hash": "c8808640a05018253994dbcc8fc8948c",
+      "enriched_at": "2026-08-19T16:18:59.067Z",
+      "water": {
+        "has_stream": true,
+        "has_river": false,
+        "has_pond": false,
+        "water_frontage_m": 481.7,
+        "frontage_by_regime_m": {
+          "perennial": 481.7,
+          "intermittent": 0,
+          "ephemeral": 0,
+          "unspecified": 0
+        },
+        "distance_to_water_m": 0,
+        "min_dist_flowline_m": 0,
+        "min_dist_waterbody_m": null,
+        "waterbody_overlap_m2": 0,
+        "named_waters": [],
+        "search_radius_m": 500,
+        "water_confidence": "polygon-intersection",
+        "water_unknown_reason": null,
+        "source_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.34085540774194%2C%22ymin%22%3A35.80504393139425%2C%22xmax%22%3A-82.31917888144343%2C%22ymax%22%3A35.8250220170748%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json"
+      },
+      "flood": {
+        "flood_zone": null,
+        "in_sfha": null,
+        "pct_parcel_in_floodplain": null,
+        "nfhl_coverage": "unknown",
+        "flood_unknown_reason": "nfhl_robots_disallow",
+        "source_url": null
+      },
+      "slope": {
+        "mean_slope_pct": null,
+        "max_slope_pct": null,
+        "elevation_m": null,
+        "elevation_range_m": null,
+        "samples_requested": 5,
+        "samples_returned": 0,
+        "slope_unknown_reason": "epqs_sample_incomplete",
+        "source_url": null
+      },
+      "road": {
+        "distance_to_road_m": null,
+        "road_class": null,
+        "landlocked": null,
+        "road_unknown_reason": "tiger_robots_unobtainable",
+        "source_url": null
+      }
+    }
+  ]
+}

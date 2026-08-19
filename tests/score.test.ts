@@ -38,7 +38,8 @@ const parcel = (over: Partial<WarehouseParcel>): WarehouseParcel => ({
   value: 100000, value_unknown_reason: null, value_basis: 'market_equivalent', value_basis_raw: 'Assessed',
   deed_date: null, sale_date: null, assessment_year: 2022,
   owner_out_of_state: 0, owner_is_entity: 0, owner_is_government: 0, tenure_years: null,
-  parusedesc: 'RESIDENTIAL VACANT', lat: null, lng: null,
+  parusedesc: 'RESIDENTIAL VACANT',
+    siteadd: null, lat: null, lng: null,
   status: 'active', first_seen: '2026-08-19T00:00:00.000Z', last_seen: '2026-08-19T00:00:00.000Z',
   ...over,
 });

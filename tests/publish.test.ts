@@ -69,7 +69,7 @@ test('⛔ a record_url on a DENIED host is refused — citing a source we may no
 
 test('a county with no parcel source publishes record_url:null and HOW TO VERIFY, never a homepage', () => {
   const p = buildProvenance(
-    { source_id: null, county: 'Fannin', state: 'GA', parno: '0008', retrieved_at: '2026-08-19T00:00:00.000Z' },
+    { source_id: null, fips: '13111', county: 'Fannin', state: 'GA', parno: '0008', retrieved_at: '2026-08-19T00:00:00.000Z' },
     null,
     REGISTRY.denials,
   );
@@ -81,18 +81,18 @@ test('a county with no parcel source publishes record_url:null and HOW TO VERIFY
 
 test('the NC OneMap record link resolves to ONE record and survives hostile parcel numbers', () => {
   const layer = 'https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/MapServer/1';
-  const url = arcgisRecordUrl(layer, 'Watauga', "O'BRIEN 12/3 & 4");
+  const url = arcgisRecordUrl(layer, '37189', "O'BRIEN 12/3 & 4");
   assert.ok(url !== null);
   const parsed = new URL(url);
   // The platform primitive did the escaping — the quote is DOUBLED for SQL and
   // then percent-encoded for the URL, and the round trip is exact.
   assert.equal(
     parsed.searchParams.get('where'),
-    "cntyname='Watauga' AND parno='O''BRIEN 12/3 & 4'",
+    "stcntyfips='37189' AND parno='O''BRIEN 12/3 & 4'",
   );
   assert.ok(!isBareOrigin(url));
   assert.doesNotThrow(() => assertRecordUrlHonest(url, REGISTRY.denials));
-  assert.equal(arcgisRecordUrl(layer, 'Watauga', ''), null, 'no parcel number means no deep link, not a homepage');
+  assert.equal(arcgisRecordUrl(layer, '37189', ''), null, 'no parcel number means no deep link, not a homepage');
 });
 
 test('⛔ EVERY published row has honest provenance — asserted over the whole file, not a sample', () => {

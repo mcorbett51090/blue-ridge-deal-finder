@@ -28,7 +28,9 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { FetchClient } from '../fetch/client.ts';
+import { isTransientInBandError } from '../fetch/arcgis.ts';
 import { Db } from '../store/sqlite.ts';
 import { EnrichCache } from './cache.ts';
 import { geometryHash, ringsToMultiPolygon, bboxOf, expandBbox, type AnyPolygon, type BBox } from './geometry.ts';
@@ -47,7 +49,9 @@ import { getPointService, loadEnrichRegistry, type EnrichRegistry } from './sour
 export const PARCEL_SOURCE = 'nc-onemap-parcels';
 /** Parcels per `parno IN (…)` geometry request. Keeps the URL well under any
  *  gateway limit while collapsing 40 parcels into one round trip. */
-export const GEOMETRY_BATCH = 40;
+export const GEOMETRY_BATCH = 25;
+export const GEOMETRY_RETRIES = 4;
+export const GEOMETRY_RETRY_BASE_MS = 3000;
 
 export type Candidate = {
   record_id: string;
@@ -147,23 +151,43 @@ export async function fetchParcelGeometry(
 
   for (const [county, group] of byCounty) {
     const parnos = group.map((c) => `'${c.parno.replace(/'/g, "''")}'`).join(',');
-    const res = await client.fetchJson(PARCEL_SOURCE, {
-      path: '/query',
-      searchParams: {
-        where: `cntyname='${county.replace(/'/g, "''")}' AND parno IN (${parnos})`,
-        outFields: 'parno',
-        returnGeometry: 'true',
-        outSR: '4326',
-        f: 'json',
-      },
-    });
-    counters.parcelGeometryRequests++;
-    const body = res.body as { features?: { attributes?: Record<string, unknown>; geometry?: { rings?: number[][][] } }[]; error?: unknown };
-    if (body === null || typeof body !== 'object' || 'error' in body || !Array.isArray(body.features)) {
-      throw new Error(`[${PARCEL_SOURCE}] parcel geometry query returned no features array — ${JSON.stringify(body).slice(0, 200)}`);
+    const searchParams = {
+      where: `cntyname='${county.replace(/'/g, "''")}' AND parno IN (${parnos})`,
+      outFields: 'parno',
+      returnGeometry: 'true',
+      outSR: '4326',
+      f: 'json',
+    };
+
+    // ⛔ A TRANSIENT IN-BAND ERROR NEEDS A BOUNDED RETRY, AND THE CLIENT CANNOT
+    // DO IT. This endpoint answers a momentary backend fault with HTTP 200 and
+    // `{"status":"error","messages":["Could not access any server machines…"]}`
+    // — hit on the FIRST batch of the first live P7 run, while a P2 ingest was
+    // running against the same service. client.ts sees a 200 and returns
+    // happily; only a body-shaped check knows anything is wrong. Same bounded,
+    // backed-off shape as arcgis.ts readCounty(), and it still GIVES UP: a
+    // persistent error fails the batch rather than hammering a host that has
+    // already answered.
+    type GeometryBody = { features?: { attributes?: Record<string, unknown>; geometry?: { rings?: number[][][] } }[]; error?: unknown };
+    let body: GeometryBody | null = null;
+    let lastBody: unknown = null;
+    for (let attempt = 1; attempt <= GEOMETRY_RETRIES; attempt++) {
+      const res = await client.fetchJson(PARCEL_SOURCE, { path: '/query', searchParams });
+      counters.parcelGeometryRequests++;
+      lastBody = res.body;
+      const candidate = res.body as GeometryBody | null;
+      if (candidate !== null && typeof candidate === 'object' && !('error' in candidate) && Array.isArray(candidate.features)) {
+        body = candidate;
+        break;
+      }
+      if (!isTransientInBandError(res.body) || attempt === GEOMETRY_RETRIES) break;
+      await sleep(GEOMETRY_RETRY_BASE_MS * 2 ** (attempt - 1));
+    }
+    if (body === null) {
+      throw new Error(`[${PARCEL_SOURCE}] parcel geometry query returned no features array — ${JSON.stringify(lastBody).slice(0, 200)}`);
     }
     const byParno = new Map<string, number[][][]>();
-    for (const f of body.features) {
+    for (const f of body.features ?? []) {
       const rings = f.geometry?.rings;
       if (!Array.isArray(rings)) continue;
       let parno: string | null = null;
