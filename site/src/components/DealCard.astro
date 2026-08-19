@@ -37,6 +37,7 @@ import {
   waterIsUnknown,
   waterLabel,
   inFloodplain,
+  provenanceOf,
 } from '../lib/deals';
 import { fmtAcres, fmtDate, fmtMoney, fmtPerAcre } from '../lib/format';
 import ScoreMeter from './ScoreMeter.astro';
@@ -50,6 +51,7 @@ interface Props {
 const { l, showCounty = true } = Astro.props;
 
 const lane = laneOf(l);
+const prov = provenanceOf(l);
 const tier = tierOf(l.fips);
 const acres = fmtAcres(l.acres);
 const value = fmtMoney(l.assessed_value);
@@ -245,22 +247,22 @@ const vintage = (() => {
   */}
   <p class="dcard__src">
     {
-      l.record_url ? (
-        <a href={l.record_url} rel="noopener nofollow external" target="_blank">
+      prov.recordUrl ? (
+        <a href={prov.recordUrl} rel="noopener nofollow external" target="_blank">
           Exact parcel record ↗
         </a>
-      ) : l.source_url ? (
+      ) : prov.genericUrl ? (
         /* Owner ruling: a generic link is wanted where no per-record page
            exists — but it must SAY it is generic, or it reads as record-level
            provenance and is not. The label is the honesty, not the link. */
         <>
-          <a href={l.source_url} rel="noopener nofollow external" target="_blank">
-            {l.source_label ?? 'County source'} ↗
+          <a href={prov.genericUrl} rel="noopener nofollow external" target="_blank">
+            {prov.label} ↗
           </a>
           <span class="dcard__scope"> — general source, not this record</span>
         </>
       ) : (
-        <span class="dcard__howto">No direct link — {l.how_to_verify}</span>
+        <span class="dcard__howto">No direct link — {prov.howToVerify}</span>
       )
     }
   </p>

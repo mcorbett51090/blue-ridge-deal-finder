@@ -283,3 +283,41 @@ export function bounds(rows: Listing[] = sorted): [[number, number], [number, nu
     [Math.max(...lngs), Math.max(...lats)],
   ];
 }
+
+/**
+ * Provenance, normalised from either shape the payload may carry.
+ *
+ * ⛔ Two components were built in parallel against different layouts, each
+ * internally consistent: `publish/` emits a nested `provenance` object, while
+ * the card and the fixtures used top-level `record_url` / `source_scope` /
+ * `source_label`. The card silently fell through to the generic branch, so 500
+ * rows that HAVE an exact record link rendered as "County source — general
+ * source, not this record". Correct data, wrong label, and the label is the
+ * whole honesty claim.
+ *
+ * Normalising on read (rather than emitting both) keeps one copy of the truth.
+ */
+export type Provenance = {
+  recordUrl: string | null;
+  genericUrl: string | null;
+  label: string;
+  howToVerify: string | null;
+};
+
+export function provenanceOf(l: Listing): Provenance {
+  const p = (l as unknown as { provenance?: Record<string, unknown> }).provenance ?? {};
+  const rec =
+    (l as unknown as { record_url?: string | null }).record_url ??
+    (typeof p['record_url'] === 'string' ? (p['record_url'] as string) : null);
+  const scope = (l as unknown as { source_scope?: string }).source_scope;
+  const label =
+    (l as unknown as { source_label?: string }).source_label ??
+    (typeof p['source_id'] === 'string' ? String(p['source_id']) : 'County source');
+  const how =
+    (l as unknown as { how_to_verify?: string | null }).how_to_verify ??
+    (typeof p['how_to_verify'] === 'string' ? (p['how_to_verify'] as string) : null);
+
+  if (rec && scope !== 'generic') return { recordUrl: rec, genericUrl: null, label, howToVerify: how };
+  const generic = rec ?? (l as unknown as { source_url?: string | null }).source_url ?? null;
+  return { recordUrl: null, genericUrl: generic, label, howToVerify: how };
+}

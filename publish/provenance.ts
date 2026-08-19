@@ -71,9 +71,21 @@ export function arcgisRecordUrl(layerUrl: string, fips: string, parno: string): 
   const sq = (s: string): string => `'${s.replace(/'/g, "''")}'`;
   const params = new URLSearchParams({
     where: `stcntyfips=${sq(fips)} AND parno=${sq(parno)}`,
-    outFields: '*',
+    // ⛔ NOT `*`. The layer's displayFieldName is `ownname`, so `*` makes OUR
+    // link surface the owner's name — the one field D1 says we never publish.
+    // Linking to a county service that happens to expose it is the county's
+    // call; choosing `*` in a URL we construct is ours. Name the columns we
+    // would show anyway.
+    outFields: 'parno,cntyname,siteadd,parval,landval,improvval,gisacres,parusedesc,saledate,parvaltype',
     returnGeometry: 'false',
-    f: 'html',
+    // ⛔ NOT `html`. Measured 2026-08-19: `f=html` returns the ArcGIS query
+    // FORM, pre-filled but unsubmitted — the reader lands on a page and must
+    // click Query to see anything. That is the homepage failure in a different
+    // costume: a link that does not show the record.
+    // `f=pjson` returns the record itself, pretty-printed and readable:
+    // 1 row, `{parno:'0788-00-39-0290', cntyname:'Mitchell', gisacres:193.35,
+    // parval:925600, siteadd:'POND RD'}`.
+    f: 'pjson',
   });
   return `${layerUrl}/query?${params.toString()}`;
 }
