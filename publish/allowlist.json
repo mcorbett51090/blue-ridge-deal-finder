@@ -85,6 +85,8 @@
   "tenure_years",
   "rank",
   "site_address",
-  "site_address_unknown_reason"
+  "site_address_unknown_reason",
+  "generic_url",
+  "generic_label"
  ]
 }

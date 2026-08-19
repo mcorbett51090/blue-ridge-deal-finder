@@ -109,6 +109,7 @@ async function main(): Promise<void> {
         state: c.row.state,
         parno: c.row.parno,
         retrieved_at: c.row.last_seen,
+        root: ROOT,
       },
       src,
       registry.denials,

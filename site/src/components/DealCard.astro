@@ -260,6 +260,9 @@ const vintage = (() => {
             {prov.label} ↗
           </a>
           <span class="dcard__scope"> — general source, not this record</span>
+          {prov.howToVerify && (
+            <span class="dcard__howto"> {prov.howToVerify}</span>
+          )}
         </>
       ) : (
         <span class="dcard__howto">No direct link — {prov.howToVerify}</span>

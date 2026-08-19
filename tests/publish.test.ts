@@ -69,7 +69,7 @@ test('⛔ a record_url on a DENIED host is refused — citing a source we may no
 
 test('a county with no parcel source publishes record_url:null and HOW TO VERIFY, never a homepage', () => {
   const p = buildProvenance(
-    { source_id: null, fips: '13111', county: 'Fannin', state: 'GA', parno: '0008', retrieved_at: '2026-08-19T00:00:00.000Z' },
+    { source_id: null, fips: '13111', county: 'Fannin', state: 'GA', parno: '0008', retrieved_at: '2026-08-19T00:00:00.000Z', root: process.cwd() },
     null,
     REGISTRY.denials,
   );

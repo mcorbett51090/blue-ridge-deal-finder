@@ -321,6 +321,18 @@ export function provenanceOf(l: Listing): Provenance {
     (typeof p['how_to_verify'] === 'string' ? (p['how_to_verify'] as string) : null);
 
   if (rec && scope !== 'generic') return { recordUrl: rec, genericUrl: null, label, howToVerify: how };
-  const generic = rec ?? (l as unknown as { source_url?: string | null }).source_url ?? null;
-  return { recordUrl: null, genericUrl: generic, label, howToVerify: how };
+
+  // TIER 2 — a verified generic page, labelled. The owner's ruling: "if you
+  // can't provide it then give me the generic link and label it as such."
+  // Every URL here was fetched and returned a real status; a denied host is
+  // never among them. Instructions alone (tier 3) are the fallback when not
+  // even a generic page exists, not the preferred answer.
+  const gUrl =
+    (typeof p['generic_url'] === 'string' ? (p['generic_url'] as string) : null) ??
+    (l as unknown as { source_url?: string | null }).source_url ??
+    rec ??
+    null;
+  const gLabel =
+    (typeof p['generic_label'] === 'string' ? (p['generic_label'] as string) : null) ?? label;
+  return { recordUrl: null, genericUrl: gUrl, label: gLabel, howToVerify: how };
 }

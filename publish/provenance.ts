@@ -24,6 +24,8 @@
  * rule is a copy that will one day disagree with the original, and the
  * disagreement would surface as exactly the defect above.
  */
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { matchDenylist } from '../pipeline/fetch/denylist.ts';
 import type { Denial, Source } from '../pipeline/fetch/types.ts';
 
@@ -34,12 +36,43 @@ export type Provenance = {
   record_url: string | null;
   /** REQUIRED whenever record_url is null. Plain instructions, not an apology. */
   how_to_verify: string | null;
+  /** TIER 2 — the owner's ruling: "if you can't provide it then give me the
+   *  generic link and label it as such". A real page that is the right place to
+   *  look, never a stand-in for a record link. Requires `generic_label`. */
+  generic_url: string | null;
+  generic_label: string | null;
   /** When we actually fetched the row. */
   retrieved_at: string;
   source_note: string;
 };
 
 export class ProvenanceError extends Error {}
+
+type GenericSource = { url: string; label: string; http_status: number; checked: string };
+type GenericSeeds = { by_fips: Record<string, GenericSource>; by_state: Record<string, GenericSource> };
+
+let genericSeeds: GenericSeeds | null = null;
+
+/** Every URL in seeds/generic-sources.json was fetched and returned a real
+ *  status. A 403 is kept where the page exists for a human in a browser and
+ *  merely refuses our crawler; a DNS failure is not (fannincountyga.gov does
+ *  not resolve, fannincountytax.com does). Never a denied host. */
+export function loadGenericSources(root: string): GenericSeeds {
+  if (genericSeeds !== null) return genericSeeds;
+  const p = join(root, 'seeds/generic-sources.json');
+  if (!existsSync(p)) {
+    genericSeeds = { by_fips: {}, by_state: {} };
+    return genericSeeds;
+  }
+  const raw = JSON.parse(readFileSync(p, 'utf8')) as Partial<GenericSeeds>;
+  genericSeeds = { by_fips: raw.by_fips ?? {}, by_state: raw.by_state ?? {} };
+  return genericSeeds;
+}
+
+function genericFor(root: string, fips: string, state: string): GenericSource | null {
+  const g = loadGenericSources(root);
+  return g.by_fips[fips] ?? g.by_state[state] ?? null;
+}
 
 /**
  * A per-record ArcGIS query URL: the layer, filtered to one county FIPS + one
@@ -139,6 +172,8 @@ export type ProvenanceInput = {
   state: string;
   parno: string;
   retrieved_at: string;
+  /** Repo root — the generic-source seed file is read relative to it. */
+  root: string;
 };
 
 export function buildProvenance(
@@ -153,6 +188,8 @@ export function buildProvenance(
       how_to_verify:
         `No parcel data source exists for ${input.county} County, ${input.state}. Nothing on this page ` +
         'came from a parcel record there; check the county tax office directly.',
+      generic_url: genericFor(input.root, input.fips, input.state)?.url ?? null,
+      generic_label: genericFor(input.root, input.fips, input.state)?.label ?? null,
       retrieved_at: input.retrieved_at,
       source_note: 'no registered parcel source for this county',
     };
@@ -167,6 +204,8 @@ export function buildProvenance(
       source_id: source.id,
       record_url: recordUrl,
       how_to_verify: null,
+      generic_url: null,
+      generic_label: null,
       retrieved_at: input.retrieved_at,
       source_note:
         'Live query against the publisher\'s own layer, filtered to this county FIPS and parcel number. ' +
@@ -180,6 +219,8 @@ export function buildProvenance(
     how_to_verify:
       `Search parcel ${input.parno === '' ? '(no parcel number published)' : input.parno} at the ` +
       `${input.county} County, ${input.state} tax office. No public per-record URL exists for this county.`,
+    generic_url: genericFor(input.root, input.fips, input.state)?.url ?? null,
+    generic_label: genericFor(input.root, input.fips, input.state)?.label ?? null,
     retrieved_at: input.retrieved_at,
     source_note: 'no public per-record URL exists for this county',
   };
