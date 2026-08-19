@@ -21,3 +21,20 @@ data/raw/
 *.sqlite-journal
 *.sqlite-wal
 *.sqlite-shm
+# ⛔ EXCEPTION — gate CONTROL fixtures must reach CI.
+# The blanket `*.sqlite` above swallowed fixtures/gates/ledger-drift/
+# warehouse-drifted.sqlite, which verify-controls.mjs needs to prove
+# verify-ledger-reconciles.mjs goes RED. Locally the file exists, so
+# `npm run verify` reported 8/8 green; on the runner it did not, so the Gates
+# workflow failed on EVERY push (8 of 8 runs measured 2026-08-19) with an
+# ENOENT that looked like infrastructure noise. A control that cannot run in CI
+# is not a control, and a workflow that is always red gates nothing.
+# These fixtures are synthetic and carry no owner fields — schema is
+# (record_id, county, fips) plus run counters.
+!fixtures/gates/**/*.sqlite
+
+# FORGE working state — local only, never committed (the run dir is the
+# pipeline's scratch space and .claude/worktrees holds linked git worktrees;
+# committing either would nest a checkout inside the repo).
+.claude/worktrees/
+.ravenclaude/runs/
