@@ -4,16 +4,16 @@
 # carry EVERY field below. The schema is not documentation; it is the argument
 # the fetcher checks before it is permitted to act (plan §3.1, §3.3 mech. 2).
 #
-# ⛔ P1 STATE — READ BEFORE FLIPPING `enabled`.
+# ✅ P2 STATE — the two live digests are filled in and the anchor is ENABLED.
 # `robots.evidence_sha256` and `schema_fingerprint` are the only two fields that
-# cannot be authored offline: both are digests of a LIVE response. P1 makes no
-# network call, so they are `null` and the anchor is `enabled: false`. This is
-# not a stub — it is the guard working. verify-sources.mjs requires both to be
-# non-null before `enabled: true` is legal, and the fetch client refuses the
-# source outright while they are null. P2 fills them from P0's cached evidence
-# under sources/evidence/robots/ and flips `enabled` in the same commit.
-# Writing a placeholder digest here would be fabricated evidence; a null that
-# hard-blocks the fetcher is the honest encoding.
+# cannot be authored offline: both are digests of a LIVE response. P1 made no
+# network call, so it left them `null` and the anchor `enabled: false` — the
+# guard working, not a stub. P2 fetched both, cached the evidence under
+# sources/evidence/, and flipped `enabled` in the same commit.
+#
+# The P1-state entry is preserved verbatim as fixtures/gates/anchor-null-evidence.yaml
+# so tests/guard.test.ts still proves the refusal mechanism against a null-digest
+# entry. Deleting the state did not delete the test for it.
 
 - id: nc-onemap-parcels
   kind: arcgis-map-server
@@ -27,11 +27,26 @@
 
   legal_basis: public-records-open-data
 
+  # ⛔ MEASURED 2026-08-19: GET /robots.txt answers HTTP 404 with a static IIS
+  # error page. There IS NO robots.txt on this host, so the honest verdict is
+  # `absent`, not the `allow` P0's candidates file recorded — nobody granted
+  # anything, there is simply no file to grant it. Permission-wise the guard
+  # treats the two identically; this is a truthfulness correction.
+  #
+  # `evidence_sha256` is the digest of the DIRECTIVE TEXT, and for a non-2xx
+  # response that text is the empty string — which is exactly what
+  # pipeline/fetch/client.ts hashes (`res.ok ? await res.text() : ''`). Any
+  # other value here makes the CE-4 drift check fire on every single run.
+  # The 404 body itself and its own digest are cached beside the metadata file
+  # so 'absent' is auditable rather than asserted; see
+  # sources/evidence/robots/services.nconemap.gov.json.
+  # If this host ever PUBLISHES a robots.txt the digest changes and the source
+  # moves to ingest_paused — stop new ingest, keep serving last-known-good.
   robots:
-    verdict: allow                 # allow | disallow | absent | unreachable
+    verdict: absent                # allow | disallow | absent | unreachable
     checked_at: "2026-08-19"
     evidence_url: https://services.nconemap.gov/robots.txt
-    evidence_sha256: null          # ← P0 evidence; see the P1 STATE note above
+    evidence_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
   tos:
     verdict: permissive            # permissive | restrictive | prohibitive | unknown
@@ -81,5 +96,16 @@
     max_delta_pct: 5
     max_zero_parval_pct: 4         # RT-3 value-distribution gate (1.7% measured, Watauga)
 
-  schema_fingerprint: null         # ← P0 evidence; see the P1 STATE note above
-  enabled: false                   # ← flips true in P2 with the two digests
+  # sha256 over the CANONICAL schema — field name:type sorted, plus geometryType,
+  # maxRecordCount and the OID field name. Deliberately NOT over the whole 12,387
+  # byte body: ~55 of its 60 keys are presentation (drawingInfo, extent,
+  # serviceItemId, currentVersion), and a fingerprint that goes red on a symbology
+  # edit gets its constant bumped without anyone reading the diff — a gate
+  # disabled while still appearing to run.
+  # Computed by pipeline/fetch/schema-fingerprint.ts from the body cached at
+  # sources/evidence/schema/nc-onemap-parcels.MapServer-1.f-json.json (12,387 B,
+  # 71 fields, esriGeometryPolygon, maxRecordCount 5000, OID field `objectid`).
+  # It is asserted against a FRESH `?f=json` BEFORE any data query; a mismatch
+  # aborts the run and ingests nothing.
+  schema_fingerprint: "f84a78b7ff4ed2d2dbd49c23007c82d931bc01d80173149f66c245732da5dc86"
+  enabled: true                    # ← flipped at P2, in the same commit as the digests

@@ -165,15 +165,67 @@ test('the shipped registry parses and the anchor is the POLYGON layer', () => {
   assert.equal(anchor.control_block.negative.expect_count, 0);
 });
 
-test('the shipped registry refuses to fetch at P1 — evidence digests are null', () => {
+/**
+ * ⛔ THIS TEST MOVED TARGETS AT P2, AND THE MOVE IS THE POINT.
+ * At P1 it read sources/sources.yaml, where the anchor carried null digests and
+ * `enabled: false`. P2 captured the live evidence and flipped it true — which
+ * would have left this test asserting a refusal that no longer happens, i.e. a
+ * fix quietly deleting its own detector. The P1 state was preserved verbatim as
+ * fixtures/gates/anchor-null-evidence.yaml and the test points there, so what is
+ * proven is still the MECHANISM: an entry that is complete in every other
+ * respect is refused while its two live-only digests are null.
+ */
+test('a registry entry with null evidence digests is refused — the P1 anchor state', () => {
+  const sources = SourcesFileSchema.parse(
+    yaml.load(readFileSync(join(ROOT, 'fixtures', 'gates', 'anchor-null-evidence.yaml'), 'utf8')),
+  );
+  const anchor = sources.find((s) => s.id === 'nc-onemap-parcels') as Source;
+  assert.equal(anchor.robots.evidence_sha256, null, 'the fixture must carry null evidence — that is what it is for');
+  assert.equal(anchor.schema_fingerprint, null);
+  assert.throws(
+    () => assertRequestPermitted(anchor, anchor.url, denials),
+    (err: unknown) => err instanceof RegistryGuardError && err.code === 'incomplete-registry',
+    'no live evidence means the guard must refuse the source outright',
+  );
+});
+
+/**
+ * The other half, and the one that would have been missing: the SHIPPED registry
+ * is now permitted. Without this, "the guard refuses null digests" is satisfied
+ * by a guard that refuses everything, and P2 would have shipped an anchor that
+ * can never fetch.
+ */
+test('GREEN CONTROL: the shipped anchor is now permitted — real digests, enabled', () => {
   const sources = SourcesFileSchema.parse(
     yaml.load(readFileSync(join(ROOT, 'sources', 'sources.yaml'), 'utf8')),
   );
   const anchor = sources.find((s) => s.id === 'nc-onemap-parcels') as Source;
-  assert.throws(
-    () => assertRequestPermitted(anchor, anchor.url, denials),
-    (err: unknown) => err instanceof RegistryGuardError && err.code === 'incomplete-registry',
-    'P1 has no live evidence, so the guard must refuse the anchor outright',
+  assert.match(String(anchor.robots.evidence_sha256), /^[0-9a-f]{64}$/, 'robots evidence digest is captured');
+  assert.match(String(anchor.schema_fingerprint), /^[0-9a-f]{64}$/, 'schema fingerprint is captured');
+  assert.equal(anchor.enabled, true);
+  assert.doesNotThrow(() => assertRequestPermitted(anchor, anchor.url, denials));
+});
+
+/**
+ * ⛔ MEASURED: services.nconemap.gov has NO robots.txt (HTTP 404). The fetcher
+ * therefore hashes the empty string, and that digest is what sources.yaml holds.
+ * This test pins the relationship, because the alternative — hashing the 404 HTML
+ * body — reads identically in the registry and makes the drift check fire on
+ * every run.
+ */
+test('the anchor robots digest is the digest of the EMPTY directive text (host has no robots.txt)', () => {
+  const sources = SourcesFileSchema.parse(
+    yaml.load(readFileSync(join(ROOT, 'sources', 'sources.yaml'), 'utf8')),
+  );
+  const anchor = sources.find((s) => s.id === 'nc-onemap-parcels') as Source;
+  assert.equal(anchor.robots.evidence_sha256, sha256Hex(''), 'a 404 robots.txt means zero directives');
+  assert.equal(anchor.robots.verdict, 'absent', 'no file was served — nobody granted anything');
+  assert.equal(robotsDrift('', String(anchor.robots.evidence_sha256)).status, 'unchanged');
+  // NEGATIVE CONTROL: if the host starts serving directives, drift must fire.
+  assert.equal(
+    robotsDrift('User-agent: *\nDisallow: /\n', String(anchor.robots.evidence_sha256)).status,
+    'ingest_paused',
+    'a newly-published robots.txt must pause ingest, not be absorbed silently',
   );
 });
 

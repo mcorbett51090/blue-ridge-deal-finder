@@ -13,7 +13,10 @@ export const MeasuredNumberSchema = z.discriminatedUnion('status', [
   z.object({ status: z.literal('known'), value: z.number() }),
   z.object({
     status: z.literal('unknown'),
-    reason: z.enum(['zero-sentinel', 'negative', 'null', 'non-numeric', 'date-sentinel', 'empty-string']),
+    reason: z.enum([
+      'zero-sentinel', 'negative', 'null', 'non-numeric', 'date-sentinel', 'empty-string',
+      'implausible-date',
+    ]),
   }),
 ]);
 
