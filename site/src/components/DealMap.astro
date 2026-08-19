@@ -305,7 +305,7 @@ const payload = JSON.stringify({ fc, bounds: bb });
         }
         if (map.getLayer('clusters')) {
           map.setPaintProperty('clusters', 'circle-color', [
-            ...stepOrUnknown('maxScore', C.scoreUnknown, C.score).slice(1),
+            ...stepOrUnknown('maxScore', C.scoreUnknown, C.score),
           ] as never);
           map.setPaintProperty('clusters', 'circle-stroke-color', C.ink as never);
         }
@@ -350,7 +350,7 @@ const payload = JSON.stringify({ fc, bounds: bb });
         filter: ['has', 'point_count'],
         paint: {
           'circle-color': [
-            ...stepOrUnknown('maxScore', C.scoreUnknown, C.score).slice(1),
+            ...stepOrUnknown('maxScore', C.scoreUnknown, C.score),
           ],
           'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 30],
           'circle-stroke-width': 1.5,
