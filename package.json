@@ -21,7 +21,10 @@
     "test": "node --test \"tests/**/*.test.ts\"",
     "site:dev": "npm --prefix site run dev",
     "site:build": "npm --prefix site run build",
-    "enrich": "tsx pipeline/enrich/cli.ts"
+    "enrich": "tsx pipeline/enrich/cli.ts",
+    "ingest:distress": "tsx pipeline/ingest-distress.ts",
+    "ingest:tn": "tsx pipeline/ingest-tn.ts",
+    "ingest:coords": "tsx pipeline/ingest/coords-run.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

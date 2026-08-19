@@ -23,6 +23,8 @@ export type VetoInput = {
   owner_is_government: number | boolean | null;
   parusedesc: string;
   acreage: number | null;
+  /** TRUE when a county has itself published this parcel as available. */
+  has_for_sale_evidence?: boolean;
   /** SITUS address. A second, INDEPENDENT signal of unpurchasability — see the
    *  `situs_excluded` gate below for why it is not redundant with parusedesc. */
   siteadd?: string | null;
@@ -40,12 +42,28 @@ export function evaluateGates(row: VetoInput, cfg: ScoreConfig, patterns = useCl
   const gates: Gate[] = [];
 
   const isGov = row.owner_is_government === 1 || row.owner_is_government === true;
+  // ⛔ FOR-SALE EVIDENCE REFUTES THIS VETO'S PREMISE.
+  //
+  // The gate exists because "public land is not for sale at any price". County
+  // REO is the exception that proves it: the county acquired the parcel through
+  // foreclosure and is actively trying to sell it. It is government-owned AND
+  // purchasable, and those are not contradictory.
+  //
+  // Measured 2026-08-19: all 8 Jackson County REO properties carry
+  // owner_is_government=1. Without this override the distress ingest would have
+  // found the only genuinely purchasable stock in the corpus and the veto would
+  // have deleted every one of them — the phase would have "worked" and produced
+  // an empty Lane 1.
+  const evidenced = row.has_for_sale_evidence === true;
   gates.push({
     id: 'owner_is_government',
-    passed: !isGov,
-    basis: isGov
-      ? 'Owner name matches a government body — public land is not for sale at any price.'
-      : 'Owner name does not match a government body.',
+    passed: !isGov || evidenced,
+    basis: !isGov
+      ? 'Owner name does not match a government body.'
+      : evidenced
+        ? 'Government-owned, but the county has published it as available — the veto\'s premise ' +
+          '("not for sale at any price") is refuted by the county\'s own listing.'
+        : 'Owner name matches a government body — public land is not for sale at any price.',
   });
 
   const use = row.parusedesc.replace(/\s+/g, ' ').trim();

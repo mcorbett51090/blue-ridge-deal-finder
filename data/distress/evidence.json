@@ -1,0 +1,95 @@
+{
+ "generated_at": "2026-08-19T18:01:48.060Z",
+ "matched": 8,
+ "unmatched": 0,
+ "evidence": {
+  "37099:7662-23-2593:0": {
+   "kind": "county_owned_reo",
+   "label": "County-owned, acquired through foreclosure",
+   "price_usd": 9500,
+   "observed_at": "2026-08-19T18:01:48.060Z",
+   "since": "2024-06",
+   "record_url": null,
+   "generic_url": "https://www.jacksonnc.org/DocumentCenter/View/2164",
+   "generic_label": "Jackson County — properties acquired through foreclosure (PDF)",
+   "how_to_verify": "PIN 7662-23-2593 appears in Jackson County's own list of properties acquired through foreclosure. Contact the Jackson County Tax Collections office to confirm price and status."
+  },
+  "37099:7592-65-6317:0": {
+   "kind": "county_owned_reo",
+   "label": "County-owned, acquired through foreclosure",
+   "price_usd": 3360,
+   "observed_at": "2026-08-19T18:01:48.060Z",
+   "since": "2023-11",
+   "record_url": null,
+   "generic_url": "https://www.jacksonnc.org/DocumentCenter/View/2164",
+   "generic_label": "Jackson County — properties acquired through foreclosure (PDF)",
+   "how_to_verify": "PIN 7592-65-6317 appears in Jackson County's own list of properties acquired through foreclosure. Contact the Jackson County Tax Collections office to confirm price and status."
+  },
+  "37099:7556-74-2791:0": {
+   "kind": "county_owned_reo",
+   "label": "County-owned, acquired through foreclosure",
+   "price_usd": 10700,
+   "observed_at": "2026-08-19T18:01:48.060Z",
+   "since": "2024-07",
+   "record_url": null,
+   "generic_url": "https://www.jacksonnc.org/DocumentCenter/View/2164",
+   "generic_label": "Jackson County — properties acquired through foreclosure (PDF)",
+   "how_to_verify": "PIN 7556-74-2791 appears in Jackson County's own list of properties acquired through foreclosure. Contact the Jackson County Tax Collections office to confirm price and status."
+  },
+  "37099:7543-84-6088:0": {
+   "kind": "county_owned_reo",
+   "label": "County-owned, acquired through foreclosure",
+   "price_usd": 6300,
+   "observed_at": "2026-08-19T18:01:48.060Z",
+   "since": "2025-03",
+   "record_url": null,
+   "generic_url": "https://www.jacksonnc.org/DocumentCenter/View/2164",
+   "generic_label": "Jackson County — properties acquired through foreclosure (PDF)",
+   "how_to_verify": "PIN 7543-84-6088 appears in Jackson County's own list of properties acquired through foreclosure. Contact the Jackson County Tax Collections office to confirm price and status."
+  },
+  "37099:7558-57-1467:0": {
+   "kind": "county_owned_reo",
+   "label": "County-owned, acquired through foreclosure",
+   "price_usd": 9300,
+   "observed_at": "2026-08-19T18:01:48.060Z",
+   "since": "2025-01",
+   "record_url": null,
+   "generic_url": "https://www.jacksonnc.org/DocumentCenter/View/2164",
+   "generic_label": "Jackson County — properties acquired through foreclosure (PDF)",
+   "how_to_verify": "PIN 7558-57-1467 appears in Jackson County's own list of properties acquired through foreclosure. Contact the Jackson County Tax Collections office to confirm price and status."
+  },
+  "37099:7559-94-6474:0": {
+   "kind": "county_owned_reo",
+   "label": "County-owned, acquired through foreclosure",
+   "price_usd": null,
+   "observed_at": "2026-08-19T18:01:48.060Z",
+   "since": "2012-01",
+   "record_url": null,
+   "generic_url": "https://www.jacksonnc.org/DocumentCenter/View/2164",
+   "generic_label": "Jackson County — properties acquired through foreclosure (PDF)",
+   "how_to_verify": "PIN 7559-94-6474 appears in Jackson County's own list of properties acquired through foreclosure. Contact the Jackson County Tax Collections office to confirm price and status."
+  },
+  "37099:7559-94-6269:0": {
+   "kind": "county_owned_reo",
+   "label": "County-owned, acquired through foreclosure",
+   "price_usd": null,
+   "observed_at": "2026-08-19T18:01:48.060Z",
+   "since": "2012-01",
+   "record_url": null,
+   "generic_url": "https://www.jacksonnc.org/DocumentCenter/View/2164",
+   "generic_label": "Jackson County — properties acquired through foreclosure (PDF)",
+   "how_to_verify": "PIN 7559-94-6269 appears in Jackson County's own list of properties acquired through foreclosure. Contact the Jackson County Tax Collections office to confirm price and status."
+  },
+  "37099:7559-94-4268:0": {
+   "kind": "county_owned_reo",
+   "label": "County-owned, acquired through foreclosure",
+   "price_usd": null,
+   "observed_at": "2026-08-19T18:01:48.060Z",
+   "since": "2012-01",
+   "record_url": null,
+   "generic_url": "https://www.jacksonnc.org/DocumentCenter/View/2164",
+   "generic_label": "Jackson County — properties acquired through foreclosure (PDF)",
+   "how_to_verify": "PIN 7559-94-4268 appears in Jackson County's own list of properties acquired through foreclosure. Contact the Jackson County Tax Collections office to confirm price and status."
+  }
+ }
+}

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-19T17:50:49.682Z",
+  "generated_at": "2026-08-19T18:04:40.423Z",
   "warehouse": {
     "file": "warehouse-2026-08-19T15-48-58.sqlite",
     "sha256": "baf17b77015ea527b5b5c29669d8b408ddf56476a28def8858823311d6c1409e",
@@ -7,11 +7,11 @@
   },
   "run_id": "2026-08-19T15-48-58",
   "corpus_rows": 387742,
-  "published_rows": 650,
+  "published_rows": 658,
   "excluded": {
-    "vetoed": 12233,
-    "no_scorable_signal": 177544,
-    "ranked_below_cutoff": 197315,
+    "vetoed": 12225,
+    "no_scorable_signal": 177552,
+    "ranked_below_cutoff": 197307,
     "cutoff": 500
   },
   "signals": {
@@ -30,7 +30,7 @@
   },
   "veto_by_reason": {
     "acreage_below_min": 8009,
-    "owner_is_government": 3492,
+    "owner_is_government": 3484,
     "situs_excluded": 815,
     "use_class_excluded": 1773
   },
@@ -60,11 +60,11 @@
     "distress": false
   },
   "provenance": {
-    "with_record_url": 500,
+    "with_record_url": 508,
     "with_how_to_verify": 150
   },
   "geometry": {
-    "rows_with_coordinates": 650,
+    "rows_with_coordinates": 658,
     "note": "The parcel ingest stores attributes only — lat/lng and bbox are NULL on every warehouse row, so no published row can be placed on the map yet. Published as null with a stated reason, never as 0,0."
   }
 }

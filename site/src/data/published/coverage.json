@@ -98,7 +98,7 @@
     "parcel_source": "nc-onemap-parcels",
     "data_state": "ingested",
     "rows": 41291,
-    "published": 102,
+    "published": 110,
     "scorable": 39919,
     "ledger_status": "complete",
     "last_ingested_at": "2026-08-19T15:48:58.294Z",

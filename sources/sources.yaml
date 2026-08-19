@@ -15,6 +15,44 @@
 # so tests/guard.test.ts still proves the refusal mechanism against a null-digest
 # entry. Deleting the state did not delete the test for it.
 
+- id: nc-jackson-reo
+  # Jackson County NC — "County Properties Acquired Through Foreclosure".
+  # The richest distress source measured in this project: real county-owned
+  # property, actually purchasable, each row carrying a PIN that joins EXACTLY
+  # to our parcel corpus (6 of 6 sampled PINs matched one Jackson parcel each).
+  #
+  # robots.txt allows /DocumentCenter/ — measured, with a grep control proving
+  # the file really is being read (25 Disallow lines match, 'DocumentCenter'
+  # matches 0). Baiduspider and Yandex are banned by name; our UA is not.
+  kind: document
+  role: attributes
+  url: https://www.jacksonnc.org/DocumentCenter/View/2164
+  legal_basis: public-records-open-data
+  robots:
+    verdict: allow
+    checked_at: "2026-08-19"
+    evidence_url: https://www.jacksonnc.org/robots.txt
+    evidence_sha256: "6771bf6465ddd6e600a7866b5e41825007c4a20433b378e56746547c40d205c5"
+  tos: { verdict: permissive, checked_at: "2026-08-19", evidence_url: https://www.jacksonnc.org/ }
+  # One document, once a day at most. A county PDF that changes monthly does not
+  # need to be fetched more often than that, and cadence is a terms requirement.
+  rate: { rps: 0.2, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+  user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+  control_block:
+    # A document has no query interface, so the control is the DOCUMENT ITSELF:
+    # it must have a text layer and must yield the expected number of PIN rows.
+    # Asserted in pipeline/ingest/distress/jackson-reo.ts, not here.
+    positive: { where: "has-text-layer", expect_count: 1 }
+    negative: { where: "scanned-image", expect_count: 0 }
+  expect:
+    per_county_min_rows: { Jackson: 1 }
+    max_zero_parval_pct: 100
+    rolling_median_floor_pct: 50
+    max_delta_pct: 100
+  # The document BYTES. A layout change is the drift signal that matters here.
+  schema_fingerprint: "b802b44f9cd4dbb6f4804ad8ba4ac5b868254bc77998e6af88d2ca11025ef5b3"
+  enabled: true
+
 - id: tn-property-boundaries
   # East Tennessee — an owner priority region. STRUCTURALLY THINNER THAN NC:
   # there is no assessed-value field anywhere in the 17 columns, so `discount`

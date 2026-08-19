@@ -154,6 +154,46 @@ export class FetchClient {
    * Same order of refusal as fetchJson: PAUSE, denylist, completeness, recorded
    * verdicts, UA honesty, live robots for the exact path, rate limit, request.
    */
+  /**
+   * Fetch a BINARY document through the same guard chain as fetchJson.
+   *
+   * A county PDF is not JSON, and `JSON.parse` on it throws — but routing the
+   * fetch around this class to avoid that would put a second socket-opening
+   * path in the codebase, which the egress allowlist exists to make impossible.
+   * So the guards run identically (kill file, denylist, registry completeness,
+   * live robots for the exact path, UA honesty, rate limit) and only the body
+   * handling differs.
+   */
+  async fetchDocument(sourceId: string, options: FetchOptions = {}): Promise<{ url: string; status: number; body: Buffer; bytes: number }> {
+    const source = getSource(this.#registry, sourceId);
+    assertNotPaused(this.#registry.repoRoot);
+    const target = buildUrl(source, options);
+    assertRequestPermitted(source, target, this.#registry.denials);
+    const live = await this.#liveRobots(source, target);
+    if (this.stateOf(sourceId).status === 'ingest_paused') {
+      throw new RegistryGuardError(
+        'stale-evidence',
+        sourceId,
+        'robots.txt drifted from captured evidence — source is ingest_paused',
+      );
+    }
+    assertLiveRobotsAllows(sourceId, live, target);
+
+    const host = new URL(target).hostname;
+    const rpsIntervalMs = 1000 / source.rate.rps;
+    const crawlDelayMs = (live.crawlDelaySeconds ?? source.rate.crawl_delay_s ?? 0) * 1000;
+    await this.#limiter.acquire(host, Math.max(rpsIntervalMs, crawlDelayMs));
+
+    const res = await globalThis.fetch(target, {
+      headers: { 'user-agent': source.user_agent, accept: '*/*' },
+      redirect: 'follow',
+    });
+    const buf = Buffer.from(await res.arrayBuffer());
+    // ⛔ Status is NOT the health signal here either — a CivicPlus 200 can be a
+    // "document not found" HTML page. The caller's parser asserts the shape.
+    return { url: target, status: res.status, body: buf, bytes: buf.byteLength };
+  }
+
   async fetchPointService(
     service: PointService,
     params: Record<string, string>,

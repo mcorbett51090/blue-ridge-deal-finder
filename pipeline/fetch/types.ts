@@ -23,7 +23,20 @@ const Sha256OrNull = z
 
 export const ControlQuerySchema = z.object({
   where: z.string().min(1),
-  returnCountOnly: z.literal(true),
+  /**
+   * `true` for a QUERY source, where the control is a row count.
+   *
+   * A DOCUMENT source (a county PDF) has no query interface, so its control is
+   * a property of the document itself — "has a text layer" versus "is a scanned
+   * image" — and there is no count to return. Forcing `true` here would have
+   * meant writing a literal that is not true of the source, which is the kind
+   * of small lie that makes a registry stop being evidence.
+   *
+   * The control is not weaker for being different: `parseJacksonReo` throws on
+   * a scanned document, on a short extraction, and on any mismatch between the
+   * PIN count and the parsed row count.
+   */
+  returnCountOnly: z.literal(true).optional(),
   expect_count: z.number().int().nonnegative(),
 });
 
@@ -78,6 +91,9 @@ export const SourceSchema = z.object({
   user_agent: z.string().min(1),
   control_block: ControlBlockSchema,
   expect: ExpectSchema,
+  /** For a query source: the digest of the layer's sorted field set. For a
+   *  DOCUMENT source: the sha256 of the document bytes — a change there is
+   *  exactly the drift signal that matters, since the layout IS the schema. */
   schema_fingerprint: Sha256OrNull,
   enabled: z.boolean(),
 });

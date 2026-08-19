@@ -134,7 +134,12 @@ test('⛔ every published score is exactly what its breakdown derives', () => {
 
   // CONTROL: mutate ONE signal's weight on ONE row. The site fails its build on
   // this; so must we, two systems earlier.
-  const victim = structuredClone(rows[0]!);
+  // Same reason as below: rows[0] is now an unscored Lane-1 row with NO scored
+  // signal to mutate, so the control would have had nothing to corrupt and
+  // would have passed by doing nothing.
+  const victim = structuredClone(
+    rows.find((x) => x.score_breakdown.signals.some((s) => s.value !== null))!,
+  );
   const scored = victim.score_breakdown.signals.find((s) => s.value !== null)!;
   scored.weight += 7;
   assert.throws(
@@ -153,7 +158,13 @@ test('⛔ every published score is exactly what its breakdown derives', () => {
 
 test('unknown signals are excluded from the denominator in the PUBLISHED payload', () => {
   const rows = JSON.parse(readFileSync(PUBLISHED, 'utf8')) as PublishedListing[];
-  const r = rows[0]!;
+  // ⛔ Do NOT take rows[0]. Lane-1 rows now sort first, and they are evidenced
+  // but UNSCORED — every Jackson County REO parcel is zero-valued by the county,
+  // so it has no measurable signal at all and `score` is null. This test is
+  // about the denominator of a row that HAS a score; pick one explicitly and
+  // assert that such a row exists, rather than assuming a position.
+  const r = rows.find((x) => typeof x.score === 'number' && x.score_breakdown.signals.some((s) => s.value === null));
+  assert.ok(r, 'the corpus must contain a row that is scored AND has an unknown, or this test is vacuous');
   const unknowns = r.score_breakdown.signals.filter((s) => s.value === null);
   assert.ok(unknowns.length > 0, 'the real corpus has unknowns — if not, this test is vacuous');
   assert.equal(

@@ -52,7 +52,19 @@ export type PublishedListing = {
   score: number | null;
   score_breakdown: { signals: PublishedSignal[]; denominator: number; unknown_count: number };
   confidence: number;
-  for_sale_evidence: null;
+  /** Non-null moves the row into LANE 1. Null is Lane 2 (prospecting). This is
+   *  the single field that separates "a property exists" from "you can buy it". */
+  for_sale_evidence: {
+    kind: string;
+    label: string;
+    price_usd: number | null;
+    observed_at: string;
+    since: string | null;
+    record_url: string | null;
+    generic_url: string | null;
+    generic_label: string | null;
+    how_to_verify: string;
+  } | null;
   /** `null` means NOT MEASURED. It never means "no water" — see publish/run.ts. */
   water: {
     has_stream: boolean; has_river: boolean; has_pond: boolean; distance_m: number | null;
@@ -125,6 +137,8 @@ function toSignal(c: ScoreComponent): PublishedSignal {
 }
 
 export type ToListingContext = {
+  /** From data/distress/evidence.json, keyed by record_id. */
+  forSaleEvidence?: PublishedListing['for_sale_evidence'];
   provenance: Provenance;
   reappraisalYear: number | null;
   /** `null` means NOT MEASURED. It never means "no water" — see publish/run.ts. */
@@ -163,7 +177,7 @@ export function toListing(s: ScoredParcel & { rank: number | null }, ctx: ToList
       unknown_count: signals.filter((x) => x.value === null).length,
     },
     confidence: s.confidence,
-    for_sale_evidence: null,
+    for_sale_evidence: ctx.forSaleEvidence ?? null,
     water: ctx.water,
     flood_zone: ctx.floodZone,
     parcel_use: p.parusedesc.trim() === '' ? 'Unclassified — county publishes no use code' : p.parusedesc.trim(),

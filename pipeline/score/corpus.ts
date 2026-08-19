@@ -68,6 +68,8 @@ export type ScoreTallies = {
 };
 
 export type ScoreCorpusOptions = {
+  /** Warehouse record_ids a county has published as for sale. */
+  forSale?: ReadonlySet<string>;
   cfg: ScoreConfig;
   enrichment: Enrichment;
   now: Date;
@@ -114,6 +116,9 @@ export function scoreCorpus(
   opts: ScoreCorpusOptions,
 ): { scored: ScoredParcel[]; cohorts: CohortIndex; tallies: ScoreTallies } {
   const { cfg, enrichment, now } = opts;
+  // Record ids a county has published as available. Empty set = no distress
+  // ingest has run, which is not the same as "nothing is for sale".
+  const forSale = opts.forSale ?? new Set<string>();
   const signalRows = rows.map(toSignalRow);
   const floors = detectValueFloors(signalRows, cfg.per_acre.min_cohort);
   const cohorts = buildCohorts(signalRows, cfg, floors);
@@ -146,7 +151,11 @@ export function scoreCorpus(
     }
 
     const result = rollUp(components);
-    const gates = evaluateGates(row, cfg, patterns);
+    const gates = evaluateGates(
+      { ...row, has_for_sale_evidence: forSale.has(row.record_id) },
+      cfg,
+      patterns,
+    );
     const vetoed = isVetoed(gates);
     const reasons = vetoReasons(gates);
     for (const r of reasons) vetoByReason[r] = (vetoByReason[r] ?? 0) + 1;

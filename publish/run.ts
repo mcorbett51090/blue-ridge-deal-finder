@@ -19,7 +19,7 @@
  * dropped the failing rows would be a payload that looks clean because the
  * evidence of the problem was removed from it.
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadWeights, assertWeightsSumTo100 } from '../pipeline/score/config.ts';
@@ -73,7 +73,22 @@ async function main(): Promise<void> {
     return { url: src.url, retrieved_at: row.last_seen, kind: 'arcgis-parcel-layer' };
   };
 
-  const { scored, tallies } = scoreCorpus(wh.parcels, { cfg, enrichment, now, parcelSourceOf });
+  // ⛔ An ABSENT distress file is "no distress ingest has run", NOT "no
+  // distressed properties exist". The two are different and only one is a fact
+  // about the counties. Lane 1's empty state already says which.
+  const distressPath = join(ROOT, 'data/distress/evidence.json');
+  const distressEvidence: Record<string, PublishedListing['for_sale_evidence']> = existsSync(distressPath)
+    ? (JSON.parse(readFileSync(distressPath, 'utf8')).evidence ?? {})
+    : {};
+  const forSaleIds = new Set(Object.keys(distressEvidence));
+
+  const { scored, tallies } = scoreCorpus(wh.parcels, {
+    cfg,
+    enrichment,
+    now,
+    parcelSourceOf,
+    forSale: forSaleIds,
+  });
 
   const ranked = topN(scored, topLimit);
 
@@ -95,7 +110,20 @@ async function main(): Promise<void> {
     .sort((a, b) => (b.row.acreage ?? 0) - (a.row.acreage ?? 0))
     .slice(0, tnLimit);
 
-  const candidates = [...ranked, ...tnSlice];
+  // ── LANE 1 ALWAYS SHIPS ──────────────────────────────────────────────────
+  // A row with for-sale evidence is the entire point of the product, and it must
+  // never be dropped for being unrankable. All 8 Jackson County REO parcels are
+  // exactly that: the county zero-values property it owns, so they have no
+  // scoreable signal and topN() excluded every one of them. The distress ingest
+  // would have run correctly, matched 8 of 8 PINs, and produced an empty Lane 1.
+  const evidenced = scored.filter((c) => forSaleIds.has(c.row.record_id));
+
+  const seen = new Set<string>();
+  const candidates = [...evidenced, ...ranked, ...tnSlice].filter((c) => {
+    if (seen.has(c.row.record_id)) return false;
+    seen.add(c.row.record_id);
+    return true;
+  });
   const allowlist = loadAllowlist(ROOT);
 
   const listings: PublishedListing[] = [];
@@ -114,11 +142,13 @@ async function main(): Promise<void> {
       src,
       registry.denials,
     );
+    const distress = distressEvidence[c.row.record_id] ?? null;
     const water = enrichment.water.get(c.row.record_id);
     const liv = enrichment.livability.get(c.row.record_id);
     const listing = toListing(c, {
       provenance,
       reappraisalYear: vintage.byFips.get(c.row.fips)?.next_reappraisal_year ?? null,
+      forSaleEvidence: distress,
       water: water
         ? {
             has_stream: water.has_stream,
