@@ -297,7 +297,16 @@ const coverageLite = coverage.map((c) => ({
       if (filters.state !== 'all' && d.state !== filters.state) return false;
       if (filters.county !== 'all' && d.fips !== filters.county) return false;
       if (filters.use !== 'all' && d.use !== filters.use) return false;
-      if (Number(d.score || '0') < filters.minScore) return false;
+      // UNKNOWN score is excluded once the reader asks for a minimum — the same
+      // rule as acreage below, for the same reason: an unscored parcel is not a
+      // low-scoring one. The old `Number(d.score || '0')` read the STRING
+      // "null" (data-score used to stringify null), so it produced NaN, and
+      // every NaN comparison is false — the floor excluded nothing at all.
+      // Measured before the fix: minScore 90 left 658 of 658 rows visible.
+      if (filters.minScore > 0) {
+        if (d.score === '' || d.score === undefined) return false;
+        if (Number(d.score) < filters.minScore) return false;
+      }
 
       // UNKNOWN acreage passes at minAcres 0 and is excluded above it. An
       // unknown is not a small parcel, and it is not a large one either — the
@@ -589,6 +598,27 @@ const coverageLite = coverage.map((c) => ({
         for (const o of document.querySelectorAll<HTMLButtonElement>('[data-view-btn]')) {
           o.setAttribute('aria-pressed', String(o.dataset.viewBtn === v));
         }
+      });
+    }
+
+    // ---- The map handshake -------------------------------------------------
+    // DealMap registers its `brdf:filtered` listener INSIDE an async dynamic
+    // import, so it is provably not listening when the initial applyFilter()
+    // below fires. Without this the map rendered all 658 parcels while the list
+    // showed the 8 Lane-1 rows — the two lanes visibly mixed under a rail that
+    // said 'On market / in distress', which is the one thing this page must
+    // never do. The map announces itself; we re-send the current predicate.
+    window.addEventListener('brdf:mapready', () => applyFilter(true), { once: true });
+
+    // List -> map, the inverse of brdf:pinclick. DealMap has always listened
+    // for `brdf:focus`; nothing ever dispatched it, so that listener was dead
+    // code promising a feature that did not exist. Interactive descendants keep
+    // their own behaviour — a card click is only a focus when it is not a link.
+    for (const card of cards) {
+      card.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement)?.closest('a, button, input, select, summary')) return;
+        const id = card.dataset.id;
+        if (id) window.dispatchEvent(new CustomEvent('brdf:focus', { detail: { id } }));
       });
     }
 

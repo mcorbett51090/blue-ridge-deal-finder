@@ -96,8 +96,13 @@ export interface Listing {
   assessed_value: number | null;
   /** Asking / opening price where one exists. null = unknown or not for sale. */
   price: number | null;
-  /** 0..100, recomputed and cross-checked against score_breakdown by the gate. */
-  score: number;
+  /** 0..100, recomputed and cross-checked against score_breakdown by the gate.
+   *  `null` when NOTHING was measurable — every signal unknown, denominator 0.
+   *  This is REAL and common: all 150 East Tennessee rows and all 8 Lane-1
+   *  rows are null today. Typing it `number` is what let `String(l.score)`
+   *  emit the string "null" into data-score, where Number() turned it into
+   *  NaN and every filter comparison silently went false. */
+  score: number | null;
   score_breakdown: ScoreBreakdown;
   for_sale_evidence: ForSaleEvidence | null;
   /** `null` = NOT MEASURED (the parcel was never enriched). It NEVER means

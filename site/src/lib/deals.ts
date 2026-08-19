@@ -206,7 +206,12 @@ export function inFloodplain(l: Listing): boolean | null {
   return !/^(X|C|B)$/i.test(l.flood_zone);
 }
 
-export const sorted = [...listings].sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+/** Unscored rows sort LAST, and explicitly so. `b.score - a.score` coerced
+ *  null to 0 via arithmetic — right answer, wrong reason, and it would have
+ *  silently reversed the day a negative score became possible. */
+export const sorted = [...listings].sort(
+  (a, b) => (b.score ?? -1) - (a.score ?? -1) || a.id.localeCompare(b.id),
+);
 
 export function byLane(lane: Lane): Listing[] {
   return sorted.filter((l) => laneOf(l) === lane);
@@ -231,7 +236,9 @@ export interface DealFeatureProps {
   fips: string;
   lane: Lane;
   tier: CoverageTier | 'uncovered';
-  score: number;
+  /** null = not scored. The map's step expressions assert-with-fallback on
+   *  this rather than coercing — see stepOrUnknown in DealMap.astro. */
+  score: number | null;
   water: 0 | 1;
   waterUnknown: 0 | 1;
   acres: number | null;

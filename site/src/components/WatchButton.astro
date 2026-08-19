@@ -14,7 +14,7 @@ interface Props {
   id: string;
   county: string;
   state: string;
-  score: number;
+  score: number | null;
   variant?: 'full' | 'compact';
 }
 const { id, county, state, score, variant = 'compact' } = Astro.props;
@@ -28,7 +28,7 @@ const { id, county, state, score, variant = 'compact' } = Astro.props;
   data-id={id}
   data-county={county}
   data-state-code={state}
-  data-score={String(score)}
+  data-score={score === null ? '' : String(score)}
   aria-pressed="false"
 >
   <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">

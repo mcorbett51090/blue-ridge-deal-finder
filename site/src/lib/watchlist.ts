@@ -45,7 +45,11 @@ export interface WatchItem {
   state: string;
   /** Score AT THE TIME IT WAS SAVED. Kept so a row that later leaves the payload
    *  can still show something true about why it was saved. */
-  score: number;
+  /** null = NOT SCORED. Never 0. `String(null)` reached data-score as the
+   *  string "null", Number() made it NaN, and the guard below then rewrote
+   *  NaN to 0 — so every unscored property (all 8 Lane-1 rows, all 150 TN
+   *  rows) was saved to the watchlist and rendered as a hard score of 0. */
+  score: number | null;
   savedAt: string;
 }
 
@@ -66,7 +70,7 @@ function coerce(i: unknown): WatchItem | null {
     id: o.id,
     county: typeof o.county === 'string' ? o.county : '',
     state: typeof o.state === 'string' ? o.state : '',
-    score: typeof o.score === 'number' && Number.isFinite(o.score) ? o.score : 0,
+    score: typeof o.score === 'number' && Number.isFinite(o.score) ? o.score : null,
     savedAt: typeof o.savedAt === 'string' ? o.savedAt : '',
   };
 }

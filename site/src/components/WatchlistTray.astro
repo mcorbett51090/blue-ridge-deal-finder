@@ -157,7 +157,7 @@ const publishedIds = sorted.map((l) => l.id);
           li.appendChild(a);
           const s = document.createElement('span');
           s.className = 'wl-score num';
-          s.textContent = String(it.score);
+          s.textContent = it.score === null ? 'Not scored' : String(it.score);
           li.appendChild(s);
         } else {
           // NOT a dead link. The property left the published candidate set —
@@ -168,7 +168,10 @@ const publishedIds = sorted.map((l) => l.id);
           li.appendChild(span);
           const why = document.createElement('span');
           why.className = 'wl-why';
-          why.textContent = `no longer scored — it left the published set (was ${it.score})`;
+          why.textContent =
+            it.score === null
+              ? 'no longer in the published set — it was never scored'
+              : `no longer scored — it left the published set (was ${it.score})`;
           li.appendChild(why);
         }
 
@@ -206,7 +209,8 @@ const publishedIds = sorted.map((l) => l.id);
         id: btn.dataset.id || '',
         county: btn.dataset.county || '',
         state: btn.dataset.stateCode || '',
-        score: Number(btn.dataset.score || '0'),
+        // '' is the wire spelling of unknown (WatchButton emits it for null).
+        score: btn.dataset.score ? Number(btn.dataset.score) : null,
       });
       // All four states, distinctly. 'failed' is NOT 'removed'.
       if (res === 'added') say('Added to your watchlist.');

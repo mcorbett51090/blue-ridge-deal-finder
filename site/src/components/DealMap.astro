@@ -338,7 +338,21 @@ const payload = JSON.stringify({ fc, bounds: bb });
         // a cluster painted by count tells you where the data is dense, which is
         // not the question anyone is asking.
         clusterProperties: {
-          maxScore: ['max', ['get', 'score']],
+          // ⛔ ASSERT, never a bare ['get']. The original was
+          // ['max', ['get', 'score']], and `max` cannot take the null that 158
+          // of 658 rows carry: ONE unscored parcel poisoned its whole cluster,
+          // so 14 of 15 clusters painted 'Not scored' while covering 500 SCORED
+          // parcels — the map's primary signal, silently inverted. Same
+          // assert-with-fallback rule as stepOrUnknown above: -1 loses to any
+          // real score, so a cluster takes the colour of the best thing KNOWN
+          // to be inside it, and an all-unknown cluster stays honestly grey.
+          // Verified 2026-08-19 by rendered output, not by console silence:
+          // NC clusters went grey -> teal while TN (genuinely unscored) stayed
+          // grey. NOTE: an unrelated, identical-looking
+          // 'Expected value to be of type number' warning comes from the
+          // OpenFreeMap basemap's OWN layer filters at z>~12 and is NOT ours —
+          // reproduced with zero deal features on the map.
+          maxScore: ['max', ['number', ['get', 'score'], -1]],
           waterCount: ['+', ['case', ['==', ['get', 'water'], 1], 1, 0]],
         },
       });
@@ -448,6 +462,13 @@ const payload = JSON.stringify({ fc, bounds: bb });
         map.on('mouseenter', layer, () => (map.getCanvas().style.cursor = 'pointer'));
         map.on('mouseleave', layer, () => (map.getCanvas().style.cursor = ''));
       }
+
+      // ⛔ Announce readiness LAST, once the source and every layer exist.
+      // This import is dynamic, so the page's first applyFilter() has already
+      // run and its `brdf:filtered` event is gone. Without this handshake the
+      // map keeps showing the UNFILTERED set — measured: 658 dots under a list
+      // reading 'Showing 8 on-market records'.
+      window.dispatchEvent(new CustomEvent('brdf:mapready'));
     });
 
     map.on('error', (e) => {

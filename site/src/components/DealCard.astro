@@ -85,7 +85,7 @@ const vintage = (() => {
   data-state={l.state}
   data-lane={lane}
   data-tier={tier ?? 'uncovered'}
-  data-score={String(l.score)}
+  data-score={l.score === null ? '' : String(l.score)}
   data-acres={l.acres === null ? '' : String(l.acres)}
   data-value={l.assessed_value === null ? '' : String(l.assessed_value)}
   data-price={l.price === null ? '' : String(l.price)}
