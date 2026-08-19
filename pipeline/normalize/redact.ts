@@ -31,6 +31,14 @@ export const PII_FIELDS = [
   'mcity',
   'mstate',
   'mzip',
+  // ⛔ Tennessee. The TN statewide layer names its owner columns `OWNER` and
+  // `OWNER2` — uppercase, and neither string appears in the NC list above.
+  // Matching here is case-insensitive (see `k.toLowerCase()` below), so the
+  // casing was never the risk; the ABSENCE was. Without these two entries every
+  // TN parcel would have carried an owner name through the redaction boundary
+  // into the warehouse, the event log and the published payload.
+  'owner',
+  'owner2',
 ] as const;
 
 export type PiiField = (typeof PII_FIELDS)[number];

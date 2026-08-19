@@ -171,13 +171,13 @@
     "region": "East TN",
     "tier": "partial",
     "parcel_source": "tn-property-boundaries",
-    "data_state": "not-run",
-    "rows": null,
-    "published": 0,
+    "data_state": "ingested",
+    "rows": 70606,
+    "published": 43,
     "scorable": 0,
-    "ledger_status": null,
-    "last_ingested_at": null,
-    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
+    "ledger_status": "complete",
+    "last_ingested_at": "2026-08-19T17:36:09.169Z",
+    "note": "Collected and scored — the rows below are published from real parcel records. (Source note: no assessed value; TPAD hop unsettled)"
   },
   {
     "fips": "47029",
@@ -186,13 +186,13 @@
     "region": "East TN",
     "tier": "partial",
     "parcel_source": "tn-property-boundaries",
-    "data_state": "not-run",
-    "rows": null,
-    "published": 0,
+    "data_state": "ingested",
+    "rows": 25259,
+    "published": 47,
     "scorable": 0,
-    "ledger_status": null,
-    "last_ingested_at": null,
-    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
+    "ledger_status": "complete",
+    "last_ingested_at": "2026-08-19T17:36:09.169Z",
+    "note": "Collected and scored — the rows below are published from real parcel records. (Source note: no assessed value; TPAD hop unsettled)"
   },
   {
     "fips": "47171",
@@ -201,13 +201,13 @@
     "region": "East TN",
     "tier": "partial",
     "parcel_source": "tn-property-boundaries",
-    "data_state": "not-run",
-    "rows": null,
-    "published": 0,
+    "data_state": "ingested",
+    "rows": 10301,
+    "published": 9,
     "scorable": 0,
-    "ledger_status": null,
-    "last_ingested_at": null,
-    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
+    "ledger_status": "complete",
+    "last_ingested_at": "2026-08-19T17:36:09.169Z",
+    "note": "Collected and scored — the rows below are published from real parcel records. (Source note: no assessed value; TPAD hop unsettled)"
   },
   {
     "fips": "47091",
@@ -216,13 +216,13 @@
     "region": "East TN",
     "tier": "partial",
     "parcel_source": "tn-property-boundaries",
-    "data_state": "not-run",
-    "rows": null,
-    "published": 0,
+    "data_state": "ingested",
+    "rows": 14175,
+    "published": 34,
     "scorable": 0,
-    "ledger_status": null,
-    "last_ingested_at": null,
-    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
+    "ledger_status": "complete",
+    "last_ingested_at": "2026-08-19T17:36:09.169Z",
+    "note": "Collected and scored — the rows below are published from real parcel records. (Source note: no assessed value; TPAD hop unsettled)"
   },
   {
     "fips": "47019",
@@ -231,13 +231,13 @@
     "region": "East TN",
     "tier": "partial",
     "parcel_source": "tn-property-boundaries",
-    "data_state": "not-run",
-    "rows": null,
-    "published": 0,
+    "data_state": "ingested",
+    "rows": 31980,
+    "published": 17,
     "scorable": 0,
-    "ledger_status": null,
-    "last_ingested_at": null,
-    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
+    "ledger_status": "complete",
+    "last_ingested_at": "2026-08-19T17:36:09.169Z",
+    "note": "Collected and scored — the rows below are published from real parcel records. (Source note: no assessed value; TPAD hop unsettled)"
   },
   {
     "fips": "51125",

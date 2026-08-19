@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-08-19T17:21:52.875Z",
+  "generated_at": "2026-08-19T17:43:51.679Z",
   "warehouse": {
     "file": "warehouse-2026-08-19T15-48-58.sqlite",
     "sha256": "baf17b77015ea527b5b5c29669d8b408ddf56476a28def8858823311d6c1409e",
     "written_at": "2026-08-19T15:53:06.288Z"
   },
   "run_id": "2026-08-19T15-48-58",
-  "corpus_rows": 235421,
-  "published_rows": 500,
+  "corpus_rows": 387742,
+  "published_rows": 650,
   "excluded": {
-    "vetoed": 11314,
-    "no_scorable_signal": 26142,
-    "ranked_below_cutoff": 197465,
+    "vetoed": 12233,
+    "no_scorable_signal": 177544,
+    "ranked_below_cutoff": 197315,
     "cutoff": 500
   },
   "signals": {
@@ -21,17 +21,17 @@
       "livability": 4
     },
     "unknown": {
-      "discount": 235421,
-      "distress": 235421,
-      "water": 235396,
-      "livability": 235417,
-      "per_acre": 28922
+      "discount": 387742,
+      "distress": 387742,
+      "water": 387717,
+      "livability": 387738,
+      "per_acre": 181243
     }
   },
   "veto_by_reason": {
-    "acreage_below_min": 7289,
+    "acreage_below_min": 8009,
     "owner_is_government": 3492,
-    "situs_excluded": 616,
+    "situs_excluded": 815,
     "use_class_excluded": 1773
   },
   "cohorts": {
@@ -61,10 +61,10 @@
   },
   "provenance": {
     "with_record_url": 500,
-    "with_how_to_verify": 0
+    "with_how_to_verify": 150
   },
   "geometry": {
-    "rows_with_coordinates": 500,
+    "rows_with_coordinates": 650,
     "note": "The parcel ingest stores attributes only — lat/lng and bbox are NULL on every warehouse row, so no published row can be placed on the map yet. Published as null with a stated reason, never as 0,0."
   }
 }

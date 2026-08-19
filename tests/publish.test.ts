@@ -168,8 +168,12 @@ test('unknown signals are excluded from the denominator in the PUBLISHED payload
   const naive = Math.round(
     (all.reduce((a, s) => a + s.weight * (s.value ?? 0), 0) / all.reduce((a, s) => a + s.weight, 0)) * 100,
   );
+  // This fixture HAS scored signals, so a real number is expected here — the
+  // assertion states that rather than assuming it, because deriveScore now
+  // returns null for a row with nothing measurable.
+  assert.equal(typeof r.score, 'number', 'fixture must have at least one scored signal');
   assert.notEqual(naive, r.score);
-  assert.ok(naive < r.score);
+  assert.ok(naive < (r.score as number));
   assert.equal(deriveScore(r.score_breakdown.signals), r.score);
 });
 
@@ -276,4 +280,29 @@ test('the published coverage file on disk carries all 37 counties and every stat
   const states = new Set(doc.counties.map((c) => c.data_state));
   assert.ok(states.has('no-source') && states.has('not-run') && states.has('ingested'), [...states].join(','));
   for (const c of doc.counties) assert.ok(c.note.trim() !== '', `${c.fips} has an empty note`);
+});
+
+// ---------------------------------------------------------------------------
+test('zero measurable signals scores NULL, not 0', () => {
+  // Measured case: every East Tennessee parcel. TN's statewide layer publishes
+  // no assessed value, so discount (w30) and per_acre (w20) have no input, and
+  // with water unenriched a TN row has nothing scoreable at all. A 6,208-acre
+  // Unicoi County tract came out at score 0 — presented as the worst possible
+  // deal when the truth is that it cannot be scored.
+  const none = [
+    { id: 'discount', name: 'Discount', value: null, weight: 30, effective_weight: 30, contribution: 0, unknown_reason: 'no assessed value in TN' },
+    { id: 'per_acre', name: '$/acre', value: null, weight: 20, effective_weight: 20, contribution: 0, unknown_reason: 'needs value' },
+    { id: 'water', name: 'Water', value: null, weight: 15, effective_weight: 15, contribution: 0, unknown_reason: 'not enriched' },
+  ] as unknown as Parameters<typeof deriveScore>[0];
+  assert.equal(deriveScore(none), null);
+});
+
+test('CONTROL — one measurable signal still scores a NUMBER', () => {
+  // Without this, the assertion above would also pass if deriveScore returned
+  // null unconditionally.
+  const one = [
+    { id: 'discount', name: 'Discount', value: null, weight: 30, effective_weight: 30, contribution: 0, unknown_reason: 'x' },
+    { id: 'per_acre', name: '$/acre', value: 0.5, weight: 20, effective_weight: 20, contribution: 10, unknown_reason: null },
+  ] as unknown as Parameters<typeof deriveScore>[0];
+  assert.equal(deriveScore(one), 50);
 });

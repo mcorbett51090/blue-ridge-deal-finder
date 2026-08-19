@@ -22,10 +22,17 @@ const MAX_EVIDENCE_AGE_DAYS = 90; // re-evidenced every 30; 90 is the hard fail
 const MAX_RPS = 2.0;
 const TIER_ENUM_RICH = 'rich';
 
-/** E6.1 — the POINT layer. Its attribute table mirrors the polygon layer's, so
- *  every attribute test passes while three of five deal signals go silently
- *  uncomputable. It must never appear in the registry. */
-const POINT_LAYER_MARKER = 'FeatureServer/0';
+/** E6.1 — the NC POINT layer. Its attribute table mirrors the polygon layer's,
+ *  so every attribute test passes while three of five deal signals go silently
+ *  uncomputable.
+ *
+ *  ⛔ The marker is the SPECIFIC layer, not the path segment. `FeatureServer/0`
+ *  just means "layer 0 of a feature server" in every ArcGIS URL ever published
+ *  and says nothing about geometry — Tennessee's layer 0 is polygons. Matching
+ *  the bare segment produced a false positive that would have blocked a
+ *  legitimate source permanently, and the pressure that creates is to weaken or
+ *  delete the check. A guard that cries wolf gets removed. */
+const POINT_LAYER_MARKER = 'NC1Map_Parcels/FeatureServer/0';
 
 function loadYamlFile(path) {
   if (!existsSync(path)) {

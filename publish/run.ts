@@ -48,6 +48,8 @@ const DEFAULT_TOP_N = 500;
 
 async function main(): Promise<void> {
   const topLimit = Number(arg('--top', String(DEFAULT_TOP_N)));
+  // A visible slice, not a ranking — see the TN block below.
+  const tnLimit = 150;
   const now = new Date();
 
   const cfg = loadWeights(ROOT);
@@ -73,7 +75,27 @@ async function main(): Promise<void> {
 
   const { scored, tallies } = scoreCorpus(wh.parcels, { cfg, enrichment, now, parcelSourceOf });
 
-  const candidates = topN(scored, topLimit);
+  const ranked = topN(scored, topLimit);
+
+  // ── EAST TENNESSEE ──────────────────────────────────────────────────────
+  // TN rows are UNRANKABLE, and for a structural reason rather than a per-row
+  // failure: the statewide layer publishes no assessed value at all, so
+  // `discount` (weight 30) and `per_acre` (20) — half the scoring weight — have
+  // no input. topN() excludes unrankable rows by design, which is right for a
+  // NC parcel we simply could not score, and wrong for an entire state the
+  // owner named as a priority region: it would make East Tennessee silently
+  // absent from a map that claims to cover it.
+  //
+  // So TN ships as its own slice, ordered by the one signal TN does publish —
+  // deeded acreage — with `score: null` and the reason attached. Ordering by
+  // acreage is NOT a ranking and must never be read as one; it is "biggest
+  // first" because that is the only axis available, and the card says so.
+  const tnSlice = scored
+    .filter((c) => c.row.state === 'TN' && c.row.acreage !== null && !c.vetoed)
+    .sort((a, b) => (b.row.acreage ?? 0) - (a.row.acreage ?? 0))
+    .slice(0, tnLimit);
+
+  const candidates = [...ranked, ...tnSlice];
   const allowlist = loadAllowlist(ROOT);
 
   const listings: PublishedListing[] = [];

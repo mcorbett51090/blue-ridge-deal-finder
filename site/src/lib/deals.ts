@@ -48,10 +48,13 @@ export const status = rawStatus as unknown as StatusPayload;
  *  are excluded from the DENOMINATOR — they are never scored 0. That is the
  *  difference between "we don't know" and "it's bad", and conflating them is
  *  the single easiest way for this site to lie. */
-export function deriveScore(bd: ScoreBreakdown): number {
+export function deriveScore(bd: ScoreBreakdown): number | null {
   const scored = bd.signals.filter((s) => s.value !== null);
   const denom = scored.reduce((a, s) => a + s.weight, 0);
-  if (denom === 0) return 0;
+  // Mirrors publish/payload.ts exactly. A build gate recomputes the score from
+  // the breakdown and fails on disagreement, so these two must stay identical —
+  // that gate is why the null had to change in both places at once.
+  if (denom === 0) return null;
   const num = scored.reduce((a, s) => a + s.weight * (s.value as number), 0);
   return Math.round((num / denom) * 100);
 }

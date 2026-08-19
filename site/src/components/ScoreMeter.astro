@@ -16,7 +16,8 @@ import type { ScoreBreakdown } from '../lib/types';
 import { isLowEvidence } from '../lib/deals';
 
 interface Props {
-  score: number;
+  /** `null` when NOTHING was measurable — not 0. See the null branch below. */
+  score: number | null;
   breakdown: ScoreBreakdown;
   confidence?: number | undefined;
   variant?: 'card' | 'detail';
@@ -28,7 +29,10 @@ const unknown = breakdown.signals.filter((s) => s.value === null);
 const total = breakdown.signals.length;
 const low = isLowEvidence(breakdown);
 /** Bucket 1..5 for the colour ramp. Colour is a hint; the number is the fact. */
-const band = Math.min(5, Math.max(1, Math.ceil(score / 20) || 1));
+const unscored = score === null;
+// `data-band` drives the colour ramp; an unscored row gets its own band so it
+// is visually off-ramp rather than painted as the lowest score.
+const band = unscored ? 0 : Math.min(5, Math.max(1, Math.ceil(score / 20) || 1));
 
 const contributions = scored
   .map((s) => ({
@@ -45,19 +49,43 @@ const contributions = scored
 
 <div class={`sm sm--${variant}`} data-band={band}>
   <div class="sm__head">
-    <span class="sm__val num" aria-hidden="true">{score}</span>
-    <span class="visually-hidden">Score {score} out of 100.</span>
+    {/* ⛔ An unscored row must never render a bare blank where a number goes —
+        that reads as a broken render, not as an honest absence. Measured case:
+        every East Tennessee parcel, because the state publishes no assessed
+        value, so discount (w30) and per_acre (w20) have no input at all. */}
+    <span class="sm__val num" aria-hidden="true">{unscored ? '—' : score}</span>
+    <span class="visually-hidden">
+      {unscored
+        ? 'Not scored: none of the signals could be measured for this parcel.'
+        : `Score ${score} out of 100.`}
+    </span>
     <span class="sm__of">
-      <span class="sm__bar" aria-hidden="true"><span style={`width:${score}%`}></span></span>
+      {/* A 0-width bar for an unscored row would look identical to a genuine
+          score of 0 — the exact confusion this whole change removes. */}
+      <span class="sm__bar" aria-hidden="true">
+        {!unscored && <span style={`width:${score}%`}></span>}
+      </span>
       <span class="sm__meta">
-        scored from <strong class="num">{scored.length}</strong> of <strong class="num">{total}</strong> signals
+        {unscored
+          ? 'not scored — no signal could be measured'
+          : <>scored from <strong class="num">{scored.length}</strong> of <strong class="num">{total}</strong> signals</>}
         {confidence !== undefined && <> · confidence <strong class="num">{Math.round(confidence * 100)}%</strong></>}
       </span>
     </span>
   </div>
 
   {
-    low && (
+    unscored && (
+      <p class="sm__low">
+        Not scored. Every signal is unknown for this parcel — for East Tennessee that is structural:
+        the state's parcel layer publishes no assessed value, so discount and $/acre have no input at
+        all. This is not a low score; it is the absence of one.
+      </p>
+    )
+  }
+
+  {
+    !unscored && low && (
       <p class="sm__low">
         Low evidence — {unknown.length} of {total} signals are unknown for this parcel. The score is
         computed only over what is known; it is not a claim that the unknown parts are bad.

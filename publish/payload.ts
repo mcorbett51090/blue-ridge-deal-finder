@@ -44,7 +44,12 @@ export type PublishedListing = {
   acres: number | null;
   assessed_value: number | null;
   price: number | null;
-  score: number;
+  /** `null` when ZERO signals were measurable. Not 0 — a 0 sits at the bottom
+   *  of a sort with the same authority as a measured bad deal, and this project
+   *  has fixed that same confusion in value, acreage, water and flood already.
+   *  A 6,208-acre Unicoi County parcel scoring 0 because Tennessee publishes no
+   *  assessed value is the clearest case of it. */
+  score: number | null;
   score_breakdown: { signals: PublishedSignal[]; denominator: number; unknown_count: number };
   confidence: number;
   for_sale_evidence: null;
@@ -72,7 +77,11 @@ export type PublishedListing = {
   owner_out_of_state: boolean | null;
   owner_is_entity: boolean | null;
   tenure_years: number | null;
-  rank: number;
+  /** `null` for a row that is VISIBLE but not RANKED — the East Tennessee
+   *  slice, ordered by acreage because no scoreable signal exists there. A
+   *  number here is a position in the ranking; null means "shown, not ranked",
+   *  and the two must never be conflated. */
+  rank: number | null;
 };
 
 const LABELS: Record<string, string> = {
@@ -84,10 +93,14 @@ const LABELS: Record<string, string> = {
 };
 
 /** The site's formula, verbatim (site/src/lib/deals.ts + verify-data.mjs #6). */
-export function deriveScore(signals: readonly PublishedSignal[]): number {
+export function deriveScore(signals: readonly PublishedSignal[]): number | null {
   const scored = signals.filter((s) => s.value !== null);
   const denom = scored.reduce((a, s) => a + s.weight, 0);
-  if (denom === 0) return 0;
+  // ⛔ null, NOT 0. Zero measurable signals means "we could not score this",
+  // and a 0 sorts among real scores reading as "measured, and terrible".
+  // Measured case: every East Tennessee parcel, because the state publishes no
+  // assessed value — a 6,208-acre Unicoi tract came out at 0.
+  if (denom === 0) return null;
   const num = scored.reduce((a, s) => a + s.weight * (s.value as number), 0);
   return Math.round((num / denom) * 100);
 }
@@ -123,7 +136,7 @@ export type ToListingContext = {
   floodZone: string | null;
 };
 
-export function toListing(s: ScoredParcel & { rank: number }, ctx: ToListingContext): PublishedListing {
+export function toListing(s: ScoredParcel & { rank: number | null }, ctx: ToListingContext): PublishedListing {
   const signals = s.components.map(toSignal);
   const score = deriveScore(signals);
   const p = s.row;
