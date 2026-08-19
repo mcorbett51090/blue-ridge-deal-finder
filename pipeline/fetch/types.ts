@@ -49,6 +49,11 @@ export const ExpectSchema = z.object({
 });
 
 export const SourceSchema = z.object({
+  /** What the source is FOR. Governs which layer geometry it may use:
+   *  `coordinates` is the only role permitted to read the points layer, and it
+   *  may not be used for attributes. Absent = attributes (the default and the
+   *  historical behaviour). */
+  role: z.enum(['attributes', 'coordinates']).optional(),
   id: z.string().min(1),
   kind: z.string().min(1),
   url: z.string().url(),

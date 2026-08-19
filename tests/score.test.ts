@@ -300,7 +300,9 @@ test('⛔ the administrative $100 floor is UNKNOWN, not the cheapest land in the
 test('water: a creek THROUGH the parcel scores 100; a creek 900 m away scores 0', () => {
   const src = { url: 'https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6', retrieved_at: '2026-08-19T00:00:00.000Z', kind: 'nhd-flowline' };
   const through = scoreWater(
-    { frontage_m: 212, min_dist_flowline_m: 0, min_dist_waterbody_m: null, waterbody_overlap_m2: null, has_stream: true, has_river: false, has_pond: false, source: src },
+    { frontage_m: 212, min_dist_flowline_m: 0, min_dist_waterbody_m: null, waterbody_overlap_m2: null,
+    named_waters: [],
+    frontage_by_regime_m: null, has_stream: true, has_river: false, has_pond: false, source: src },
     CFG, true,
   );
   assert.equal(through.status, 'scored');
@@ -308,7 +310,9 @@ test('water: a creek THROUGH the parcel scores 100; a creek 900 m away scores 0'
   assert.match(through.basis, /212 m/, 'the frontage LENGTH is stated, not just the fact of it');
 
   const farAway = scoreWater(
-    { frontage_m: 0, min_dist_flowline_m: 900, min_dist_waterbody_m: null, waterbody_overlap_m2: null, has_stream: false, has_river: false, has_pond: false, source: src },
+    { frontage_m: 0, min_dist_flowline_m: 900, min_dist_waterbody_m: null, waterbody_overlap_m2: null,
+    named_waters: [],
+    frontage_by_regime_m: null, has_stream: false, has_river: false, has_pond: false, source: src },
     CFG, true,
   );
   assert.equal(farAway.status, 'scored');
@@ -332,7 +336,9 @@ test('changing one weight moves the score and NOTHING structural', () => {
     water: new Map(
       rows.map((r) => [
         r.record_id,
-        { frontage_m: 100, min_dist_flowline_m: 0, min_dist_waterbody_m: null, waterbody_overlap_m2: null, has_stream: true, has_river: false, has_pond: false, source: { url: 'https://hydro.nationalmap.gov/x', retrieved_at: '2026-08-19T00:00:00.000Z', kind: 'nhd' } },
+        { frontage_m: 100, min_dist_flowline_m: 0, min_dist_waterbody_m: null, waterbody_overlap_m2: null,
+    named_waters: [],
+    frontage_by_regime_m: null, has_stream: true, has_river: false, has_pond: false, source: { url: 'https://hydro.nationalmap.gov/x', retrieved_at: '2026-08-19T00:00:00.000Z', kind: 'nhd' } },
       ]),
     ),
     present: { ...EMPTY_ENRICHMENT.present, water: true },

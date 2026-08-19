@@ -12,15 +12,14 @@
  *   • score re-derivation, so the number a card shows is provably the number the
  *     breakdown implies (the prebuild gate fails the build if they disagree).
  *
- * DATA SOURCE — read this before wiring the pipeline in:
- * Today this reads `src/data/fixtures/listings.json`. The pipeline is being
- * written in parallel and no real data exists yet. When it lands, swap ONE
- * import below for the published payload; nothing else in the site changes,
- * which is the entire point of having this file. At real scale (5k–25k rows)
+ * DATA SOURCE — LIVE as of 2026-08-19.
+ * Reads `src/data/listings.json`, written directly by `publish/run.ts` from the
+ * warehouse. The fixture swap this file was designed for has happened: one
+ * import changed and nothing else in the site did, which was the point. At real scale (5k–25k rows)
  * plan §6.3 also swaps the map's inline JSON block for a fetch of
  * `public/data/deals-<contenthash>.json` — see the note in DealMap.astro.
  */
-import rawListings from '../data/fixtures/listings.json';
+import rawListings from '../data/listings.json';
 import rawCoverage from '../data/coverage.json';
 import rawStatus from '../../public/data/status.json';
 import type {
@@ -35,7 +34,7 @@ import type {
 /** TRUE while the site is served from fixtures. The shell renders a loud strip
  *  when this is set — a demo that looks like live data is the same lie as a dead
  *  pipeline serving stale data behind a healthy façade. */
-export const IS_FIXTURE_DATA = true;
+export const IS_FIXTURE_DATA = false;
 
 export const listings = rawListings as unknown as Listing[];
 export const coverage = rawCoverage as unknown as CoverageCounty[];
@@ -167,21 +166,34 @@ export function parcelUses(): string[] {
 }
 
 export function hasWater(l: Listing): boolean {
+  if (l.water === null || l.water === undefined) return false; // unknown is not "has"
   return l.water.has_stream || l.water.has_river || l.water.has_pond;
 }
 
 /** Water is UNKNOWN, not absent, when no water layer was joined. Three false
  *  booleans plus a null distance is what "we never looked" looks like. */
 export function waterIsUnknown(l: Listing): boolean {
-  return !hasWater(l) && l.water.distance_m === null;
+  // `water === null` is the primary spelling of NOT MEASURED: the parcel was
+  // never enriched. Publishing `has_stream:false` for those would have rendered
+  // "No water" over a parcel that may well have a creek — and finding exactly
+  // that parcel is the point of this tool.
+  if (l.water === null || l.water === undefined) return true;
+  return !hasWater(l) && l.water!.distance_m === null;
 }
 
 export function waterLabel(l: Listing): string {
+  if (l.water === null || l.water === undefined) return 'Water not checked yet';
   const parts: string[] = [];
-  if (l.water.has_river) parts.push('River');
-  if (l.water.has_stream) parts.push('Stream');
-  if (l.water.has_pond) parts.push('Pond');
-  if (parts.length) return parts.join(' + ');
+  if (l.water!.has_river) parts.push('River');
+  if (l.water!.has_stream) parts.push('Stream');
+  if (l.water!.has_pond) parts.push('Pond');
+  if (parts.length) {
+    // Name the water where NHD names it. "Baker Creek" is something you can go
+    // and look at; "Stream" is a checkbox.
+    const named = (l.water!.named_waters ?? []).filter((n) => n.trim() !== '');
+    const label = parts.join(' + ');
+    return named.length > 0 ? `${label} — ${named.slice(0, 2).join(', ')}` : label;
+  }
   return waterIsUnknown(l) ? 'Water unknown' : 'No water';
 }
 

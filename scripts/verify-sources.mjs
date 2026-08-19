@@ -125,11 +125,38 @@ if (sourcesFile && deniedFile) {
     .split('\n')
     .map((l) => l.replace(/(^|\s)#.*$/, '$1'))
     .join('\n');
-  if (sourcesCode.includes(POINT_LAYER_MARKER)) {
-    gate.fail(
-      `sources.yaml references ${POINT_LAYER_MARKER} — that is Parcels (pts). ` +
-        'Three of five deal signals need polygons; see docs/decisions/0001-polygons-not-points.md',
-    );
+  // The point layer is forbidden as an ATTRIBUTE source and required as a
+  // COORDINATE source, so the test is on ROLE, not on the string.
+  //
+  // The original defect: the anchor was set to FeatureServer/0 because a
+  // metadata probe printed `Parcels (pts)` and nobody registered what it meant.
+  // Its attribute table mirrors the polygon layer's, so every attribute test
+  // passed while three of five deal signals went silently uncomputable.
+  //
+  // But points are exactly what a MAP needs — one x/y per parcel, a fraction of
+  // a polygon pull — and the attribute ingest stores no geometry at all
+  // (measured: lat/lng null on 100% of published rows, which left the map with
+  // nothing to draw). A source declaring `role: coordinates` may use it; any
+  // other role may not. Blanket-banning the string would have forced the
+  // coordinate pass to smuggle the URL in somewhere this gate cannot see.
+  for (const src of sources ?? []) {
+    const url = String(src?.url ?? '');
+    if (!url.includes(POINT_LAYER_MARKER)) continue;
+    if (src?.role !== 'coordinates') {
+      gate.fail(
+        `source '${src?.id}' references ${POINT_LAYER_MARKER} — that is Parcels (pts) — ` +
+          `without declaring role: coordinates. Three of five deal signals need polygons; ` +
+          `see docs/decisions/0001-polygons-not-points.md`,
+      );
+    }
+  }
+  // …and the converse, which is the half that actually protects the anchor:
+  // a coordinates source may not be used for attributes, and the anchor must
+  // still be polygons.
+  for (const src of sources ?? []) {
+    if (src?.role === 'coordinates' && String(src?.url ?? '').includes('MapServer/1')) {
+      gate.fail(`source '${src?.id}' declares role: coordinates but points at the POLYGON layer — the roles are swapped`);
+    }
   }
 
   // ---- floors are cross-checked against seeds/counties.csv ----------------

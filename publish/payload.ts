@@ -48,7 +48,12 @@ export type PublishedListing = {
   score_breakdown: { signals: PublishedSignal[]; denominator: number; unknown_count: number };
   confidence: number;
   for_sale_evidence: null;
-  water: { has_stream: boolean; has_river: boolean; has_pond: boolean; distance_m: number | null };
+  /** `null` means NOT MEASURED. It never means "no water" — see publish/run.ts. */
+  water: {
+    has_stream: boolean; has_river: boolean; has_pond: boolean; distance_m: number | null;
+    named_waters?: string[]; frontage_m?: number | null;
+    frontage_by_regime_m?: { perennial: number; intermittent: number; ephemeral: number; unspecified: number } | null;
+  } | null;
   flood_zone: string | null;
   parcel_use: string;
   /** SITUS address — the property's own location. Never the owner's mailing
@@ -109,7 +114,12 @@ function toSignal(c: ScoreComponent): PublishedSignal {
 export type ToListingContext = {
   provenance: Provenance;
   reappraisalYear: number | null;
-  water: { has_stream: boolean; has_river: boolean; has_pond: boolean; distance_m: number | null };
+  /** `null` means NOT MEASURED. It never means "no water" — see publish/run.ts. */
+  water: {
+    has_stream: boolean; has_river: boolean; has_pond: boolean; distance_m: number | null;
+    named_waters?: string[]; frontage_m?: number | null;
+    frontage_by_regime_m?: { perennial: number; intermittent: number; ephemeral: number; unspecified: number } | null;
+  } | null;
   floodZone: string | null;
 };
 

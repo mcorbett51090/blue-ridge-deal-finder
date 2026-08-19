@@ -53,6 +53,13 @@ export interface WaterSignal {
   has_pond: boolean;
   /** Metres to the nearest mapped water feature, or null if unknown. */
   distance_m: number | null;
+  /** NHD gnis_name of the intersecting features — "Baker Creek", not "a creek". */
+  named_waters?: string[];
+  frontage_m?: number | null;
+  /** A dry ditch is not creek frontage: perennial vs intermittent vs ephemeral. */
+  frontage_by_regime_m?: {
+    perennial: number; intermittent: number; ephemeral: number; unspecified: number;
+  } | null;
 }
 
 /** Evidence that the parcel is on market or in distress. Absent (null) => Lane 2.
@@ -93,7 +100,10 @@ export interface Listing {
   score: number;
   score_breakdown: ScoreBreakdown;
   for_sale_evidence: ForSaleEvidence | null;
-  water: WaterSignal;
+  /** `null` = NOT MEASURED (the parcel was never enriched). It NEVER means
+   *  "no water" — publishing false for an unmeasured parcel would render "No
+   *  water" over exactly the creek parcel this tool exists to find. */
+  water: WaterSignal | null;
   /** FEMA zone string, or null if unknown. 'X' = outside the 1% annual chance floodplain. */
   flood_zone: string | null;
   parcel_use: string;

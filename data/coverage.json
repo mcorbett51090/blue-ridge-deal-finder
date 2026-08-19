@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-19T16:24:37.511Z",
+  "generated_at": "2026-08-19T17:13:01.612Z",
   "counties": [
     {
       "fips": "37189",
@@ -10,8 +10,8 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 46252,
-      "published": 107,
-      "scorable": 41073,
+      "published": 110,
+      "scorable": 41081,
       "ledger_status": "carried",
       "last_ingested_at": null,
       "note": "Collected and scored — the rows below are published from real parcel records. (Ledger note: the last run recorded this county as 'carried' while 46,252 of its parcels are present in the same warehouse — the row count is what is published here.)"
@@ -25,7 +25,7 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 38698,
-      "published": 72,
+      "published": 69,
       "scorable": 37597,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
@@ -100,7 +100,7 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 41291,
-      "published": 105,
+      "published": 102,
       "scorable": 39919,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
@@ -115,7 +115,7 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 21102,
-      "published": 53,
+      "published": 47,
       "scorable": 19407,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
@@ -130,7 +130,7 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 29204,
-      "published": 63,
+      "published": 61,
       "scorable": 28994,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
@@ -145,11 +145,11 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 17332,
-      "published": 0,
-      "scorable": 0,
+      "published": 6,
+      "scorable": 9,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:28:22.027Z",
-      "note": "Collected, but NOTHING HERE CAN BE SCORED: this county publishes no assessed values, so every signal we have is unknown for every one of its parcels. That is a gap in what the county publishes, not a judgement about its land."
+      "note": "Collected and scored — the rows below are published from real parcel records."
     },
     {
       "fips": "37121",
@@ -160,8 +160,8 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 17508,
-      "published": 40,
-      "scorable": 15490,
+      "published": 45,
+      "scorable": 15498,
       "ledger_status": "carried",
       "last_ingested_at": null,
       "note": "Collected and scored — the rows below are published from real parcel records. (Ledger note: the last run recorded this county as 'carried' while 17,508 of its parcels are present in the same warehouse — the row count is what is published here.)"

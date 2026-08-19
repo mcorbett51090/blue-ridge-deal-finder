@@ -1,0 +1,46 @@
+{
+ "37199:070900973179000:0": {
+  "flood_zone": null,
+  "flood_coverage_fraction": null,
+  "slope_pct": 15.9,
+  "road_distance_m": null,
+  "source": {
+   "url": "https://epqs.nationalmap.gov/v1/json?x=-82.34211722463621&y=35.89417703312968&units=Meters&wkid=4326&includeDate=true",
+   "retrieved_at": "2026-08-19T16:32:00.998Z",
+   "kind": "usgs-epqs+census-tiger"
+  }
+ },
+ "37121:0884-00-38-9571:0": {
+  "flood_zone": null,
+  "flood_coverage_fraction": null,
+  "slope_pct": 24.4,
+  "road_distance_m": null,
+  "source": {
+   "url": "https://epqs.nationalmap.gov/v1/json?x=-82.09906318053&y=36.04240931308648&units=Meters&wkid=4326&includeDate=true",
+   "retrieved_at": "2026-08-19T16:32:00.998Z",
+   "kind": "usgs-epqs+census-tiger"
+  }
+ },
+ "37189:2848-64-0758-000:0": {
+  "flood_zone": null,
+  "flood_coverage_fraction": null,
+  "slope_pct": 12.1,
+  "road_distance_m": null,
+  "source": {
+   "url": "https://epqs.nationalmap.gov/v1/json?x=-81.55591249792406&y=36.15786806280102&units=Meters&wkid=4326&includeDate=true",
+   "retrieved_at": "2026-08-19T16:32:00.998Z",
+   "kind": "usgs-epqs+census-tiger"
+  }
+ },
+ "37199:080100281207000:0": {
+  "flood_zone": null,
+  "flood_coverage_fraction": null,
+  "slope_pct": 14.9,
+  "road_distance_m": null,
+  "source": {
+   "url": "https://epqs.nationalmap.gov/v1/json?x=-82.37527238065012&y=35.951582352404294&units=Meters&wkid=4326&includeDate=true",
+   "retrieved_at": "2026-08-19T16:32:00.998Z",
+   "kind": "usgs-epqs+census-tiger"
+  }
+ }
+}

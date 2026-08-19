@@ -180,7 +180,7 @@ const vintage = (() => {
       <dd>
         {
           waterUnknown ? (
-            <span class="unk" title="No water layer has been joined for this county.">unknown</span>
+            <span class="unk" title="Not measured yet. Water is computed per parcel from USGS hydrography geometry, and this parcel has not been through that pass. It does NOT mean there is no water here.">unknown</span>
           ) : water ? (
             <span class="tag tag--water">{waterLabel(l)}</span>
           ) : (

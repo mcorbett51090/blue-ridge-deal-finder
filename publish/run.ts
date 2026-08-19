@@ -102,8 +102,16 @@ async function main(): Promise<void> {
             has_river: water.has_river,
             has_pond: water.has_pond,
             distance_m: water.min_dist_flowline_m ?? water.min_dist_waterbody_m,
+            named_waters: water.named_waters ?? [],
+            frontage_m: water.frontage_m,
+            frontage_by_regime_m: water.frontage_by_regime_m ?? null,
           }
-        : { has_stream: false, has_river: false, has_pond: false, distance_m: null },
+        // ⛔ NOT `{has_stream:false,…}`. A parcel we never enriched has UNKNOWN
+        // water, and false is a measurement we did not make. Rendered as "No
+        // water" it would actively mislead: the creek parcel nobody advertised
+        // is the entire premise of this tool, and this is the field that finds
+        // it. `null` here makes the card say "not checked yet" instead.
+        : null,
       floodZone: liv?.flood_zone ?? null,
     });
     assertScoreDerivable(listing);
@@ -173,6 +181,12 @@ async function main(): Promise<void> {
     listings: write(join(outDir, 'listings.json'), listings),
     coverage: write(join(outDir, 'coverage.json'), { generated_at: now.toISOString(), counties: coverage }),
     manifest: write(join(outDir, 'manifest.json'), manifest),
+    // The site consumes the SAME bytes it was just handed — no second
+    // projection, no hand-copied fixture drifting away from the pipeline.
+    // Writing here rather than having the site reach into publish/out keeps
+    // Astro's import graph inside site/, which is what its build expects.
+    siteListings: write(join(ROOT, 'site', 'src', 'data', 'listings.json'), listings),
+    siteCoverage: write(join(ROOT, 'site', 'src', 'data', 'coverage.json'), coverage),
   };
 
   // data/coverage.json is the repo-level honesty surface the gate family checks

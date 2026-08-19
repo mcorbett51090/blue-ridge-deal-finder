@@ -49,6 +49,22 @@ export const WaterFactsSchema = z.object({
   has_stream: z.boolean(),
   has_river: z.boolean(),
   has_pond: z.boolean(),
+  /** NHD `gnis_name` of the intersecting features — "Baker Creek", not "a creek".
+   *  Naming the water is the difference between a score and something you can go
+   *  and look at on a map. Empty when NHD publishes no name for the feature. */
+  named_waters: z.array(z.string()).default([]),
+  /** Frontage split by NHD FCode regime. A dry ditch is not creek frontage:
+   *  46006 is perennial, 46003 intermittent, 46007 ephemeral. Collapsing these
+   *  would let a seasonal drainage score as a year-round creek. */
+  frontage_by_regime_m: z
+    .object({
+      perennial: z.number().nonnegative(),
+      intermittent: z.number().nonnegative(),
+      ephemeral: z.number().nonnegative(),
+      unspecified: z.number().nonnegative(),
+    })
+    .nullable()
+    .default(null),
   source: SourceRefSchema,
 });
 export type WaterFacts = z.infer<typeof WaterFactsSchema>;

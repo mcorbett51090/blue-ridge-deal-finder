@@ -6,7 +6,13 @@
     "region": "NC High Country",
     "tier": "rich",
     "parcel_source": "nc-onemap-parcels",
-    "note": ""
+    "data_state": "ingested",
+    "rows": 46252,
+    "published": 110,
+    "scorable": 41081,
+    "ledger_status": "carried",
+    "last_ingested_at": null,
+    "note": "Collected and scored — the rows below are published from real parcel records. (Ledger note: the last run recorded this county as 'carried' while 46,252 of its parcels are present in the same warehouse — the row count is what is published here.)"
   },
   {
     "fips": "37009",
@@ -15,7 +21,13 @@
     "region": "NC High Country",
     "tier": "rich",
     "parcel_source": "nc-onemap-parcels",
-    "note": "parvaltype=Market — not comparable to Assessed counties"
+    "data_state": "ingested",
+    "rows": 38698,
+    "published": 69,
+    "scorable": 37597,
+    "ledger_status": "complete",
+    "last_ingested_at": "2026-08-19T15:48:58.294Z",
+    "note": "Collected and scored — the rows below are published from real parcel records. (Source note: parvaltype=Market — not comparable to Assessed counties)"
   },
   {
     "fips": "37011",
@@ -24,7 +36,13 @@
     "region": "NC High Country",
     "tier": "rich",
     "parcel_source": "nc-onemap-parcels",
-    "note": ""
+    "data_state": "ingested",
+    "rows": 24034,
+    "published": 60,
+    "scorable": 24019,
+    "ledger_status": "complete",
+    "last_ingested_at": "2026-08-19T15:48:58.294Z",
+    "note": "Collected and scored — the rows below are published from real parcel records."
   },
   {
     "fips": "37021",
@@ -33,7 +51,13 @@
     "region": "Asheville",
     "tier": "rich",
     "parcel_source": "nc-onemap-parcels",
-    "note": "REAPPRAISAL 2026 — 26.8% of corpus repricess this year"
+    "data_state": "not-run",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": "not-run",
+    "last_ingested_at": null,
+    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: next reappraisal 2027 per NCDOR (last 2021)"
   },
   {
     "fips": "37089",
@@ -42,7 +66,13 @@
     "region": "Asheville",
     "tier": "rich",
     "parcel_source": "nc-onemap-parcels",
-    "note": ""
+    "data_state": "not-run",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": "not-run",
+    "last_ingested_at": null,
+    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero."
   },
   {
     "fips": "37087",
@@ -51,7 +81,13 @@
     "region": "NC High Country",
     "tier": "rich",
     "parcel_source": "nc-onemap-parcels",
-    "note": "parvaltype=Market; A19 tax-foreclosure page confirmed"
+    "data_state": "not-run",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": "not-run",
+    "last_ingested_at": null,
+    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: parvaltype=Market; A19 tax-foreclosure page confirmed)"
   },
   {
     "fips": "37099",
@@ -60,7 +96,13 @@
     "region": "NC High Country",
     "tier": "rich",
     "parcel_source": "nc-onemap-parcels",
-    "note": ""
+    "data_state": "ingested",
+    "rows": 41291,
+    "published": 102,
+    "scorable": 39919,
+    "ledger_status": "complete",
+    "last_ingested_at": "2026-08-19T15:48:58.294Z",
+    "note": "Collected and scored — the rows below are published from real parcel records."
   },
   {
     "fips": "37115",
@@ -69,7 +111,13 @@
     "region": "NC High Country",
     "tier": "rich",
     "parcel_source": "nc-onemap-parcels",
-    "note": ""
+    "data_state": "ingested",
+    "rows": 21102,
+    "published": 47,
+    "scorable": 19407,
+    "ledger_status": "complete",
+    "last_ingested_at": "2026-08-19T15:48:58.294Z",
+    "note": "Collected and scored — the rows below are published from real parcel records."
   },
   {
     "fips": "37175",
@@ -78,7 +126,13 @@
     "region": "NC High Country",
     "tier": "rich",
     "parcel_source": "nc-onemap-parcels",
-    "note": ""
+    "data_state": "ingested",
+    "rows": 29204,
+    "published": 61,
+    "scorable": 28994,
+    "ledger_status": "complete",
+    "last_ingested_at": "2026-08-19T15:48:58.294Z",
+    "note": "Collected and scored — the rows below are published from real parcel records."
   },
   {
     "fips": "37199",
@@ -87,7 +141,13 @@
     "region": "NC High Country",
     "tier": "rich",
     "parcel_source": "nc-onemap-parcels",
-    "note": ""
+    "data_state": "ingested",
+    "rows": 17332,
+    "published": 6,
+    "scorable": 9,
+    "ledger_status": "complete",
+    "last_ingested_at": "2026-08-19T15:28:22.027Z",
+    "note": "Collected and scored — the rows below are published from real parcel records."
   },
   {
     "fips": "37121",
@@ -96,7 +156,13 @@
     "region": "NC High Country",
     "tier": "rich",
     "parcel_source": "nc-onemap-parcels",
-    "note": ""
+    "data_state": "ingested",
+    "rows": 17508,
+    "published": 45,
+    "scorable": 15498,
+    "ledger_status": "carried",
+    "last_ingested_at": null,
+    "note": "Collected and scored — the rows below are published from real parcel records. (Ledger note: the last run recorded this county as 'carried' while 17,508 of its parcels are present in the same warehouse — the row count is what is published here.)"
   },
   {
     "fips": "47155",
@@ -105,7 +171,13 @@
     "region": "East TN",
     "tier": "partial",
     "parcel_source": "tn-property-boundaries",
-    "note": "no assessed value; TPAD hop unsettled"
+    "data_state": "not-run",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
   },
   {
     "fips": "47029",
@@ -114,7 +186,13 @@
     "region": "East TN",
     "tier": "partial",
     "parcel_source": "tn-property-boundaries",
-    "note": "no assessed value; TPAD hop unsettled"
+    "data_state": "not-run",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
   },
   {
     "fips": "47171",
@@ -123,7 +201,13 @@
     "region": "East TN",
     "tier": "partial",
     "parcel_source": "tn-property-boundaries",
-    "note": "no assessed value; TPAD hop unsettled"
+    "data_state": "not-run",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
   },
   {
     "fips": "47091",
@@ -132,7 +216,13 @@
     "region": "East TN",
     "tier": "partial",
     "parcel_source": "tn-property-boundaries",
-    "note": "no assessed value; TPAD hop unsettled"
+    "data_state": "not-run",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
   },
   {
     "fips": "47019",
@@ -141,7 +231,13 @@
     "region": "East TN",
     "tier": "partial",
     "parcel_source": "tn-property-boundaries",
-    "note": "no assessed value; TPAD hop unsettled"
+    "data_state": "not-run",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
   },
   {
     "fips": "51125",
@@ -150,7 +246,13 @@
     "region": "VA Blue Ridge",
     "tier": "thin",
     "parcel_source": null,
-    "note": "custom county GIS — untested by the qPublic probe"
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: custom county GIS — untested by the qPublic probe)"
   },
   {
     "fips": "51003",
@@ -159,7 +261,13 @@
     "region": "VA Blue Ridge",
     "tier": "thin",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "51163",
@@ -168,7 +276,13 @@
     "region": "VA Blue Ridge",
     "tier": "thin",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "51015",
@@ -177,7 +291,13 @@
     "region": "VA Blue Ridge",
     "tier": "thin",
     "parcel_source": null,
-    "note": "VGSI gis.vgsi.com — 2025 VamaNet migration may have moved it"
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: VGSI gis.vgsi.com — 2025 VamaNet migration may have moved it)"
   },
   {
     "fips": "51017",
@@ -186,7 +306,13 @@
     "region": "VA Blue Ridge",
     "tier": "thin",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "51063",
@@ -195,7 +321,13 @@
     "region": "VA Blue Ridge",
     "tier": "thin",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "51141",
@@ -204,7 +336,13 @@
     "region": "VA Blue Ridge",
     "tier": "thin",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "51165",
@@ -213,7 +351,13 @@
     "region": "VA Blue Ridge",
     "tier": "thin",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "51139",
@@ -222,7 +366,13 @@
     "region": "VA Blue Ridge",
     "tier": "thin",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "13111",
@@ -231,7 +381,13 @@
     "region": "North GA",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": "qPublic wall E1.1-E1.4"
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: qPublic wall E1.1-E1.4)"
   },
   {
     "fips": "13123",
@@ -240,7 +396,13 @@
     "region": "North GA",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "13291",
@@ -249,7 +411,13 @@
     "region": "North GA",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": "qPublic wall E1.1-E1.4"
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: qPublic wall E1.1-E1.4)"
   },
   {
     "fips": "13281",
@@ -258,7 +426,13 @@
     "region": "North GA",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "13241",
@@ -267,7 +441,13 @@
     "region": "North GA",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "13187",
@@ -276,7 +456,13 @@
     "region": "North GA",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "13311",
@@ -285,7 +471,13 @@
     "region": "North GA",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "13137",
@@ -294,7 +486,13 @@
     "region": "North GA",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "13085",
@@ -303,7 +501,13 @@
     "region": "North GA",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": ""
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening."
   },
   {
     "fips": "45073",
@@ -312,7 +516,13 @@
     "region": "Upstate SC",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": "Master-in-Equity page returned HTTP 500 — UNKNOWN not absent"
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: Master-in-Equity page returned HTTP 500 — UNKNOWN not absent)"
   },
   {
     "fips": "45077",
@@ -321,7 +531,13 @@
     "region": "Upstate SC",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": "Master-in-Equity Sales Rosters CONFIRMED online"
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: Master-in-Equity Sales Rosters CONFIRMED online)"
   },
   {
     "fips": "45045",
@@ -330,6 +546,12 @@
     "region": "Upstate SC",
     "tier": "notices-only",
     "parcel_source": null,
-    "note": "Master-in-Equity roster confirmed; self-hosted gcgis.org untested"
+    "data_state": "no-source",
+    "rows": null,
+    "published": 0,
+    "scorable": 0,
+    "ledger_status": null,
+    "last_ingested_at": null,
+    "note": "NO PARCEL SOURCE EXISTS for this county — nothing has ever been collected here, so a quiet page means we cannot see it, not that nothing is happening. (Source note: Master-in-Equity roster confirmed; self-hosted gcgis.org untested)"
   }
 ]

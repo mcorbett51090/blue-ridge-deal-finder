@@ -15,6 +15,38 @@
 # so tests/guard.test.ts still proves the refusal mechanism against a null-digest
 # entry. Deleting the state did not delete the test for it.
 
+- id: nc-onemap-points
+  # The POINTS sibling of the anchor. NOT a substitute for it: MapServer/1
+  # (polygons) is the correct source for attributes and for the geometry that
+  # water frontage needs. This layer exists here for ONE job — a cheap x/y per
+  # parcel so the map has something to draw. Both are used deliberately; see
+  # docs/decisions/0001-polygons-not-points.md for why the distinction bit once.
+  kind: arcgis-feature-server
+  role: coordinates          # ← the ONLY role permitted to use FeatureServer/0
+  url: https://services.nconemap.gov/secure/rest/services/NC1Map_Parcels/FeatureServer/0
+  legal_basis: public-records-open-data
+  robots:
+    verdict: absent            # the host serves no robots.txt (404) — absent, not allow
+    checked_at: "2026-08-19"
+    evidence_url: https://services.nconemap.gov/robots.txt
+    evidence_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  tos: { verdict: permissive, checked_at: "2026-08-19", evidence_url: https://www.nconemap.gov/pages/terms-of-use }
+  rate: { rps: 0.5, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+  user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+  control_block:
+    positive: { where: "cntyname='Watauga'", returnCountOnly: true, expect_count: 47388 }
+    negative: { where: "cntyname='Zzzznotacounty'", returnCountOnly: true, expect_count: 0 }
+  expect:
+    # A coordinates source carries no per-county attribute floors: it is joined
+    # to the anchor by parno and adds no rows of its own. The anchor's floors
+    # already gate the corpus size.
+    per_county_min_rows: {}
+    max_zero_parval_pct: 100     # not applicable — this layer publishes no value
+    rolling_median_floor_pct: 50
+    max_delta_pct: 5
+  schema_fingerprint: "192750f84fc0dab02275759113a4723c79ababb91e490331d3fa1db157d0b2a1"
+  enabled: true
+
 - id: nc-onemap-parcels
   kind: arcgis-map-server
 

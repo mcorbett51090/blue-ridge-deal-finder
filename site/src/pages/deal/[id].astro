@@ -43,7 +43,7 @@ const value = fmtMoney(l.assessed_value);
 const perAcre = fmtPerAcre(l.assessed_value, l.acres);
 const price = fmtMoney(l.price);
 const flood = inFloodplain(l);
-const waterDist = fmtDistance(l.water.distance_m);
+const waterDist = fmtDistance(l.water?.distance_m ?? null);
 const firstSeen = fmtDate(l.first_seen);
 const lastSeen = fmtDate(l.last_seen);
 const observed = ev ? fmtDateTime(ev.observed_at) : null;
@@ -196,8 +196,23 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
           <div>
             <dt>Coordinates</dt>
             <dd>
-              <span class="num">{l.lat.toFixed(5)}, {l.lng.toFixed(5)}</span>
-              <span class="d__basis">Parcel centroid, not a street address.</span>
+              {/* Real data crashed here on the first live build: lat/lng are
+                  null on 100% of ingested rows (the parcel pass fetches
+                  attributes only; geometry is a separate pass). The fixtures
+                  all had coordinates, so this path had never executed. */}
+              {
+                l.lat !== null && l.lng !== null ? (
+                  <>
+                    <span class="num">{l.lat.toFixed(5)}, {l.lng.toFixed(5)}</span>
+                    <span class="d__basis">Parcel centroid, not a street address.</span>
+                  </>
+                ) : (
+                  <>
+                    <span class="unk">unknown</span>
+                    <span class="d__basis">{l.geometry_unknown_reason ?? 'No coordinate stored for this parcel.'}</span>
+                  </>
+                )
+              }
             </dd>
           </div>
         </dl>
