@@ -1,0 +1,27 @@
+{
+  "_why": "FCode 55800 / FType 558 = ArtificialPath — a synthetic centreline drawn through a waterbody to keep the network connected. It is not a stream and its length is not frontage.",
+  "features": [
+    {
+      "attributes": {
+        "permanent_identifier": "fx-55800-36.105",
+        "gnis_name": null,
+        "ftype": 558,
+        "fcode": 55800
+      },
+      "geometry": {
+        "paths": [
+          [
+            [
+              -81.81,
+              36.105
+            ],
+            [
+              -81.78,
+              36.105
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

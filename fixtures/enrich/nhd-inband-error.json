@@ -1,0 +1,10 @@
+{
+  "_why": "HTTP 200 with an in-band error. Measured shape from the NHD negative control probe.",
+  "error": {
+    "code": 400,
+    "message": "Unable to complete operation.",
+    "details": [
+      "Invalid query parameters."
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "_why": "FCode 46000 = Stream/River with NO hydrographic category. 69% of flowlines in the measured Watauga cell. Must NOT be reported as perennial.",
+  "features": [
+    {
+      "attributes": {
+        "permanent_identifier": "fx-46000-36.105",
+        "gnis_name": null,
+        "ftype": 460,
+        "fcode": 46000
+      },
+      "geometry": {
+        "paths": [
+          [
+            [
+              -81.81,
+              36.105
+            ],
+            [
+              -81.78,
+              36.105
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

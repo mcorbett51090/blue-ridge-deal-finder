@@ -1,0 +1,27 @@
+{
+  "_why": "A 0.01 deg square parcel at 36.10N. Side lengths are computable by hand so frontage assertions are exact, not plausible.",
+  "rings": [
+    [
+      [
+        -81.8,
+        36.1
+      ],
+      [
+        -81.8,
+        36.11
+      ],
+      [
+        -81.79,
+        36.11
+      ],
+      [
+        -81.79,
+        36.1
+      ],
+      [
+        -81.8,
+        36.1
+      ]
+    ]
+  ]
+}

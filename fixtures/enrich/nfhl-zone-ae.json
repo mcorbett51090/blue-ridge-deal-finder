@@ -1,0 +1,36 @@
+{
+  "_why": "An AE zone polygon covering the left half of the fixture square. AE is SFHA.",
+  "features": [
+    {
+      "attributes": {
+        "FLD_ZONE": "AE"
+      },
+      "geometry": {
+        "rings": [
+          [
+            [
+              -81.8,
+              36.1
+            ],
+            [
+              -81.8,
+              36.11
+            ],
+            [
+              -81.795,
+              36.11
+            ],
+            [
+              -81.795,
+              36.1
+            ],
+            [
+              -81.8,
+              36.1
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

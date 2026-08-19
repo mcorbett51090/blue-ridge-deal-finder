@@ -1,0 +1,238 @@
+# FIXTURE — MUST MAKE verify-sources.mjs GO RED.
+# hazards.fema.gov is recorded under refused[] with measured robots evidence,
+# and here it ALSO appears as an enabled layer. A registry that both refuses and
+# permits the same host resolves by whichever list the reader consults first.
+sources:
+  - id: usgs-nhd-flowline
+    kind: arcgis-map-server
+    url: https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6
+    legal_basis: government-published
+    robots:
+      verdict: absent
+      checked_at: '2026-08-19'
+      evidence_url: https://hydro.nationalmap.gov/robots.txt
+      evidence_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    tos:
+      verdict: permissive
+      checked_at: '2026-08-19'
+      evidence_url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+    rate:
+      rps: 0.5
+      concurrency: 1
+      crawl_delay_s: null
+      backoff: exponential
+    user_agent: >-
+      blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder;
+      matt@ravenpower.net)
+    control_block:
+      positive:
+        where: permanent_identifier='89954987'
+        returnCountOnly: true
+        expect_count: 1
+      negative:
+        where: permanent_identifier='brdf-no-such-identifier'
+        returnCountOnly: true
+        expect_count: 0
+    expect:
+      per_county_min_rows: {}
+      rolling_median_floor_pct: 0
+      max_delta_pct: 100
+      max_zero_parval_pct: 100
+    schema_fingerprint: 8f70c841d3cff055fe64d265452e4064b84ea2aa9fe1a7bfae93976132cfb092
+    enabled: true
+  - id: usgs-nhd-waterbody
+    kind: arcgis-map-server
+    url: https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/12
+    legal_basis: government-published
+    robots:
+      verdict: absent
+      checked_at: '2026-08-19'
+      evidence_url: https://hydro.nationalmap.gov/robots.txt
+      evidence_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    tos:
+      verdict: permissive
+      checked_at: '2026-08-19'
+      evidence_url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+    rate:
+      rps: 0.5
+      concurrency: 1
+      crawl_delay_s: null
+      backoff: exponential
+    user_agent: >-
+      blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder;
+      matt@ravenpower.net)
+    control_block:
+      positive:
+        where: PERMANENT_IDENTIFIER='89956909'
+        returnCountOnly: true
+        expect_count: 1
+      negative:
+        where: PERMANENT_IDENTIFIER='brdf-no-such-identifier'
+        returnCountOnly: true
+        expect_count: 0
+    expect:
+      per_county_min_rows: {}
+      rolling_median_floor_pct: 0
+      max_delta_pct: 100
+      max_zero_parval_pct: 100
+    schema_fingerprint: b5784389dc20d1cfd7eee734d51fdfb835f7d089b71f72ae52d5822723351eba
+    enabled: true
+  - id: usgs-nhd-area
+    kind: arcgis-map-server
+    url: https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/9
+    legal_basis: government-published
+    robots:
+      verdict: absent
+      checked_at: '2026-08-19'
+      evidence_url: https://hydro.nationalmap.gov/robots.txt
+      evidence_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    tos:
+      verdict: permissive
+      checked_at: '2026-08-19'
+      evidence_url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+    rate:
+      rps: 0.5
+      concurrency: 1
+      crawl_delay_s: null
+      backoff: exponential
+    user_agent: >-
+      blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder;
+      matt@ravenpower.net)
+    control_block:
+      positive:
+        where: PERMANENT_IDENTIFIER='89956859'
+        returnCountOnly: true
+        expect_count: 1
+      negative:
+        where: PERMANENT_IDENTIFIER='brdf-no-such-identifier'
+        returnCountOnly: true
+        expect_count: 0
+    expect:
+      per_county_min_rows: {}
+      rolling_median_floor_pct: 0
+      max_delta_pct: 100
+      max_zero_parval_pct: 100
+    schema_fingerprint: 03c53bc84d3921e815107413df1ac9284285daffa88db611064327625d351e67
+    enabled: true
+  - id: fema-nfhl-smuggled
+    kind: arcgis-map-server
+    url: https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28
+    legal_basis: government-published
+    robots:
+      verdict: absent
+      checked_at: '2026-08-19'
+      evidence_url: https://hydro.nationalmap.gov/robots.txt
+      evidence_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    tos:
+      verdict: permissive
+      checked_at: '2026-08-19'
+      evidence_url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+    rate:
+      rps: 0.5
+      concurrency: 1
+      crawl_delay_s: null
+      backoff: exponential
+    user_agent: >-
+      blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder;
+      matt@ravenpower.net)
+    control_block:
+      positive:
+        where: permanent_identifier='89954987'
+        returnCountOnly: true
+        expect_count: 1
+      negative:
+        where: permanent_identifier='brdf-no-such-identifier'
+        returnCountOnly: true
+        expect_count: 0
+    expect:
+      per_county_min_rows: {}
+      rolling_median_floor_pct: 0
+      max_delta_pct: 100
+      max_zero_parval_pct: 100
+    schema_fingerprint: 8f70c841d3cff055fe64d265452e4064b84ea2aa9fe1a7bfae93976132cfb092
+    enabled: true
+point_services:
+  - id: usgs-epqs
+    kind: point-lookup
+    url: https://epqs.nationalmap.gov/v1/json
+    legal_basis: government-published
+    robots:
+      verdict: absent
+      checked_at: '2026-08-19'
+      evidence_url: https://epqs.nationalmap.gov/robots.txt
+      evidence_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    tos:
+      verdict: permissive
+      checked_at: '2026-08-19'
+      evidence_url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+    rate:
+      rps: 0.4
+      concurrency: 1
+      crawl_delay_s: null
+      backoff: exponential
+    user_agent: >-
+      blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder;
+      matt@ravenpower.net)
+    control_probe:
+      positive:
+        params:
+          x: '-81.6746'
+          'y': '36.2168'
+          units: Meters
+          wkid: '4326'
+          includeDate: 'true'
+        expect: json-numeric-value
+      negative:
+        params:
+          x: '-999'
+          'y': '-999'
+          units: Meters
+          wkid: '4326'
+          includeDate: 'true'
+        expect: non-json-body
+    schema_fingerprint: 074874afc3746cfa9267eff1e51c1e801fa63ab13486132c27e79b7cd3bb8b2d
+    enabled: true
+refused:
+  - id: fema-nfhl
+    url: https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer
+    refusal: robots-disallow
+    checked_at: '2026-08-19'
+    evidence_url: https://hazards.fema.gov/robots.txt
+    evidence_file: sources/evidence/robots/hazards.fema.gov.robots.txt
+    evidence_sha256: 580cf09c14035844cfb2fe0b5f892d71aa94090b758cb94ae852e0702d53a8a8
+    measured: >-
+      GET https://hazards.fema.gov/robots.txt -> HTTP 200, 806 bytes, a real robots.txt whose FIRST
+      TWO DIRECTIVES under `User-agent: *` are `Disallow: /*?*` and `Disallow: /arcgis`. Our target
+      path begins /arcgis AND every ArcGIS REST query carries a query string, so it is disallowed
+      twice over. Digest identical across two fetches on the same day. Reproduced 2/2; a third
+      attempt was reset by the host mid-handshake, which is itself a reason not to hammer it.
+    consequence: >-
+      Flood is UNKNOWN for every parcel, with reason `nfhl_robots_disallow`. It is not "no flood
+      risk" and it is not a zero penalty — a parcel we are not allowed to check is exactly as
+      unmeasured as one outside NFHL coverage. pipeline/enrich/nfhl.ts implements the derivation and
+      is unit-tested against fixtures, but NOTHING CALLS IT OVER THE NETWORK and the orchestrator
+      refuses to. Re-check this file if FEMA's robots.txt changes; flipping the lane back on is a
+      registry edit, not a code change.
+  - id: census-tigerweb
+    url: https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Transportation/MapServer
+    refusal: robots-unobtainable
+    checked_at: '2026-08-19'
+    evidence_url: https://tigerweb.geo.census.gov/robots.txt
+    evidence_file: sources/evidence/robots/tigerweb.geo.census.gov.robots-200-waf-body.html
+    evidence_sha256: 1e82b0c554d548bcfdd61347cb4b70ad5bb27397e2a68fd6b9854cf0065fe61d
+    measured: >-
+      GET https://tigerweb.geo.census.gov/robots.txt -> HTTP **200**, 189 bytes, body
+      `<html><head><title>Request Rejected</title>…Your support ID is: 13427891559852892367`. An F5
+      WAF answering for the origin. Reproduced 5/5 with the honest UA and 1/1 with curl's default
+      UA, so it is not UA-keyed. The support ID CHANGES ON EVERY REQUEST, so the body has no stable
+      digest. The service itself answers normally (Transportation/MapServer?f=json -> 200 / 9,455
+      bytes, 10 road layers), which is precisely the trap: the data path works and only the
+      permission path is unreadable.
+    consequence: >-
+      Road access is UNKNOWN for every parcel, with reason `tiger_robots_unobtainable`, which is the
+      branch plan §5.6 pre-authorised ("if it fails, road access renders `unknown` permanently").
+      Two things would have gone wrong had this been treated as a normal robots.txt: robots-parser
+      finds zero directives in HTML and returns ALLOWED, and the rotating support ID would move the
+      source to ingest_paused on every single run. guard.ts looksLikeRobotsTxt() now refuses a
+      non-empty body carrying no recognisable directive, so the false permit is closed for every
+      host, not just this one.

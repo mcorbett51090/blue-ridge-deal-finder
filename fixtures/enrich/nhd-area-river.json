@@ -1,0 +1,39 @@
+{
+  "_why": "NHD Area layer 9, FTYPE 460 StreamRiver — a watercourse wide enough that USGS drew two banks. This is how has_river is answered from measured WIDTH rather than from the word River in a label.",
+  "features": [
+    {
+      "attributes": {
+        "PERMANENT_IDENTIFIER": "fx-area-1",
+        "GNIS_NAME": "Fixture River",
+        "FTYPE": 460,
+        "FCODE": 46006
+      },
+      "geometry": {
+        "rings": [
+          [
+            [
+              -81.7955,
+              36.1
+            ],
+            [
+              -81.7955,
+              36.11
+            ],
+            [
+              -81.7945,
+              36.11
+            ],
+            [
+              -81.7945,
+              36.1
+            ],
+            [
+              -81.7955,
+              36.1
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

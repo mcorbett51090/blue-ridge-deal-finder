@@ -1,0 +1,27 @@
+{
+  "_why": "A perennial creek OUTSIDE the parcel — the measured-negative control. has_stream must be false, and the distance must be a number, not an unknown.",
+  "features": [
+    {
+      "attributes": {
+        "permanent_identifier": "fx-46006-36.13",
+        "gnis_name": "Far Creek",
+        "ftype": 460,
+        "fcode": 46006
+      },
+      "geometry": {
+        "paths": [
+          [
+            [
+              -81.81,
+              36.13
+            ],
+            [
+              -81.78,
+              36.13
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

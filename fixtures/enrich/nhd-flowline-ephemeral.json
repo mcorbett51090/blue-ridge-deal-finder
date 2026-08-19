@@ -1,0 +1,27 @@
+{
+  "_why": "FCode 46007 = Ephemeral. Same geometry again.",
+  "features": [
+    {
+      "attributes": {
+        "permanent_identifier": "fx-46007-36.105",
+        "gnis_name": "Fixture Draw",
+        "ftype": 460,
+        "fcode": 46007
+      },
+      "geometry": {
+        "paths": [
+          [
+            [
+              -81.81,
+              36.105
+            ],
+            [
+              -81.78,
+              36.105
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

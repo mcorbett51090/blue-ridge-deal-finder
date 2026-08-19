@@ -1,0 +1,27 @@
+{
+  "_why": "IDENTICAL GEOMETRY to nhd-flowline-perennial.json, FCode 46003 = Intermittent. The ONLY difference is the code, which is the point: a dry-season ditch must not report perennial frontage.",
+  "features": [
+    {
+      "attributes": {
+        "permanent_identifier": "fx-46003-36.105",
+        "gnis_name": "Fixture Wash",
+        "ftype": 460,
+        "fcode": 46003
+      },
+      "geometry": {
+        "paths": [
+          [
+            [
+              -81.81,
+              36.105
+            ],
+            [
+              -81.78,
+              36.105
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

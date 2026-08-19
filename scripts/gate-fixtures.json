@@ -28,6 +28,20 @@
         "plant": {
           "sources/sources.yaml": "gates/points-layer-url.yaml"
         }
+      },
+      {
+        "name": "enrich-refused-host-enabled",
+        "expect": "red",
+        "plant": {
+          "sources/sources.enrich.yaml": "gates/enrich-refused-host-enabled.yaml"
+        }
+      },
+      {
+        "name": "enrich-unreachable-robots-enabled",
+        "expect": "red",
+        "plant": {
+          "sources/sources.enrich.yaml": "gates/enrich-unreachable-robots-enabled.yaml"
+        }
       }
     ],
     "verify-egress-allowlist.mjs": [

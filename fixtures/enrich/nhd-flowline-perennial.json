@@ -1,0 +1,27 @@
+{
+  "_why": "FCode 46006 = Stream/River: Perennial. One straight line crossing the square at 36.105, extending past both sides, so the inside length is exactly the parcel width.",
+  "features": [
+    {
+      "attributes": {
+        "permanent_identifier": "fx-46006-36.105",
+        "gnis_name": "Fixture Creek",
+        "ftype": 460,
+        "fcode": 46006
+      },
+      "geometry": {
+        "paths": [
+          [
+            [
+              -81.81,
+              36.105
+            ],
+            [
+              -81.78,
+              36.105
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -11,7 +11,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import yaml from 'js-yaml';
 import { Gate, inspectRoot } from './lib/gate.mjs';
-import { DenylistFileSchema, SourcesFileSchema } from '../pipeline/fetch/types.ts';
+import { DenylistFileSchema, EnrichRegistryFileSchema, SourcesFileSchema } from '../pipeline/fetch/types.ts';
 import { matchDenylist } from '../pipeline/fetch/denylist.ts';
 import { HONEST_USER_AGENT, evidenceAgeDays } from '../pipeline/fetch/guard.ts';
 
@@ -158,6 +158,74 @@ if (sourcesFile && deniedFile) {
   }
 
   gate.info(`${sources.length} source(s), ${denials.length} denial rule(s)`);
+
+  // ---- sources.enrich.yaml: the P7 enrichment lane -------------------------
+  // ⛔ A SECOND REGISTRY FILE THAT NO GATE READS IS A SECOND REGISTRY FILE WITH
+  // NO GUARD. It gets the SAME checks as sources.yaml — same UA constant, same
+  // rate ceiling, same evidence-age limit, same "the denylist wins" rule — plus
+  // the two that only exist here: a refused[] host must not also appear as a
+  // live entry, and every refusal must point at cached evidence that is on disk.
+  const enrichPath = join(root, 'sources', 'sources.enrich.yaml');
+  if (existsSync(enrichPath)) {
+    const eParsed = EnrichRegistryFileSchema.safeParse(yaml.load(readFileSync(enrichPath, 'utf8')) ?? {});
+    if (!eParsed.success) {
+      for (const issue of eParsed.error.issues) {
+        gate.fail(`sources.enrich.yaml [${issue.path.join('.')}]: ${issue.message}`);
+      }
+    } else {
+      const { sources: eSources, point_services: ePoints, refused } = eParsed.data;
+      const allLive = [...eSources, ...ePoints];
+
+      const parcelIds = new Set(sources.map((s) => s.id));
+      for (const s of allLive) {
+        if (parcelIds.has(s.id)) gate.fail(`sources.enrich.yaml: id ${s.id} collides with sources.yaml`);
+        if (s.user_agent !== HONEST_USER_AGENT) gate.fail(`enrich ${s.id}: user_agent is not the honest UA constant`);
+        if (s.rate.rps > MAX_RPS) gate.fail(`enrich ${s.id}: rate.rps ${s.rate.rps} exceeds ceiling ${MAX_RPS}`);
+        if (s.rate.concurrency > 2) gate.fail(`enrich ${s.id}: rate.concurrency ${s.rate.concurrency} > 2`);
+
+        const age = evidenceAgeDays(s.robots.checked_at);
+        if (age > MAX_EVIDENCE_AGE_DAYS) gate.fail(`enrich ${s.id}: robots evidence is ${Math.round(age)}d old`);
+
+        let hit = null;
+        try { hit = matchDenylist(s.url, denials); } catch (err) { gate.fail(`enrich ${s.id}: ${String(err)}`); }
+        if (hit) gate.fail(`enrich ${s.id} targets ${s.url}, denied by rule ${hit.denial.host} — the denylist wins`);
+
+        if (s.enabled) {
+          if (!s.robots.evidence_sha256) gate.fail(`enrich ${s.id}: enabled with robots.evidence_sha256 = null`);
+          if (!s.schema_fingerprint) gate.fail(`enrich ${s.id}: enabled with schema_fingerprint = null`);
+          if (s.robots.verdict === 'disallow') gate.fail(`enrich ${s.id}: enabled with robots.verdict = disallow`);
+          // ⛔ `unreachable` is NOT `absent`. absent = we asked and there is no
+          // file; unreachable = we asked and could not be told. Unknown is not
+          // permission, so an unreachable verdict may never be enabled.
+          if (s.robots.verdict === 'unreachable') {
+            gate.fail(`enrich ${s.id}: enabled with robots.verdict = unreachable — unknown is not permission`);
+          }
+          if (s.tos.verdict === 'prohibitive') gate.fail(`enrich ${s.id}: enabled with tos.verdict = prohibitive`);
+        }
+      }
+
+      const liveHosts = new Map(allLive.map((s) => [new URL(s.url).hostname.toLowerCase(), s.id]));
+      for (const r of refused) {
+        const host = new URL(r.url).hostname.toLowerCase();
+        const collides = liveHosts.get(host);
+        if (collides) {
+          gate.fail(
+            `sources.enrich.yaml: ${host} is listed under refused[] as '${r.id}' AND as live entry ` +
+              `'${collides}' — a registry that both refuses and permits the same host resolves by ` +
+              'whichever list the reader happens to consult first',
+          );
+        }
+        const evidence = join(root, r.evidence_file);
+        if (!existsSync(evidence)) {
+          gate.fail(`refused ${r.id}: evidence_file ${r.evidence_file} is not on disk — "we checked" needs the receipt`);
+        }
+      }
+      gate.info(
+        `sources.enrich.yaml: ${eSources.length} layer(s), ${ePoints.length} point service(s), ` +
+          `${refused.length} measured refusal(s)`,
+      );
+    }
+  }
 }
 
 gate.finish();

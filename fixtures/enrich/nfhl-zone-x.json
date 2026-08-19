@@ -1,0 +1,36 @@
+{
+  "_why": "A zone X polygon — mapped and NOT special flood hazard.",
+  "features": [
+    {
+      "attributes": {
+        "FLD_ZONE": "X"
+      },
+      "geometry": {
+        "rings": [
+          [
+            [
+              -81.8,
+              36.1
+            ],
+            [
+              -81.8,
+              36.11
+            ],
+            [
+              -81.79,
+              36.11
+            ],
+            [
+              -81.79,
+              36.1
+            ],
+            [
+              -81.8,
+              36.1
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

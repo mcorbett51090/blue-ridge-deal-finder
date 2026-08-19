@@ -1,0 +1,36 @@
+{
+  "_why": "Layer 0 returns an availability polygon: FEMA HAS mapped here, so a zone-level zero is a real zero.",
+  "features": [
+    {
+      "attributes": {
+        "DFIRM_ID": "37189C"
+      },
+      "geometry": {
+        "rings": [
+          [
+            [
+              -81.9,
+              36
+            ],
+            [
+              -81.9,
+              36.2
+            ],
+            [
+              -81.7,
+              36.2
+            ],
+            [
+              -81.7,
+              36
+            ],
+            [
+              -81.9,
+              36
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

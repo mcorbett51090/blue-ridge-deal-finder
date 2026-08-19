@@ -1,0 +1,49 @@
+{
+  "_why": "Same square with an interior hole (an inholding / right-of-way). Esri encodes the hole by winding alone; a naive reader gains the hole area silently.",
+  "rings": [
+    [
+      [
+        -81.8,
+        36.1
+      ],
+      [
+        -81.8,
+        36.11
+      ],
+      [
+        -81.79,
+        36.11
+      ],
+      [
+        -81.79,
+        36.1
+      ],
+      [
+        -81.8,
+        36.1
+      ]
+    ],
+    [
+      [
+        -81.797,
+        36.103
+      ],
+      [
+        -81.793,
+        36.103
+      ],
+      [
+        -81.793,
+        36.107
+      ],
+      [
+        -81.797,
+        36.107
+      ],
+      [
+        -81.797,
+        36.103
+      ]
+    ]
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "_why": "⛔ THE CASING TRAP. Layer 12 returns UPPERCASE keys while layer 6 returns lowercase, from the SAME service on the SAME request. A reader keying on lowercase fcode reads undefined, and undefined===39004 is false — every pond silently becomes not-a-pond.",
+  "features": [
+    {
+      "attributes": {
+        "PERMANENT_IDENTIFIER": "fx-wb-1",
+        "GNIS_NAME": "Fixture Pond",
+        "FTYPE": 390,
+        "FCODE": 39004
+      },
+      "geometry": {
+        "rings": [
+          [
+            [
+              -81.798,
+              36.104
+            ],
+            [
+              -81.798,
+              36.106
+            ],
+            [
+              -81.796,
+              36.106
+            ],
+            [
+              -81.796,
+              36.104
+            ],
+            [
+              -81.798,
+              36.104
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

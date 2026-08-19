@@ -875,3 +875,43 @@ Build it, but build the honest version:
 - Oconee SC row count (§10) — re-probe on 2026-10-21.
 - Whether a `robots.txt`-allow can be relied on where the operator's ToS says otherwise (§3) —
   answered "no" here, conservatively. Worth an explicit owner ruling in `docs/decisions/`.
+
+---
+
+## North Georgia parcel sources — re-probed 2026-08-19 (coordinator)
+
+The owner named North Georgia a priority region, so the "no parcel source exists" verdict was
+re-tested rather than repeated. Control: an ArcGIS Hub search for a county we know has a layer
+returned 3 results, proving the search API works before any absence was inferred from it.
+
+Searched all nine target counties. Three candidates surfaced. **All three are false positives**,
+and one of them was rich enough to be dangerous.
+
+| Candidate | Verdict | Evidence |
+|---|---|---|
+| "Fannin County Parcels" — `services7.arcgis.com/wCqQSYzCSB2pQ16E/.../Fannin_County_Parcels/FeatureServer/57` | ⛔ **TEXAS** | `situs_state: "TX"`, `addr_state: "TX"`, owner `CityofBonhamTX`, WKID 2276 (Texas North Central). 49 fields incl. `land_val`, `imprv_val`, `market`, `legal_acreage` |
+| "Union Parcels" — `services.arcgis.com/yghUoIoA2Cd2cWki/.../Union_Parcels/FeatureServer/0` | ⛔ **FLORIDA** | attributes carry `union.floridapa.com`; a vertex sampled in WGS84 is **0.14°** from Union County FL vs **5.15°** from Union County GA |
+| "Parcels (white)" — `tiles.arcgis.com/.../Parcels/VectorTileServer` | ⛔ unusable | vector tile service; no attribute query possible |
+
+**Conclusion: North Georgia has no open per-county parcel service at this search depth.** The
+notices-only tier stands — but it now rests on measurement rather than assumption, and the
+measurement nearly went the other way.
+
+### ⛔ The near-miss, recorded because the failure would have been silent and total
+
+The Fannin/TX layer is **richer than our NC anchor**: it carries market value, land and improvement
+value, and legal acreage — precisely the fields Georgia has been missing. Ingesting it would have
+produced correct data about the wrong place, filed under a Blue Ridge county, scored, ranked, and
+surfaced as a deal. Nothing downstream would have objected: the schema fits, the counts are
+plausible, the values are real.
+
+The only tell was the Hub `owner` field reading `CityofBonhamTX`.
+
+**County names repeat across states.** Fannin exists in GA and TX. Union exists in at least GA, FL,
+NJ, NC and SC. A name match is not identity.
+
+**Guard added:** `pipeline/fetch/geo-identity.ts` — sample real geometry in **WGS84** and assert it
+falls inside the Blue Ridge envelope before any row is warehoused. Do not trust a layer's declared
+`extent`: it is frequently in a projected CRS (2276 here, 2238 for the Florida one), and reading a
+projected extent as lon/lat yields nonsense rather than a clean rejection. An **empty sample is a
+failure, not a pass**. Covered by 7 tests using the two real wrong-state coordinates as controls.
