@@ -1,0 +1,9 @@
+Read .ravenclaude/runs/blue-ridge-deal-finder/handoff.md in a NEW Claude Code session started in
+~/blue-ridge-deal-finder, and continue from it.
+
+Origin host was Claude Code, NOT Copilot Chat and NOT Grok — the sibling chat-resume.md was generated
+by tooling whose host enum has no Claude Code option and should be ignored.
+
+First task: the map page has bugs the previous session did NOT verify. It confirmed only that MapLibre
+boots and the console is clean; it never checked that markers render, that clustering works, or that
+filters drive the map. Start there, not from the previous session's summary.
