@@ -25,6 +25,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DealMap from '../components/DealMap.astro';
 import DealCard from '../components/DealCard.astro';
+import NoticeBanner from '../components/NoticeBanner.astro';
 import CoverageStrip from '../components/CoverageStrip.astro';
 import EmptyState from '../components/EmptyState.astro';
 import { withBase } from '../lib/nav';
@@ -179,6 +180,8 @@ const coverageLite = coverage.map((c) => ({
           <strong class="num">{market.length}</strong> on-market records
         </p>
       </div>
+
+      <NoticeBanner />
 
       <!-- LANE 1 — default, expanded, the only thing you see unless you ask. -->
       <section class="lane lane--market" data-lane-section="market" aria-labelledby="lane1-h">

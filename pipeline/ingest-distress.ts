@@ -21,6 +21,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { loadRegistry } from './fetch/registry.ts';
 import { FetchClient } from './fetch/client.ts';
 import { parseJacksonReo } from './ingest/distress/jackson-reo.ts';
+import { parseHaywoodBids, saleDateOf, type HaywoodNotice } from './ingest/distress/haywood-bids.ts';
 
 const ROOT = process.cwd();
 const JACKSON_FIPS = '37099';
@@ -99,15 +100,41 @@ for (const r of reo) {
   };
 }
 
+// ── Haywood County sale notices ─────────────────────────────────────────────
+// County-LEVEL, not parcel-joined: the property identity lives in scanned PDFs
+// with no text layer, and a notice pinned to a guessed parcel would be a false
+// claim about a specific address.
+const notices: Array<HaywoodNotice & { sale_date: string | null; observed_at: string }> = [];
+try {
+  console.log('  Haywood County sale notices…');
+  const hay = await client.fetchDocument('nc-haywood-bids', {
+    searchParams: { CatID: '17', txtSort: 'Category', showAllBids: '', Status: 'open' },
+  });
+  const parsed = parseHaywoodBids(hay.body.toString('utf8'));
+  for (const n of parsed) {
+    notices.push({ ...n, sale_date: saleDateOf(n.title), observed_at: now });
+  }
+  console.log(`  · ${parsed.length} open sale notice(s)`);
+} catch (e) {
+  // A failure here must not take the Jackson evidence down with it. Reported,
+  // not swallowed: an empty notices list with no error looks identical to a
+  // county with nothing scheduled.
+  console.error(`  ! Haywood notices FAILED: ${(e as Error).message}`);
+}
+
 db.close();
 
 mkdirSync(join(ROOT, 'data/distress'), { recursive: true });
+writeFileSync(
+  join(ROOT, 'data/distress/notices.json'),
+  JSON.stringify({ generated_at: now, notices }, null, 1),
+);
 writeFileSync(
   join(ROOT, 'data/distress/evidence.json'),
   JSON.stringify({ generated_at: now, matched, unmatched, evidence }, null, 1),
 );
 
-console.log(`\n✓ distress — ${matched} parcels now carry for-sale evidence, ${unmatched} unmatched`);
+console.log(`\n✓ distress — ${matched} parcels with for-sale evidence, ${unmatched} unmatched, ${notices.length} county notice(s)`);
 if (matched === 0) {
   console.error('  ⛔ zero matches: either the join key changed or no NC distress source produced rows.');
   process.exitCode = 1;

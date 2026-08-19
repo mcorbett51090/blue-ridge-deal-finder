@@ -15,6 +15,49 @@
 # so tests/guard.test.ts still proves the refusal mechanism against a null-digest
 # entry. Deleting the state did not delete the test for it.
 
+- id: nc-haywood-bids
+  # Haywood County NC tax-foreclosure SALE NOTICES (CivicEngage Bids module,
+  # category 17). A different mechanism from Jackson's property table — three NC
+  # counties produced three unrelated systems, which is why there is no single
+  # "NC foreclosure scraper" here.
+  #
+  # robots.txt allows /Bids.aspx — measured with a grep control (25 Disallow
+  # lines match the file, "bids" matches 0).
+  kind: html
+  role: attributes
+  url: https://www.haywoodcountync.gov/Bids.aspx
+  legal_basis: public-records-open-data
+  robots:
+    verdict: allow
+    checked_at: "2026-08-19"
+    evidence_url: https://www.haywoodcountync.gov/robots.txt
+    evidence_sha256: "6771bf6465ddd6e600a7866b5e41825007c4a20433b378e56746547c40d205c5"
+  tos: { verdict: permissive, checked_at: "2026-08-19", evidence_url: https://www.haywoodcountync.gov/ }
+  rate: { rps: 0.2, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+  user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+  control_block:
+    # ⛔ The control is the PAGE TITLE, not a status code. A bogus CatID answers
+    # HTTP 200 with a full page; only the title discriminates the real category.
+    positive: { where: "title contains Tax Foreclosures", expect_count: 1 }
+    negative: { where: "bogus CatID title is generic", expect_count: 0 }
+  expect:
+    # ⛔ NO per-county floor, deliberately. A row floor exists to catch a source
+    # that silently returns nothing — right for a parcel layer, wrong here:
+    # "no tax-foreclosure sales open in Haywood this month" is a TRUE and common
+    # answer, and Buncombe measured exactly zero. A floor of 1 would fail the
+    # run every time the county simply had nothing scheduled. The integrity
+    # check that replaces it is the page-title assertion in the parser, which
+    # distinguishes "no sales" from "wrong page".
+    per_county_min_rows: {}
+    max_zero_parval_pct: 100
+    rolling_median_floor_pct: 0
+    max_delta_pct: 100
+  # HTML has no field schema, so the fingerprint is the CONTRACT the parser
+  # depends on: the category title marker plus the bidID link shape. If either
+  # changes, the parser throws — this records what was agreed.
+  schema_fingerprint: "0ef758a950a469f79685c222dffc72c079bd420dc83fa79cc1955fb0039f074c"
+  enabled: true
+
 - id: nc-jackson-reo
   # Jackson County NC — "County Properties Acquired Through Foreclosure".
   # The richest distress source measured in this project: real county-owned

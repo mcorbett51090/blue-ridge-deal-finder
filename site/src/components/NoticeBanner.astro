@@ -1,0 +1,119 @@
+---
+/**
+ * COUNTY-LEVEL SALE NOTICES.
+ *
+ * ⛔ These are deliberately NOT deal cards. The property identity lives in
+ * scanned PDFs with no text layer, so no notice here can be joined to a parcel.
+ * Rendering one as a listing would attach a real, dated foreclosure sale to a
+ * guessed address — a false claim about somewhere specific. A notice with no
+ * parcel is a true claim about a county, and that is what this shows.
+ *
+ * Placed above the lanes because a sale can be TOMORROW and a list you scroll
+ * past is not a notice.
+ */
+import notices from '../data/notices.json';
+
+type Notice = {
+  bid_id: string;
+  title: string;
+  record_url: string;
+  county: string;
+  state: string;
+  sale_date: string | null;
+};
+
+const all = (notices as Notice[]) ?? [];
+const today = new Date().toISOString().slice(0, 10);
+// Past sales are history, not opportunities. An unknown date is KEPT — dropping
+// it would silently hide a real notice we merely failed to parse a date from.
+const live = all.filter((n) => n.sale_date === null || n.sale_date >= today);
+
+const days = (d: string | null): number | null => {
+  if (!d) return null;
+  return Math.round((Date.parse(d) - Date.parse(today)) / 86_400_000);
+};
+---
+
+{
+  live.length > 0 && (
+    <section class="notices" aria-labelledby="notices-h">
+      <h2 class="notices__h" id="notices-h">
+        Upcoming foreclosure sales
+        <span class="notices__n num">{live.length}</span>
+      </h2>
+      <p class="notices__blurb">
+        Real, dated sale events published by the county. They are <strong>not</strong> matched to a
+        parcel: the county publishes the property details as scanned images with no readable text,
+        so we can tell you the sale is happening and link you to the notice, but not which parcel it
+        is. Open the notice to see the property.
+      </p>
+      <ul class="notices__list">
+        {live.map((n) => {
+          const d = days(n.sale_date);
+          return (
+            <li class="notice">
+              <span class={`notice__when${d !== null && d <= 1 ? ' notice__when--soon' : ''}`}>
+                {n.sale_date === null
+                  ? 'date not stated'
+                  : d === 0
+                    ? 'TODAY'
+                    : d === 1
+                      ? 'TOMORROW'
+                      : `in ${d} days`}
+              </span>
+              <span class="notice__body">
+                <strong>{n.county} County, {n.state}</strong> — {n.title}
+                <br />
+                <a href={n.record_url} rel="noopener nofollow external" target="_blank">
+                  County notice ↗
+                </a>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .notices {
+    border: 1px solid var(--rule, #cfd8d6);
+    border-left: 3px solid var(--sig-distress, #a8663a);
+    background: var(--surface, #fbfcfc);
+    border-radius: 2px;
+    padding: 1rem 1.15rem;
+    margin: 0 0 1.25rem;
+  }
+  .notices__h {
+    font-size: 1.05rem;
+    margin: 0 0 .3rem;
+    display: flex;
+    align-items: baseline;
+    gap: .5rem;
+  }
+  .notices__n {
+    font-size: .85rem;
+    color: var(--ink-3, #667575);
+  }
+  .notices__blurb {
+    font-size: .87rem;
+    color: var(--ink-2, #3d4a4b);
+    margin: 0 0 .7rem;
+    max-width: 68ch;
+  }
+  .notices__list { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; }
+  .notice { display: grid; grid-template-columns: 7.5rem 1fr; gap: .75rem; font-size: .9rem; }
+  .notice__when {
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-size: .76rem;
+    color: var(--ink-3, #667575);
+    padding-top: .15rem;
+  }
+  .notice__when--soon { color: var(--sig-distress, #a8663a); font-weight: 600; }
+  @media (max-width: 560px) {
+    .notice { grid-template-columns: 1fr; gap: .1rem; }
+  }
+</style>

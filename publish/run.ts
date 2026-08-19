@@ -82,6 +82,14 @@ async function main(): Promise<void> {
     : {};
   const forSaleIds = new Set(Object.keys(distressEvidence));
 
+  // County-LEVEL notices: real sale events that cannot be joined to a parcel
+  // because the property identity is in a scanned PDF. Published separately so
+  // they are never mistaken for a parcel row — and never dropped for lacking one.
+  const noticesPath = join(ROOT, 'data/distress/notices.json');
+  const notices = existsSync(noticesPath)
+    ? (JSON.parse(readFileSync(noticesPath, 'utf8')).notices ?? [])
+    : [];
+
   const { scored, tallies } = scoreCorpus(wh.parcels, {
     cfg,
     enrichment,
@@ -240,6 +248,8 @@ async function main(): Promise<void> {
     // Astro's import graph inside site/, which is what its build expects.
     siteListings: write(join(ROOT, 'site', 'src', 'data', 'listings.json'), listings),
     siteCoverage: write(join(ROOT, 'site', 'src', 'data', 'coverage.json'), coverage),
+    notices: write(join(outDir, 'notices.json'), notices),
+    siteNotices: write(join(ROOT, 'site', 'src', 'data', 'notices.json'), notices),
   };
 
   // data/coverage.json is the repo-level honesty surface the gate family checks
