@@ -23,7 +23,13 @@ const gate = new Gate('verify-egress-allowlist');
 const root = inspectRoot();
 const permits = readJson(join(selfRoot(), 'scripts', 'egress-permits.json'));
 
-const SCAN_ROOTS = ['pipeline', 'scripts', 'site'];
+// ⛔  was ABSENT until 2026-08-19, and the omission was invisible:
+// an identical \ file is RED under pipeline/ and completely unseen under
+// publish/ (measured control pair — scanned 69 files: pipeline=53 scripts=16
+// site=0). publish/ writes every byte the site serves and now contains
+// publish/status.ts, so a network call added there would have bypassed the one
+// gate whose entire job is to keep egress inside pipeline/fetch/client.ts.
+const SCAN_ROOTS = ['pipeline', 'publish', 'scripts', 'site'];
 const CODE_EXTS = ['.ts', '.tsx', '.mts', '.cts', '.js', '.mjs', '.cjs', '.jsx', '.astro', '.svelte', '.vue'];
 
 const permitted = new Set(permits.permitted_modules);

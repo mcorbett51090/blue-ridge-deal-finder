@@ -46,9 +46,16 @@ export type PublishedSourceStatus = {
 };
 
 /** Every id the registries declare. The published surface may name NOTHING else. */
+/** ⛔ EXPLICIT, never readdirSync. A directory scan would admit
+ *  `sources.denied.yaml` — the do-not-fetch list — as a source registry the
+ *  moment any row in it gained an `id:` field, which is the opposite of what
+ *  that file means. The set of files that may declare a source is a decision,
+ *  not a directory listing. */
+export const DECLARING_FILES = ['sources.yaml', 'sources.enrich.yaml', 'sources.candidates.yaml'] as const;
+
 export function registrySourceIds(root: string): Map<string, string> {
   const out = new Map<string, string>();
-  for (const file of ['sources.yaml', 'sources.enrich.yaml', 'sources.candidates.yaml']) {
+  for (const file of DECLARING_FILES) {
     const p = join(root, 'sources', file);
     if (!existsSync(p)) continue;
     const doc = yaml.load(readFileSync(p, 'utf8')) as unknown;
@@ -90,13 +97,90 @@ function runsBySource(root: string): Map<string, Manifest[]> {
   return out;
 }
 
+/**
+ * ⛔ THE ARTIFACT THAT PROVES A SOURCE RAN — because a run manifest does not.
+ *
+ * The first version of this file derived run state from `data/runs/*.json`
+ * alone. That directory holds manifests for exactly ONE source, so 17 of 18
+ * sources reported `never-run` — including `nc-jackson-reo`, which produced all
+ * 8 Lane-1 rows the site is publishing right now, and `nc-haywood-bids`, whose
+ * notice timestamp THIS SAME FILE uses as `data_observed_at`. It shipped, and it
+ * was false in a new direction: a fabrication traded for a denial.
+ *
+ * **Absence of a manifest is absence of INSTRUMENTATION, not absence of a run.**
+ * Manifest-writing was added late and only to the parcel ingest; every other
+ * lane produces its output without one. So the evidence of a run is the OUTPUT
+ * ON DISK, and each mapping below is an explicit claim about which artifact
+ * proves which source ran — written out rather than inferred, because a clever
+ * rule here would be a guess wearing a mechanism's clothes.
+ */
+const PRODUCED_BY: Record<string, { file: string; stamp: string; count?: (doc: Record<string, unknown>) => number | null }> = {
+  'nc-jackson-reo': {
+    file: 'data/distress/evidence.json',
+    stamp: 'generated_at',
+    count: (d) => (typeof d['matched'] === 'number' ? (d['matched'] as number) : null),
+  },
+  'jackson-county-reo-pdf': {
+    file: 'data/distress/evidence.json',
+    stamp: 'generated_at',
+    count: (d) => (typeof d['matched'] === 'number' ? (d['matched'] as number) : null),
+  },
+  'nc-haywood-bids': {
+    file: 'data/distress/notices.json',
+    stamp: 'generated_at',
+    count: (d) => (Array.isArray(d['notices']) ? (d['notices'] as unknown[]).length : null),
+  },
+  'haywood-tax-foreclosures-civicengage': {
+    file: 'data/distress/notices.json',
+    stamp: 'generated_at',
+    count: (d) => (Array.isArray(d['notices']) ? (d['notices'] as unknown[]).length : null),
+  },
+  'usgs-nhd': { file: 'data/enrich/enrichment-latest.json', stamp: 'run_at' },
+  'usgs-nhd-flowline': { file: 'data/enrich/enrichment-latest.json', stamp: 'run_at' },
+  'usgs-nhd-waterbody': { file: 'data/enrich/enrichment-latest.json', stamp: 'run_at' },
+  'usgs-nhd-area': { file: 'data/enrich/enrichment-latest.json', stamp: 'run_at' },
+  'usgs-epqs': { file: 'data/enrich/enrichment-latest.json', stamp: 'run_at' },
+};
+
+function producedEvidence(root: string, id: string): { at: string; rows: number | null } | null {
+  const spec = PRODUCED_BY[id];
+  if (!spec) return null;
+  const p = join(root, spec.file);
+  if (!existsSync(p)) return null;
+  try {
+    const doc = JSON.parse(readFileSync(p, 'utf8')) as Record<string, unknown>;
+    const at = doc[spec.stamp];
+    if (typeof at !== 'string') return null;
+    return { at, rows: spec.count ? spec.count(doc) : null };
+  } catch {
+    return null;
+  }
+}
+
+/** Sources the registries record as REFUSED. They have never run and never will,
+ *  and saying only "never-run" hides the reason. */
+function refusedReason(root: string, id: string): string | null {
+  const p = join(root, 'sources/sources.enrich.yaml');
+  if (!existsSync(p)) return null;
+  try {
+    const doc = yaml.load(readFileSync(p, 'utf8')) as Record<string, unknown>;
+    const refused = (doc['refused'] as Array<Record<string, unknown>> | undefined) ?? [];
+    const hit = refused.find((r) => r['id'] === id);
+    return hit && typeof hit['refusal'] === 'string' ? (hit['refusal'] as string) : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Counties whose coverage row names this source, and the rows we hold for them.
  *  ⛔ Needed because "no run manifest" and "never ran" are DIFFERENT facts. The
  *  TN boundary layer has 152,321 parcels in the warehouse and no manifest at
  *  all; reporting it `never-run` with no qualifier trades one false statement
  *  for another, quieter one. */
-function attributedRows(root: string): Map<string, number> {
-  const out = new Map<string, number>();
+type Attribution = { rows: number; lastIngestedAt: string | null; allComplete: boolean };
+
+function attributedRows(root: string): Map<string, Attribution> {
+  const out = new Map<string, Attribution>();
   const p = join(root, 'data/coverage.json');
   if (!existsSync(p)) return out;
   try {
@@ -104,9 +188,20 @@ function attributedRows(root: string): Map<string, number> {
     for (const c of doc.counties ?? []) {
       const src = c['parcel_source'];
       const rows = c['rows'];
-      if (typeof src === 'string' && typeof rows === 'number' && rows > 0) {
-        out.set(src, (out.get(src) ?? 0) + rows);
-      }
+      if (typeof src !== 'string' || typeof rows !== 'number' || rows <= 0) continue;
+      const prev = out.get(src) ?? { rows: 0, lastIngestedAt: null, allComplete: true };
+      // ⛔ THE LEDGER DATES THE RUN. `last_ingested_at` is written by the ingest
+      // itself, so a source with parcels AND a timestamp did demonstrably run —
+      // reporting it `never-run` because no manifest exists is the denial this
+      // file already shipped once.
+      const at = c['last_ingested_at'];
+      const stamped = typeof at === 'string' ? at : null;
+      out.set(src, {
+        rows: prev.rows + rows,
+        lastIngestedAt:
+          stamped && (!prev.lastIngestedAt || stamped > prev.lastIngestedAt) ? stamped : prev.lastIngestedAt,
+        allComplete: prev.allComplete && c['ledger_status'] === 'complete',
+      });
     }
   } catch { /* an unreadable coverage file asserts nothing */ }
   return out;
@@ -121,7 +216,34 @@ export function buildSourceStatuses(root: string): PublishedSourceStatus[] {
   for (const [id, label] of [...known.entries()].sort(([a], [b]) => a.localeCompare(b))) {
     const history = runs.get(id) ?? [];
     if (history.length === 0) {
-      const held = attributed.get(id) ?? 0;
+      // Output-on-disk evidence FIRST — it is the strongest signal available and
+      // the one whose absence caused the previous falsehood.
+      const produced = producedEvidence(root, id);
+      if (produced) {
+        out.push({
+          source_id: id, label,
+          last_success: produced.at, last_attempt: produced.at, rows: produced.rows,
+          state: 'ok',
+          note: `No run manifest exists, but this source's output is on disk (${PRODUCED_BY[id]?.file}) and is what the site publishes. Timestamp is the artifact's own.`,
+        });
+        continue;
+      }
+      // ⛔ A REFUSED source is NOT a source. It is reported separately by
+      // buildRefusals() — listing it under "Sources" implies it is one of ours
+      // and merely idle, when in fact we decided not to fetch it. Two different
+      // facts, two different arrays.
+      if (refusedReason(root, id)) continue;
+      const att = attributed.get(id);
+      const held = att?.rows ?? 0;
+      if (att && att.lastIngestedAt) {
+        out.push({
+          source_id: id, label,
+          last_success: att.lastIngestedAt, last_attempt: att.lastIngestedAt, rows: att.rows,
+          state: att.allComplete ? 'ok' : 'degraded',
+          note: `No run manifest exists, but the county ledger dates this source's ingest and ${att.rows.toLocaleString()} parcel(s) are attributed to it.`,
+        });
+        continue;
+      }
       out.push({
         source_id: id, label,
         last_success: null, last_attempt: null,
@@ -158,4 +280,47 @@ export function buildSourceStatuses(root: string): PublishedSourceStatus[] {
     });
   }
   return out;
+}
+
+
+export type PublishedRefusal = {
+  source_id: string;
+  label: string;
+  /** The machine-readable ground, straight from the registry. */
+  refusal: string;
+  /** Where the evidence for that ground is cached, so the claim is auditable. */
+  evidence_url: string | null;
+};
+
+/**
+ * WHAT WE FOUND AND DECIDED NOT TO FETCH.
+ *
+ * ⛔ This is the half of the truth the site could not previously express.
+ * `SourceStatus.state` is `ok | degraded | failed | never-run` — four values,
+ * none of which mean "this source exists, we found it, and their terms say no".
+ * For the counties where a source EXISTS but is closed to us, "never-run" reads
+ * as our omission rather than their decision, and that is precisely backwards.
+ *
+ * The vocabulary already existed in the registry (`refused[]` in
+ * sources.enrich.yaml, gated by verify-sources.mjs for evidence-on-disk and for
+ * collision with live entries). It simply never reached the reader. This lifts
+ * it rather than inventing a second one.
+ */
+export function buildRefusals(root: string): PublishedRefusal[] {
+  const out: PublishedRefusal[] = [];
+  const p = join(root, 'sources/sources.enrich.yaml');
+  if (!existsSync(p)) return out;
+  try {
+    const doc = yaml.load(readFileSync(p, 'utf8')) as Record<string, unknown>;
+    for (const r of (doc['refused'] as Array<Record<string, unknown>> | undefined) ?? []) {
+      if (typeof r['id'] !== 'string') continue;
+      out.push({
+        source_id: r['id'],
+        label: typeof r['label'] === 'string' ? r['label'] : r['id'],
+        refusal: typeof r['refusal'] === 'string' ? r['refusal'] : 'unstated',
+        evidence_url: typeof r['evidence_url'] === 'string' ? r['evidence_url'] : null,
+      });
+    }
+  } catch { /* an unreadable registry asserts nothing */ }
+  return out.sort((a, b) => a.source_id.localeCompare(b.source_id));
 }

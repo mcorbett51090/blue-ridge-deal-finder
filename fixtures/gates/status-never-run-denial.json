@@ -1,0 +1,176 @@
+{
+  "_comment": [
+    "DERIVED by publish/status.ts — do not hand-edit. Its predecessor was a",
+    "fixture that shipped invented source history to production; see the",
+    "header of publish/status.ts for what it claimed and why no gate caught it."
+  ],
+  "data_observed_at": "2026-08-19T18:48:35.720Z",
+  "last_run_at": "2026-08-20T03:23:07.938Z",
+  "built_at": "2026-08-20T03:23:07.938Z",
+  "lane1_rows": 8,
+  "lane2_rows": 650,
+  "sources": [
+    {
+      "source_id": "buncombe-tax-foreclosures-trumba",
+      "label": "buncombe-tax-foreclosures-trumba",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "census-tigerweb",
+      "label": "census-tigerweb",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "fema-nfhl",
+      "label": "fema-nfhl",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "haywood-tax-foreclosures-civicengage",
+      "label": "haywood-tax-foreclosures-civicengage",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "jackson-county-reo-pdf",
+      "label": "jackson-county-reo-pdf",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "jackson-delinquent-accounts",
+      "label": "jackson-delinquent-accounts",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "nc-haywood-bids",
+      "label": "nc-haywood-bids",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "nc-jackson-reo",
+      "label": "nc-jackson-reo",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "nc-onemap-parcels",
+      "label": "nc-onemap-parcels",
+      "last_success": "2026-08-19T15:53:06.525Z",
+      "last_attempt": "2026-08-19T15:48:58.294Z",
+      "rows": 154329,
+      "state": "degraded",
+      "note": "Derived from 6 run manifest(s) in data/runs/."
+    },
+    {
+      "source_id": "nc-onemap-points",
+      "label": "nc-onemap-points",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "ncdor-reappraisal-schedule",
+      "label": "ncdor-reappraisal-schedule",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "oconee-sc-delinquent-tax-sale-list",
+      "label": "oconee-sc-delinquent-tax-sale-list",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "tn-property-boundaries",
+      "label": "tn-property-boundaries",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": 152321,
+      "state": "never-run",
+      "note": "No run manifest has been recorded for this source, but 152,321 parcel(s) in the warehouse are attributed to it — the data predates manifest recording. Its freshness is therefore UNKNOWN, not fresh."
+    },
+    {
+      "source_id": "usgs-epqs",
+      "label": "usgs-epqs",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "usgs-nhd",
+      "label": "usgs-nhd",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "usgs-nhd-area",
+      "label": "usgs-nhd-area",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "usgs-nhd-flowline",
+      "label": "usgs-nhd-flowline",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "usgs-nhd-waterbody",
+      "label": "usgs-nhd-waterbody",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    }
+  ]
+}

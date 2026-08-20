@@ -40,12 +40,17 @@ if (!existsSync(statusPath)) {
   process.exit(0);
 }
 
-// Every id any registry declares, at any nesting depth.
+// ⛔ AN EXPLICIT FILE LIST, NEVER readdirSync. A directory scan reads
+// `sources.denied.yaml` — the do-not-fetch list — as if it declared sources, so
+// the moment any denied row gained an `id:` this gate would ADMIT it. That is
+// fail-OPEN in the one direction that matters, and it is what the first version
+// of this gate did.
+const DECLARING_FILES = ['sources.yaml', 'sources.enrich.yaml', 'sources.candidates.yaml'];
 const declared = new Set();
 const srcDir = join(ROOT, 'sources');
 if (existsSync(srcDir)) {
-  for (const f of readdirSync(srcDir)) {
-    if (!f.endsWith('.yaml')) continue;
+  for (const f of DECLARING_FILES) {
+    if (!existsSync(join(srcDir, f))) continue;
     let doc;
     try { doc = yaml.load(readFileSync(join(srcDir, f), 'utf8')); } catch { continue; }
     const walk = (n) => {
@@ -67,6 +72,40 @@ const status = JSON.parse(readFileSync(statusPath, 'utf8'));
 // the site again.
 if (status.fixture === true) {
   problems.push('status.json carries `fixture: true` — the published freshness surface must be DERIVED, not hand-written');
+}
+
+// ⛔ THE INVERSE INVARIANT — and its absence is why the first version of this
+// gate signed off on a false file. It checked that every published id EXISTS.
+// It never checked that a published STATE is true. So when the derived
+// status.json asserted `never-run` over nc-jackson-reo — the source of all 8
+// Lane-1 rows the site was publishing that same minute — this gate exited 0.
+// A fabrication was traded for a denial and the gate certified it.
+//
+// Rule: if a source's output is on disk, `never-run` is a lie about our own
+// data, not a gap in it.
+const OUTPUT_PROVES_A_RUN = {
+  'nc-jackson-reo': 'data/distress/evidence.json',
+  'jackson-county-reo-pdf': 'data/distress/evidence.json',
+  'nc-haywood-bids': 'data/distress/notices.json',
+  'haywood-tax-foreclosures-civicengage': 'data/distress/notices.json',
+};
+for (const [id, artifact] of Object.entries(OUTPUT_PROVES_A_RUN)) {
+  const row = (status.sources ?? []).find((x) => x.source_id === id);
+  if (row && row.state === 'never-run' && existsSync(join(ROOT, artifact))) {
+    problems.push(
+      `status.json reports '${id}' as never-run, but ${artifact} exists on disk and is what the site publishes — ` +
+        'absence of a run manifest is absence of INSTRUMENTATION, not absence of a run',
+    );
+  }
+}
+
+// A refused source is not a source. It has its own array, with its ground and
+// its evidence; listing it under "Sources" implies it is ours and merely idle.
+const refusedIds = new Set((status.refusals ?? []).map((r) => r.source_id));
+for (const s of status.sources ?? []) {
+  if (refusedIds.has(s.source_id)) {
+    problems.push(`status.json lists '${s.source_id}' under sources[] while also declaring it refused — a refusal is their decision, not our idle source`);
+  }
 }
 
 for (const s of status.sources ?? []) {

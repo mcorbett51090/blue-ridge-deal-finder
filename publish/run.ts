@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { loadWeights, assertWeightsSumTo100 } from '../pipeline/score/config.ts';
 import { loadEnrichment } from '../pipeline/score/enrich-contract.ts';
 import { buildEvidenceContract } from '../pipeline/ingest/distress/to-contract.ts';
-import { buildSourceStatuses } from './status.ts';
+import { buildSourceStatuses, buildRefusals } from './status.ts';
 import type { SourceRef } from '../pipeline/score/enrich-contract.ts';
 import { readWarehouse, type WarehouseParcel } from '../pipeline/score/read-warehouse.ts';
 import { scoreCorpus, topN } from '../pipeline/score/corpus.ts';
@@ -313,6 +313,8 @@ async function main(): Promise<void> {
     lane1_rows: lane1.length,
     lane2_rows: listings.length - lane1.length,
     sources: buildSourceStatuses(ROOT),
+    // Sources we FOUND and are not allowed to fetch — their decision, not our gap.
+    refusals: buildRefusals(ROOT),
   });
 
   // data/coverage.json is the repo-level honesty surface the gate family checks

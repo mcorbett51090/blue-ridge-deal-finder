@@ -58,6 +58,14 @@
     "plant": {
      "site/src/pages/leak.astro": "site-frontmatter-egress.astro"
     }
+   },
+   {
+    "name": "publish-egress",
+    "expect": "red",
+    "_why": "`publish` was missing from SCAN_ROOTS and the omission was invisible — a control pair showed an identical fetch file RED under pipeline/ and unseen under publish/ (scanned 69 files: pipeline=53 scripts=16 site=0). publish/ produces every byte the site serves, and publish/status.ts was added there this session, so a network call in that directory would have bypassed the one gate whose job is to keep egress inside pipeline/fetch/client.ts.",
+    "plant": {
+     "publish/egress-violation.ts": "gates/publish-egress.ts"
+    }
    }
   ],
   "verify-no-pii.mjs": [
@@ -154,6 +162,14 @@
     "_why": "THE ACTUAL HISTORICAL FAILURE, recovered from git rather than imitated. The deployed site served this file: `fixture: true` plus four source_ids existing in no registry, including ga-notices asserting a successful Georgia fetch on 2026-08-12 with rows: 3 for a source that never existed. site/scripts/verify-data.mjs check 11 validated its SHAPE and passed — a schema check cannot see an invented identifier, because 'ga-notices' is a well-formed string. Shape conformance and referential integrity are different assertions and only the second catches a fabrication.",
     "plant": {
      "site/public/data/status.json": "gates/status-fabricated-sources.json"
+    }
+   },
+   {
+    "name": "status-never-run-denial",
+    "expect": "red",
+    "_why": "THE SECOND FAILURE, also recovered from git rather than imagined — commit f9bd82f, the fix for the first one. Deriving run state from data/runs/*.json alone made 17 of 18 sources report never-run, including nc-jackson-reo (source of all 8 Lane-1 rows being published that same minute) and nc-haywood-bids (whose timestamp the same file used as data_observed_at). A fabrication was traded for a denial, and the first version of this gate exited 0 over it because it only checked that ids EXIST, never that a published STATE is true. Absence of a run manifest is absence of instrumentation, not of a run.",
+    "plant": {
+     "site/public/data/status.json": "gates/status-never-run-denial.json"
     }
    }
   ]
