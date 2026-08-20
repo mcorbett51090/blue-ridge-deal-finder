@@ -364,3 +364,47 @@ test('CONTROL — one measurable signal still scores a NUMBER', () => {
   ] as unknown as Parameters<typeof deriveScore>[0];
   assert.equal(deriveScore(one), 50);
 });
+
+
+// ---------------------------------------------------------------------------
+// EVERY PUBLISHED ENUM VALUE MUST HAVE A UI BRANCH THAT MATCHES IT
+// ---------------------------------------------------------------------------
+
+test('⛔ every acreage_basis the payload emits is one the card actually renders', () => {
+  // The defect this exists for: the payload emitted `deeded` on all 150 TN rows
+  // while DealCard and the detail page both tested `=== 'deed'`. The comparison
+  // was false everywhere, so the badge rendered NOTHING — silently, because an
+  // unmatched value in a chain of `&&` guards produces no output and no error.
+  //
+  // It was not a cosmetic miss. The basis IS the RT-9 disclosure: TN acreage is
+  // DEEDED, NC's is planimetric polygon area, and they diverge up to 29% on
+  // measured samples — the second of ADR 0002's two grounds for disabling TN
+  // value scoring. The only place a reader could learn which kind of acre they
+  // were reading had never displayed.
+  //
+  // Asserting the UI SOURCE rather than the type: a union can be edited to match
+  // the data while the component keeps comparing against the old string, which
+  // is exactly how these two drifted apart.
+  const rows = JSON.parse(readFileSync(PUBLISHED, 'utf8')) as PublishedListing[];
+  const emitted = [...new Set(rows.map((r) => (r as { acreage_basis?: string }).acreage_basis).filter(Boolean))];
+  assert.ok(emitted.length > 0, 'CONTROL: the payload must emit at least one basis, or this test is vacuous');
+
+  const card = readFileSync(join(ROOT, 'site/src/components/DealCard.astro'), 'utf8');
+  const detail = readFileSync(join(ROOT, 'site/src/pages/deal/[id].astro'), 'utf8');
+  for (const value of emitted) {
+    assert.ok(
+      card.includes(`acreage_basis === '${value}'`),
+      `DealCard.astro has no branch for acreage_basis '${value}' — ${rows.filter((r) => (r as { acreage_basis?: string }).acreage_basis === value).length} published row(s) would render no badge at all`,
+    );
+    assert.ok(
+      detail.includes(`acreage_basis === '${value}'`),
+      `deal/[id].astro has no branch for acreage_basis '${value}'`,
+    );
+  }
+
+  // CONTROL: the assertion discriminates — a value nothing renders must fail it.
+  assert.ok(
+    !card.includes("acreage_basis === 'no-such-basis'"),
+    'CONTROL: a basis the card does not handle must be detectable by this test',
+  );
+});

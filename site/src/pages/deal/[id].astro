@@ -119,7 +119,13 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
                         GIS-derived — confirm against the deed or a survey before relying on it.
                       </span>
                     )}
-                    {l.acreage_basis === 'deed' && <span class="d__basis">Stated on the deed.</span>}
+                    {l.acreage_basis === 'deeded' && (
+                      <span class="d__basis">
+                        Stated on the deed, not measured from the parcel polygon. Deeded and GIS acreage
+                        diverge — up to 29% on the East Tennessee parcels measured — so this figure is not
+                        directly comparable to a GIS-derived acreage.
+                      </span>
+                    )}
                     {l.acreage_basis === 'assessor' && (
                       <span class="d__basis">Stated by the assessor.</span>
                     )}

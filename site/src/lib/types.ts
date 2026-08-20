@@ -148,8 +148,22 @@ export interface Listing {
   // claims-D claim 15). None of them may be inferred or defaulted.
   /** Confidence in the score, 0..1. Rendered beside the score, never instead of it. */
   confidence?: number;
-  /** How acreage was obtained. Drives the "GIS-derived — confirm against deed/survey" badge. */
-  acreage_basis?: 'gis' | 'deed' | 'assessor';
+  /** How acreage was obtained. Drives the acreage-basis badge.
+   *
+   *  ⛔ `'deeded'`, NOT `'deed'`. The warehouse column and every published row
+   *  carry `deeded` (matching TN's `DEEDAC`), while this union said `'deed'` and
+   *  both the card and the detail page tested `=== 'deed'`. The comparison was
+   *  therefore false on all 150 TN rows and the badge rendered NOTHING —
+   *  silently, because an unmatched value in a chain of `&&` guards produces no
+   *  output and no error.
+   *
+   *  That silence mattered more than a missing tag: the basis IS the RT-9
+   *  disclosure. TN acreage is DEEDED and NC's is planimetric polygon area, and
+   *  they diverge up to 29% on the samples measured 2026-08-19 — which is the
+   *  second of ADR 0002's two grounds for disabling TN value scoring. The one
+   *  place a reader could have learned which kind of acre they were looking at
+   *  had never displayed. */
+  acreage_basis?: 'gis' | 'deeded' | 'assessor' | 'unknown';
   /** Tax year the assessed value belongs to. Drives the vintage string. */
   assessment_year?: number;
   /** Next scheduled county reappraisal year, when the county publishes one. */

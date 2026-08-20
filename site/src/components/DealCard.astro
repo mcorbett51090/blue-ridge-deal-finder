@@ -158,7 +158,11 @@ const vintage = (() => {
                   GIS-derived
                 </span>
               )}
-              {l.acreage_basis === 'deed' && <span class="tag tag--neutral">from deed</span>}
+              {l.acreage_basis === 'deeded' && (
+                <span class="tag tag--neutral" title="Acreage as stated on the deed, not measured from the polygon. Deeded and GIS acreage diverge — measured up to 29% on East Tennessee samples — so this figure is not comparable to a GIS-derived one.">
+                  from deed
+                </span>
+              )}
               {l.acreage_basis === 'assessor' && <span class="tag tag--neutral">assessor-stated</span>}
             </>
           ) : (
