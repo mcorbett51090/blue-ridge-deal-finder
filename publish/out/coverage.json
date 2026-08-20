@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T00:39:02.705Z",
+  "generated_at": "2026-08-20T00:47:09.692Z",
   "counties": [
     {
       "fips": "37189",
@@ -11,7 +11,7 @@
       "data_state": "ingested",
       "rows": 46252,
       "published": 107,
-      "scorable": 8,
+      "scorable": 41081,
       "ledger_status": "carried",
       "last_ingested_at": null,
       "note": "Collected and scored — the rows below are published from real parcel records. (Ledger note: the last run recorded this county as 'carried' while 46,252 of its parcels are present in the same warehouse — the row count is what is published here.)"
@@ -26,7 +26,7 @@
       "data_state": "ingested",
       "rows": 38698,
       "published": 72,
-      "scorable": 0,
+      "scorable": 37597,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
       "note": "Collected and scored — the rows below are published from real parcel records. (Source note: parvaltype=Market — not comparable to Assessed counties)"
@@ -41,7 +41,7 @@
       "data_state": "ingested",
       "rows": 24034,
       "published": 60,
-      "scorable": 0,
+      "scorable": 24019,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
       "note": "Collected and scored — the rows below are published from real parcel records."
@@ -101,7 +101,7 @@
       "data_state": "ingested",
       "rows": 41291,
       "published": 113,
-      "scorable": 0,
+      "scorable": 39919,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
       "note": "Collected and scored — the rows below are published from real parcel records."
@@ -116,7 +116,7 @@
       "data_state": "ingested",
       "rows": 21102,
       "published": 53,
-      "scorable": 0,
+      "scorable": 19407,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
       "note": "Collected and scored — the rows below are published from real parcel records."
@@ -131,7 +131,7 @@
       "data_state": "ingested",
       "rows": 29204,
       "published": 63,
-      "scorable": 0,
+      "scorable": 28994,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
       "note": "Collected and scored — the rows below are published from real parcel records."
@@ -161,7 +161,7 @@
       "data_state": "ingested",
       "rows": 17508,
       "published": 40,
-      "scorable": 8,
+      "scorable": 15498,
       "ledger_status": "carried",
       "last_ingested_at": null,
       "note": "Collected and scored — the rows below are published from real parcel records. (Ledger note: the last run recorded this county as 'carried' while 17,508 of its parcels are present in the same warehouse — the row count is what is published here.)"

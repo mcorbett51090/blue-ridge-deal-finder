@@ -189,7 +189,18 @@ async function main(): Promise<void> {
   // which is a fact about the county's publishing, not about its land.
   const scorableByFips = new Map<string, number>();
   for (const s of scored) {
-    if (s.scored_count > 0) scorableByFips.set(s.row.fips, (scorableByFips.get(s.row.fips) ?? 0) + 1);
+    // ⛔ CHEAPNESS COUNTS AS SCORABLE. `scored_count` counts COMPOSITE components
+    // only, and per_acre left the composite to become the selection axis — so
+    // this collapsed from 41,081 to 8 for Watauga, and buildCoverage() would then
+    // have published NOTE_NO_SCORABLE_SIGNAL: "this county publishes no assessed
+    // values, so every signal we have is unknown for every one of its parcels."
+    // That is FALSE for Watauga — it publishes 41,081 assessed values, which is
+    // precisely why cheapness is measurable there. The tier note is the site's
+    // honesty surface; a refactor that makes it assert the opposite of the truth
+    // is worse than the saturation it was fixing.
+    if (s.scored_count > 0 || s.cheapness !== null) {
+      scorableByFips.set(s.row.fips, (scorableByFips.get(s.row.fips) ?? 0) + 1);
+    }
   }
 
   const coverage = buildCoverage(seeds, wh.ledger, wh.rowsByFips, publishedByFips, scorableByFips);
