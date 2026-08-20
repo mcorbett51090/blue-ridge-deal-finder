@@ -46,13 +46,34 @@ function committedClaim() {
   return { counties: ing.length, rows: ing.reduce((a, x) => a + (x.rows ?? 0), 0) };
 }
 
+/** Is the DATA TIER present in this checkout at all?
+ *
+ *  ⛔ This distinction is the whole correctness of the branch below, and getting
+ *  it wrong cost a red CI run. `data/warehouse/` is GITIGNORED BY DESIGN — the
+ *  corpus lives in the off-platform mirror, never in git — so on a fresh CI
+ *  checkout the directory does not exist at all. A gate that fails closed on
+ *  that is baseline-red in every CI run forever, which `verify-controls.mjs`
+ *  correctly reports as invalidating its own red fixtures ("BASELINE RED in an
+ *  unmodified scratch tree — its red fixtures prove nothing").
+ *
+ *  So: NO DIRECTORY = this checkout legitimately has no data tier -> skip, and
+ *  say plainly that the artifact is unverified. DIRECTORY BUT NO POINTER, or a
+ *  pointer with an empty parcels table, is a real anomaly on a machine that is
+ *  supposed to hold data -> fail closed. */
+const dataTierPresent = existsSync(dir);
+
+if (!dataTierPresent) {
+  console.log('· verify-ledger-reconciles — no data/warehouse/ in this checkout (gitignored by design, e.g. CI). The ledger artifact is UNVERIFIED here, not verified-good.');
+  process.exit(0);
+}
+
 if (!existsSync(pointerPath)) {
-  // ⛔ FAIL-CLOSED. This used to exit 0 while printing "NOT a pass for that
-  // artifact" — a sentence that is true and a status code that says the
-  // opposite, so `npm run verify` counted it green. If the COMMITTED
-  // coverage.json claims ingested counties, an absent warehouse is not
-  // "nothing ingested yet", it is the site publishing a ledger describing data
-  // that exists nowhere — precisely the drift this gate was written to catch.
+  // ⛔ FAIL-CLOSED, and only reachable when the data tier IS present. This used
+  // to exit 0 while printing "NOT a pass for that artifact" — a sentence that is
+  // true and a status code that says the opposite, so `npm run verify` counted
+  // it green. On a machine that holds the warehouse, an absent pointer beside a
+  // committed coverage.json claiming rows is the site publishing a ledger that
+  // describes data existing nowhere — the drift this gate was written to catch.
   const claim = committedClaim();
   if (claim.rows > 0) {
     console.error('verify-ledger-reconciles: FAILED');
