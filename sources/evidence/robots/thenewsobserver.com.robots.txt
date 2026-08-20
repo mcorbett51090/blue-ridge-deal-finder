@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /custom/
+Disallow: /images/
+Disallow: /mce/
+Disallow: /multifileupload/
+Disallow: /oauth/
+Disallow: /support/
+Disallow: /typefaces/
+Disallow: /zeroclipboard/
+Disallow: /user/login/
+Disallow: /user/register/
+Disallow: /archives

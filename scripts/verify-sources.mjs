@@ -191,6 +191,84 @@ if (sourcesFile && deniedFile) {
     gate.fail('seeds/counties.csv missing — cannot cross-check row floors');
   }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// CANDIDATES — the file no gate read until 2026-08-19.
+//
+// ⛔ `sources.candidates.yaml` records robots verdicts, control blocks and PASS
+// rulings for every source probed but not yet wired. NOTHING loaded it: this
+// gate read sources.yaml and sources.denied.yaml only. So every claim in it was
+// ungated documentation, and adding a source there proved exactly nothing —
+// while the file's own header asserts "ONLY sources that PASSED a P0 probe with
+// a control block that could fail".
+//
+// A registry whose claims are unchecked is a place where a wrong claim can rest
+// indefinitely, which is how a candidate reaches sources.yaml on the strength of
+// a probe nobody re-ran.
+// ─────────────────────────────────────────────────────────────────────────────
+{
+  const candPath = join(root, 'sources', 'sources.candidates.yaml');
+  if (existsSync(candPath)) {
+    const cand = loadYamlFile(candPath);
+    const list = cand.data?.candidates ?? [];
+    if (list.length === 0) {
+      gate.fail('sources.candidates.yaml has zero candidates — a failed read is indistinguishable from an empty registry');
+    }
+    for (const c of list) {
+      const where = `sources.candidates.yaml [${c.id ?? '(no id)'}]`;
+      if (!c.id || !c.url) { gate.fail(`${where}: every candidate needs an id and a url`); continue; }
+
+      // A candidate whose host is denied is a contradiction, and the denylist wins.
+      let host = null;
+      try { host = new URL(c.url).hostname; } catch { gate.fail(`${where}: url is not parseable`); }
+      if (host) {
+        for (const d of denials) {
+          const dh = d.host ?? '';
+          const matches = dh.startsWith('*.') ? host.endsWith(dh.slice(1)) : host === dh;
+          if (matches) gate.fail(`${where}: host ${host} is on the DENYLIST (${dh}) — a candidate may not name a host we refuse`);
+        }
+      }
+
+      // The file's own contract: a control block that COULD fail.
+      const cb = c.control_block;
+      if (!cb || !cb.positive || !cb.negative) {
+        gate.fail(`${where}: needs a control_block with BOTH a positive and a negative — a probe with no negative cannot fail, and this repo has recorded hosts that answer 200 on error`);
+      }
+
+      // Robots evidence must be on disk when it is cited, or the verdict is a memory.
+      const ev = c.robots?.evidence_file;
+      if (ev && !existsSync(join(root, ev))) {
+        gate.fail(`${where}: robots.evidence_file ${ev} is cited but not on disk — a cached body is what makes the verdict auditable`);
+      }
+
+      // ⛔ THE CHECK THAT CAUGHT A TEXAS LAYER FILED AS A GEORGIA COUNTY.
+      //
+      // Required when BOTH are true: the candidate claims SPECIFIC COUNTIES, and
+      // it lives on a MULTI-TENANT host where the domain establishes no
+      // jurisdiction. That pair is exactly the near-miss: a "Fannin County
+      // Parcels" layer on services7.arcgis.com that was TEXAS — situs_state TX,
+      // WKID 2276 — and RICHER than our own anchor, so nothing downstream would
+      // have objected. County names repeat (Fannin GA/TX, Union GA/FL/NJ/NC/SC,
+      // Sevier TN/UT, and the Sevier-Utah decoy fired three times in one search).
+      //
+      // NOT required for a jurisdictional host: services.nconemap.gov is North
+      // Carolina's own domain and hazards.fema.gov is federal — those cannot be
+      // another state, and demanding a geometry sample from a national service
+      // that covers the whole country is theatre, not a control. The rule keys
+      // on the ambiguity that actually exists.
+      const claimsCounties = Array.isArray(c.covers?.counties) && c.covers.counties.length > 0;
+      const multiTenantHost = host !== null && /(^|\.)arcgis\.com$/.test(host);
+      if (claimsCounties && multiTenantHost && !cb?.geo_identity) {
+        gate.fail(
+          `${where}: claims specific counties on the multi-tenant host ${host} but carries no ` +
+            'control_block.geo_identity — a county-name match is not identity, and this is the exact ' +
+            'shape of the Fannin/Texas layer that was nearly ingested as a Blue Ridge county',
+        );
+      }
+    }
+    gate.info(`${list.length} candidate(s) checked`);
+  }
+}
+
   gate.info(`${sources.length} source(s), ${denials.length} denial rule(s)`);
 
   // ---- sources.enrich.yaml: the P7 enrichment lane -------------------------

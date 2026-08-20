@@ -1,0 +1,9 @@
+User-agent: *
+
+Disallow: /cms/
+Disallow: /*?*
+
+User-agent: BLEXBot
+User-agent: AwarioRssBot
+User-agent: AwarioSmartBot
+Disallow: /

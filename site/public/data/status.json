@@ -5,14 +5,32 @@
     "header of publish/status.ts for what it claimed and why no gate caught it."
   ],
   "data_observed_at": "2026-08-19T18:48:35.720Z",
-  "last_run_at": "2026-08-20T03:31:54.094Z",
-  "built_at": "2026-08-20T03:31:54.094Z",
+  "last_run_at": "2026-08-20T03:48:06.114Z",
+  "built_at": "2026-08-20T03:48:06.114Z",
   "lane1_rows": 8,
   "lane2_rows": 650,
   "sources": [
     {
       "source_id": "buncombe-tax-foreclosures-trumba",
       "label": "buncombe-tax-foreclosures-trumba",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "ga-dawson-parcels-values",
+      "label": "ga-dawson-parcels-values",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "ga-union-parcels-values",
+      "label": "ga-union-parcels-values",
       "last_success": null,
       "last_attempt": null,
       "rows": null,

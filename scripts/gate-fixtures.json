@@ -42,6 +42,14 @@
     "plant": {
      "sources/sources.enrich.yaml": "gates/enrich-unreachable-robots-enabled.yaml"
     }
+   },
+   {
+    "name": "candidate-no-geo-identity",
+    "expect": "red",
+    "_why": "sources.candidates.yaml was read by NO gate at all until 2026-08-19 — verify-sources.mjs loaded sources.yaml and sources.denied.yaml only — so every robots verdict, control block and PASS ruling in it was ungated documentation while the file's own header claimed 'ONLY sources that PASSED a P0 probe with a control block that could fail'. This fixture reconstructs the near-miss: a Fannin County layer on services7.arcgis.com (a MULTI-TENANT host, where the domain establishes no jurisdiction) claiming a Blue Ridge county, with the geo_identity control removed. The real one was TEXAS — situs_state TX, WKID 2276 — and RICHER than our NC anchor, so nothing downstream would have objected.",
+    "plant": {
+     "sources/sources.candidates.yaml": "gates/candidate-no-geo-identity.yaml"
+    }
    }
   ],
   "verify-egress-allowlist.mjs": [

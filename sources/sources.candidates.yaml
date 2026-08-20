@@ -304,6 +304,100 @@ candidates:
 # ═══════════════════════════════════════════════════════════════════════════════
 # FAILED P0 — promote these into sources.denied.yaml before any fetcher code runs.
 # ═══════════════════════════════════════════════════════════════════════════════
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NORTH GEORGIA — added 2026-08-19 by the wide source sweep.
+  #
+  # ⛔ THIS REGION WAS RECORDED AS PERMANENTLY CLOSED. qPublic is closed (robots
+  # disallows /Application.aspx, every path 403, gis.qpublic.net = Cloudflare
+  # 1016 dead origin) and that ruling STANDS. What changed is the search method:
+  # the earlier sweep concluded "no open per-county parcel service" from an
+  # ArcGIS Hub search, and the AGOL search bbox parameter DOES NOT SPATIALLY
+  # FILTER — a South-Pacific bbox returns Napa County, California. No absence was
+  # ever inferable from it. Four counties of data sat behind that conclusion.
+  #
+  # Both entries below were verified by the orchestrator directly, not accepted
+  # from a report: WGS84 vertex inside the Blue Ridge envelope, field list
+  # enumerated, row counts and value population measured, negative control fired.
+  # ─────────────────────────────────────────────────────────────────────────────
+  - id: ga-union-parcels-values
+    kind: arcgis-feature-server
+    url: https://services.arcgis.com/ISpzx3B5ZsVA6e1Z/arcgis/rest/services/Union_Web_Map_2026_WFL1/FeatureServer/7
+    legal_basis: public-records-open-data
+    covers: { states: [GA], counties: [Union] }
+    robots:
+      verdict: absent
+      checked_at: 2026-08-19
+      evidence_url: https://services.arcgis.com/robots.txt
+      evidence_file: sources/evidence/robots/services.arcgis.com.robots-403.txt
+      evidence_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      note: >-
+        HTTP 403, 11 bytes, body "Invalid URL" — Esri's tenant router saying the
+        path does not exist. Not a robots file and not a crawl decision. Same
+        ruling sources.yaml already records for services.nconemap.gov's 404 and
+        sources.enrich.yaml for hydro.nationalmap.gov's 403: the honest verdict
+        is `absent` — nobody granted anything, there is simply no file to grant
+        it. sha256 is of the DIRECTIVE TEXT, empty for a non-2xx, per client.ts.
+    tos: { verdict: unknown, checked_at: null, evidence_url: null }
+    rate: { rps: 0.5, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      positive: { assert: "returnCountOnly on layer 7 returns a numeric count", measured: 24392 }
+      negative:
+        assert: "a bogus layer id returns an ERROR BODY, not a count"
+        measured: "layer 999 -> HTTP 200 with {\"error\":{\"code\":400}} and no count field"
+        note: "⛔ ArcGIS answers 200 on error, so HTTP status alone proves nothing here"
+      geo_identity:
+        assert: "a real vertex, read in WGS84, falls inside the Blue Ridge envelope"
+        measured: "-84.0756 / 34.8598"
+        note: >-
+          The control that matters in this state. Union exists in GA, FL, NJ, NC
+          and SC, and an earlier candidate named "Union Parcels" was FLORIDA.
+          A declared `extent` is not evidence — it is frequently in a projected
+          CRS and reads as nonsense rather than rejecting cleanly.
+    fields_available: [PIN, Acres, Class, Land_Value, PREV_VAL, CURR_VAL]
+    measured_2026_08_19:
+      rows: 24392
+      curr_val_populated: 24233        # 99.3%
+      distinct_raw_pins: 24173
+      distinct_normalised_pins: 24172  # 1 collision, a CASE duplicate, not a whitespace fusion
+      note: >-
+        PIN format "039    102 A14" — GA map&parcel with INTERNAL SPACES, unlike
+        NC's dash form. normalizeParno strips whitespace; measured against the
+        full layer that causes exactly ONE collision and it is 072B/072b, i.e.
+        one parcel entered twice. No GA-specific normaliser is required.
+        219 duplicate raw PINs are ordinary MULTIPART parcels (the Madison shape)
+        and must be counted as parts, not parcels.
+    caveats:
+      - "CUV_Year present — Georgia's conservation-use covenant. Same shape as TN greenbelt: a covenanted parcel is assessed below market and would rank as an impossible bargain. NOT yet handled."
+      - "Stated Acres vs polygon area divergence is UNMEASURED here; NC/TN both needed an acreage_basis and the enum has no slot for a third kind."
+    probe_ref: "docs/probe-log.md — wide source sweep 2026-08-19"
+    verdict: PASS
+
+  - id: ga-dawson-parcels-values
+    kind: arcgis-feature-server
+    url: https://services.arcgis.com/ISpzx3B5ZsVA6e1Z/arcgis/rest/services/Dawson_Webmap_WFL1/FeatureServer/1
+    legal_basis: public-records-open-data
+    covers: { states: [GA], counties: [Dawson] }
+    robots:
+      verdict: absent
+      checked_at: 2026-08-19
+      evidence_url: https://services.arcgis.com/robots.txt
+      evidence_file: sources/evidence/robots/services.arcgis.com.robots-403.txt
+      evidence_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      note: "same host and same ruling as ga-union-parcels-values"
+    tos: { verdict: unknown, checked_at: null, evidence_url: null }
+    rate: { rps: 0.5, concurrency: 1, crawl_delay_s: null, backoff: exponential }
+    user_agent: "blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)"
+    control_block:
+      positive: { assert: "layer 1 returns rows carrying value fields", measured: "PREV_VAL/CURR_VAL/Land_Val present, sample CURR_VAL 708400" }
+      negative: { assert: "a bogus layer id returns an ERROR BODY, not rows", measured: "HTTP 200 with error code 400" }
+      geo_identity: { assert: "WGS84 vertex inside the Blue Ridge envelope", measured: "PENDING — layer 1 geometry not yet sampled by the orchestrator" }
+    fields_available: [PREV_VAL, CURR_VAL, Land_Val]
+    caveats:
+      - "⛔ geo-identity NOT yet asserted from real geometry on this layer. Dawson exists in GA, TX, NE and MT. This entry may NOT be promoted to sources.yaml until a WGS84 vertex is sampled and shown inside the envelope — the Fannin=Texas near-miss is exactly this check firing."
+    probe_ref: "docs/probe-log.md — wide source sweep 2026-08-19"
+    verdict: PASS (values) / PENDING (geo-identity)
+
 denied_by_p0:
 
   - host: "www.landsearch.com, landsearch.com"

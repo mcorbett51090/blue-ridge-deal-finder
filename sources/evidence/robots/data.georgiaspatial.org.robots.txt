@@ -1,0 +1,9 @@
+# --------------------------------
+# University of Georgia  -- data.georgiaspatial.org
+# Robot Exclusion File -- robots.txt
+# Author:  EWS
+# Last Updated:  03/20/01 12:00:38
+
+User-agent: *
+Disallow: /stats/
+Disallow: /intranet/
