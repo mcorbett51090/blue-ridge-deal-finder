@@ -27,6 +27,14 @@ export const WaterUnknownReason = z.enum([
   'parcel_geometry_absent',
   /** NHD answered, but not with a body we can trust (in-band error, bad shape). */
   'nhd_unhealthy_response',
+  /** The water computation exceeded its per-parcel budget and was abandoned.
+   *  ⛔ THIS IS UNKNOWN, NOT ABSENT, and the distinction is the whole reason the
+   *  reason exists. A timeout tracks HYDROGRAPHIC DENSITY — the denser the
+   *  stream network, the longer the maths — so recording it as `has_stream:
+   *  false` would null out exactly the water-rich parcels and leave the dry ones
+   *  measured, making the `water` signal ANTI-CORRELATED with water. That is
+   *  worse than no signal, because it is confidently backwards. */
+  'enrich_timeout',
 ]);
 
 export const FloodUnknownReason = z.enum([

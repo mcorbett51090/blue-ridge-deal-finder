@@ -9,8 +9,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { looksLikeRobotsTxt, evaluateLiveRobots } from '../pipeline/fetch/guard.ts';
 import {
-  attr, cellsCovering, cellKeyOf, computeWater, isPerennialWaterbodyFCode,
-  isWatercourseFType, parseAreas, parseFlowlines, regimeOfFCode,
+  attr, cellsCovering, cellKeyOf, computeWater, dedupeCell, isPerennialWaterbodyFCode,
+  isWatercourseFType, normaliseCell, parseAreas, parseFlowlines, prefilterCell, regimeOfFCode,
   SEARCH_RADIUS_M, type NhdCell,
 } from '../pipeline/enrich/nhd.ts';
 import { coverageFrom, computeFlood, isSfhaZone, isUndeterminedZone, parseFloodZones } from '../pipeline/enrich/nfhl.ts';
@@ -324,7 +324,7 @@ test('acceptance 5: a warm cell cache issues ZERO requests; a cold one issues th
   const { loadCells } = await import('../pipeline/enrich/index.ts');
   const { EnrichCache } = await import('../pipeline/enrich/cache.ts');
   const cache = new EnrichCache(':memory:');
-  const counters = { nhdRequests: 0, parcelGeometryRequests: 0, epqsRequests: 0 };
+  const counters = { nhdRequests: 0, parcelGeometryRequests: 0, epqsRequests: 0, timeouts: 0, slowestWaterMs: 0 };
 
   // A counting stand-in for FetchClient. No socket: the point of the test is
   // the REQUEST COUNT, and a real client would make the count depend on the
@@ -485,4 +485,164 @@ test('bbox-only geometry is labelled as such, never as a polygon result', () => 
     sourceUrl: null,
   });
   assert.equal(w.water_confidence, 'bbox-approximation');
+});
+
+
+// ───────────────────────────────────────────── Phase 4: the affordability ladder
+// Measured on the real corpus 2026-08-19: the worst parcel
+// (37175:8594-94-2018-000:0, two cells, one holding a 181,882-vertex NHDArea)
+// took 324.6 s. dedupe -> 116.6 s, + bbox prefilter -> 69.7 s, + clip-to-cell
+// -> 1.4 s. Each rung below is the regression test for one of those.
+
+test('⛔ a feature returned by TWO quarter-fetches is counted ONCE (dedupe)', () => {
+  // The real shape of the bug: fetchCellBbox splits a cell into quarters on a
+  // transfer-limit error and flatMaps the parts. A feature straddling the split
+  // comes back from every quarter it touches. computeWater does
+  // `frontage += metres`, so the duplicate is COUNTED TWICE and published
+  // frontage inflates — up to 4x, measured, in the densest cells.
+  const line = {
+    permanent_identifier: '{STRADDLES-THE-SPLIT}',
+    gnis_name: 'Baker Creek',
+    ftype: 460,
+    fcode: 46006,
+    regime: 'perennial' as const,
+    geometry: { type: 'MultiLineString' as const, coordinates: [[[-82.75, 35.15], [-82.74, 35.16]]] },
+  };
+  const merged: NhdCell = {
+    key: '-82.7,35.1',
+    bbox: [-82.7, 35.1, -82.6, 35.2],
+    flowlines: [line, { ...line }, { ...line }, { ...line }], // 4 quarters, one feature
+    waterbodies: [],
+    areas: [],
+  };
+  assert.equal(merged.flowlines.length, 4, 'CONTROL: the un-deduped merge really does carry 4 copies');
+  const deduped = dedupeCell(merged);
+  assert.equal(deduped.flowlines.length, 1);
+  assert.equal(
+    deduped.flowlines.length,
+    new Set(deduped.flowlines.map((f) => f.permanent_identifier)).size,
+    'one row per permanent_identifier',
+  );
+});
+
+test('⛔ dedupe falls back to geometry when permanent_identifier is empty — and keeps DISTINCT shapes', () => {
+  const mk = (id: string, lng: number) => ({
+    permanent_identifier: id, gnis_name: null, ftype: 460, fcode: 46006, regime: 'perennial' as const,
+    geometry: { type: 'MultiLineString' as const, coordinates: [[[lng, 35.15], [lng + 0.01, 35.16]]] },
+  });
+  const cell: NhdCell = {
+    key: '-82.7,35.1', bbox: [-82.7, 35.1, -82.6, 35.2],
+    flowlines: [mk('', -82.75), mk('', -82.75), mk('', -82.72)], // two identical, one different
+    waterbodies: [], areas: [],
+  };
+  const out = dedupeCell(cell);
+  assert.equal(out.flowlines.length, 2, 'identical shapes collapse; a DIFFERENT shape must survive');
+});
+
+test('⛔ the bbox prefilter keeps a feature NEAR the parcel — the skirt is not optional', () => {
+  // A creek outside the polygon but inside SEARCH_RADIUS_M must survive, or
+  // min_dist_flowline_m silently becomes null and "we did not look" is
+  // published as "no water nearby".
+  const near = {
+    permanent_identifier: 'NEAR', gnis_name: null, ftype: 460, fcode: 46006, regime: 'perennial' as const,
+    geometry: { type: 'MultiLineString' as const, coordinates: [[[-82.7003, 35.1], [-82.7003, 35.2]]] },
+  };
+  const faraway = {
+    ...near,
+    permanent_identifier: 'FAR',
+    geometry: { type: 'MultiLineString' as const, coordinates: [[[-82.2, 35.1], [-82.2, 35.2]]] },
+  };
+  const cell: NhdCell = {
+    key: '-82.7,35.1', bbox: [-82.7, 35.1, -82.6, 35.2],
+    flowlines: [near, faraway], waterbodies: [], areas: [],
+  };
+  // search box around a parcel at -82.70/-82.699, expanded by the radius
+  const kept = prefilterCell(cell, [-82.705, 35.099, -82.6985, 35.1015]);
+  const ids = kept.flowlines.map((f) => f.permanent_identifier);
+  assert.ok(ids.includes('NEAR'), 'a feature within the search box MUST survive the filter');
+  assert.ok(!ids.includes('FAR'), 'CONTROL: a genuinely distant feature is rejected, or the filter does nothing');
+});
+
+test('⛔ a parcel over its water budget is UNKNOWN with enrich_timeout — never has_stream:false', () => {
+  // The most dangerous confusion available here. The budget is exceeded exactly
+  // where hydrography is DENSE, so recording a timeout as a measured negative
+  // would null out the water-rich parcels and leave the dry ones measured —
+  // making the signal anti-correlated with water.
+  const w = computeWater({
+    parcel: parcelPolygon(),
+    parcelIsBboxOnly: false,
+    budgetMs: -1, // already past the deadline on entry: deterministic, no sleep
+    cells: [cell('nhd-flowline-perennial.json', null, null)],
+    sourceUrl: null,
+  });
+  assert.equal(w.water_unknown_reason, 'enrich_timeout');
+  assert.equal(w.has_stream, null, 'a timeout is UNKNOWN — false would be a measured absence');
+  assert.equal(w.has_river, null);
+  assert.equal(w.has_pond, null);
+  assert.equal(w.water_frontage_m, null, 'a partial frontage is a floor, not a measurement');
+
+  // CONTROL: the SAME parcel and cell, with a real budget, does measure water.
+  // Without this the test passes against a computeWater that returns unknown
+  // for everything.
+  const ok = computeWater({
+    parcel: parcelPolygon(), parcelIsBboxOnly: false, budgetMs: 60_000,
+    cells: [cell('nhd-flowline-perennial.json', null, null)], sourceUrl: null,
+  });
+  assert.equal(ok.has_stream, true);
+  assert.equal(ok.water_unknown_reason, null);
+});
+
+test('⛔ normaliseCell does not change the answer — clip is an optimisation, not a measurement', () => {
+  // ⛔ WHY BOTH CELLS. The clip is only safe because of an invariant that a
+  // single-cell fixture does not exhibit: NHD returns a feature for EVERY cell
+  // whose envelope it intersects, and `cellsCovering(expandBbox(parcel, 500 m))`
+  // loads every cell within the search radius. So the part of a feature clipped
+  // away from cell C is delivered by neighbour C', which is loaded whenever the
+  // parcel is near enough to care.
+  //
+  // The fixture parcel sits on the -81.8 boundary and its creek runs from
+  // -81.81 to -81.78, i.e. across it. Production loads FOUR cells here
+  // (-81.9,36.0 · -81.9,36.1 · -81.8,36.0 · -81.8,36.1). Handing normaliseCell
+  // one cell and expecting the whole creek asks it to keep geometry that belongs
+  // to a cell the test never supplied — which is how this test first failed, and
+  // the failure was the fixture's, not the code's.
+  const raw = cell('nhd-flowline-perennial.json', null, null);
+  const west: NhdCell = { ...raw, key: '-81.9,36.1', bbox: [-81.9, 36.1, -81.8, 36.2] };
+  const cells = [raw, west];
+  const before = computeWater({ parcel: parcelPolygon(), parcelIsBboxOnly: false, cells, sourceUrl: null });
+  const after = computeWater({
+    parcel: parcelPolygon(), parcelIsBboxOnly: false, cells: cells.map(normaliseCell), sourceUrl: null,
+  });
+  assert.deepEqual(after, before, 'dedupe + prefilter + clip must be output-identical');
+  // CONTROL: the comparison is not vacuous — this parcel really does measure water.
+  assert.equal(before.has_stream, true);
+  assert.ok((before.water_frontage_m as number) > 0);
+});
+
+test('⛔ a creek shared by TWO loaded cells is measured ONCE, not twice (cross-cell dedupe)', () => {
+  // Measured on the cached corpus 2026-08-19: 46 of 46 parcels that load more
+  // than one cell share at least one flowline between those cells — NHD returns
+  // a feature for EVERY cell envelope it intersects, and computeWater does
+  // `frontage += metres`. So every parcel near a cell boundary had its frontage
+  // multiplied by the number of cells that returned its creek. This is a SECOND
+  // inflation bug, independent of the quarter-split duplication inside one cell,
+  // and no amount of per-cell deduping can see it.
+  const raw = cell('nhd-flowline-perennial.json', null, null);
+  const asNeighbour: NhdCell = { ...raw, key: '-81.9,36.1', bbox: [-81.9, 36.1, -81.8, 36.2] };
+
+  const oneCell = computeWater({
+    parcel: parcelPolygon(), parcelIsBboxOnly: false, cells: [raw], sourceUrl: null,
+  });
+  const twoCells = computeWater({
+    parcel: parcelPolygon(), parcelIsBboxOnly: false, cells: [raw, asNeighbour], sourceUrl: null,
+  });
+
+  assert.ok((oneCell.water_frontage_m as number) > 0, 'CONTROL: the single-cell case really does measure a creek');
+  assert.equal(
+    twoCells.water_frontage_m,
+    oneCell.water_frontage_m,
+    'the SAME creek delivered by two cells must not double the frontage',
+  );
+  assert.deepEqual(twoCells.frontage_by_regime_m, oneCell.frontage_by_regime_m);
+  assert.equal(twoCells.min_dist_flowline_m, oneCell.min_dist_flowline_m);
 });

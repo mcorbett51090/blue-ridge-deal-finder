@@ -37,7 +37,7 @@ import { EnrichCache } from './cache.ts';
 import { geometryHash, ringsToMultiPolygon, bboxOf, expandBbox, type AnyPolygon, type BBox } from './geometry.ts';
 import {
   SEARCH_RADIUS_M, cellSourceUrl, cellsCovering, computeWater, fetchCell,
-  NHD_FLOWLINE_SOURCE, type NhdCell,
+  NHD_FLOWLINE_SOURCE, dedupeCell, normaliseCell, type NhdCell,
 } from './nhd.ts';
 import {
   EPQS_SERVICE, SAMPLES_PER_PARCEL, epqsParams, epqsSourceUrl, parseElevation,
@@ -156,7 +156,43 @@ export function selectCandidates(
   }
 }
 
-export type Counters = { nhdRequests: number; parcelGeometryRequests: number; epqsRequests: number };
+export type Counters = {
+  nhdRequests: number;
+  parcelGeometryRequests: number;
+  epqsRequests: number;
+  /** Parcels abandoned on the per-parcel budget. Reported even when zero — a run
+   *  that does not say how many it gave up on is a run you cannot size. */
+  timeouts: number;
+  /** Slowest single water computation this run, ms. The number the budget below
+   *  is derived from, so it must be observable rather than assumed. */
+  slowestWaterMs: number;
+};
+
+/**
+ * PER-PARCEL WATER BUDGET.
+ *
+ * ⛔ NOT 20 s. Both FORGE panels proposed 20 s, and at that budget the flowline
+ * loop ALONE (73.9 s measured, pre-fix) blows it for essentially every
+ * Pisgah/Nantahala parcel — so the net that exists to catch a pathological case
+ * would instead have become the geographic filter it was written to prevent.
+ * Their own reasoning about timeout bias was correct and their default defeated
+ * it.
+ *
+ * Derived from the POST-FIX measurement, which is the only honest basis: the
+ * worst parcel in the corpus (37175:8594-94-2018-000:0, two cells, one holding a
+ * 181,882-vertex NHDArea) fell from 324.6 s to 1.4 s once dedupe, the bbox
+ * prefilter and clip-to-cell landed. 15 s is roughly 10x that worst case, so it
+ * can only fire on something genuinely unlike anything in the corpus — which is
+ * what a safety net is for. Re-derive it if the ladder changes; do not tighten
+ * it toward the measured worst case, because then it stops being a net and
+ * starts being a filter.
+ */
+export const WATER_BUDGET_MS = 15_000;
+
+/** One line per this many parcels. Five hours of silence on the previous run is
+ *  why "hung" and "grinding" were indistinguishable from outside without opening
+ *  the database and sampling it twice. */
+export const HEARTBEAT_EVERY = 25;
 
 /**
  * Fetch parcel polygons for a batch, caching by record_id. Returns the rings in
@@ -258,6 +294,12 @@ export async function loadCells(
   for (const key of keys) {
     const cached = cache.getCell(key);
     if (cached) {
+      // ⛔ Dedupe on READ too. The duplicates are already inside the cached
+      // cells — 11 of 60 of them — and refetching to fix that would spend egress
+      // on a 0.5 rps host for data we already hold. dedupeCell is idempotent.
+      // Cross-cell dedupe and clipping now happen inside computeWater, which is
+      // the only place that knows the PARCEL — and the parcel is what makes both
+      // provably lossless. Nothing to normalise here.
       cells.set(key, cached);
       continue;
     }
@@ -326,7 +368,7 @@ export async function enrichCandidates(options: EnrichOptions): Promise<EnrichRe
   const client = new FetchClient(reg.registry);
   const cachePath = options.cachePath ?? join(options.repoRoot, 'data', 'enrich', 'enrichment.sqlite');
   const cache = new EnrichCache(cachePath);
-  const counters: Counters = { nhdRequests: 0, parcelGeometryRequests: 0, epqsRequests: 0 };
+  const counters: Counters = { nhdRequests: 0, parcelGeometryRequests: 0, epqsRequests: 0, timeouts: 0, slowestWaterMs: 0 };
 
   const dbPath = warehousePath(options.repoRoot);
   const candidates = selectCandidates(dbPath, {
@@ -349,6 +391,8 @@ export async function enrichCandidates(options: EnrichOptions): Promise<EnrichRe
 
   const results: ParcelEnrichment[] = [];
   let fromCache = 0;
+  let processed = 0;
+  const startedAt = Date.now();
 
   for (let i = 0; i < candidates.length; i += GEOMETRY_BATCH) {
     const batch = candidates.slice(i, i + GEOMETRY_BATCH);
@@ -399,15 +443,38 @@ export async function enrichCandidates(options: EnrichOptions): Promise<EnrichRe
 
       const cellKeys = cellsCovering(searchBbox);
       const cells = await loadCells(client, cache, cellKeys, counters, now);
+      const waterStartedAt = Date.now();
       const water = computeWater({
         parcel,
         parcelIsBboxOnly: false,
+        budgetMs: WATER_BUDGET_MS,
         cells: [...cells.values()],
         sourceUrl: cellSourceUrl(
           reg.registry.sources.find((s) => s.id === NHD_FLOWLINE_SOURCE)?.url ?? '',
           searchBbox,
         ),
       });
+
+      const waterMs = Date.now() - waterStartedAt;
+      if (waterMs > counters.slowestWaterMs) counters.slowestWaterMs = waterMs;
+      if (water.water_unknown_reason === 'enrich_timeout') {
+        counters.timeouts += 1;
+        // Named at the moment it happens. A timeout that only shows up in a
+        // summary is a timeout nobody connects to the parcel that caused it.
+        console.log(`  ⛔ ${c.record_id}: water budget exceeded (${WATER_BUDGET_MS} ms) — recorded UNKNOWN, not "no water"`);
+      }
+
+      processed += 1;
+      if (processed % HEARTBEAT_EVERY === 0) {
+        const elapsed = (Date.now() - startedAt) / 1000;
+        const rate = processed / Math.max(elapsed, 0.001);
+        const remaining = Math.max(candidates.length - processed, 0);
+        console.log(
+          `  … ${processed}/${candidates.length} parcels · ${rate.toFixed(2)}/s · ` +
+            `slowest water ${(counters.slowestWaterMs / 1000).toFixed(1)}s · timeouts ${counters.timeouts} · ` +
+            `~${(remaining / Math.max(rate, 1e-6) / 60).toFixed(0)} min left`,
+        );
+      }
 
       let slope = slopeUnknown('epqs_sample_incomplete', SAMPLES_PER_PARCEL, 0);
       if (slopeEnabled) {
@@ -498,7 +565,12 @@ export async function main(argv: readonly string[]): Promise<void> {
     `enriched ${report.enriched} (${report.from_cache} from cache) · ` +
       `stream ${withStream} · river ${withRiver} · pond ${withPond} · water unknown ${unknownWater} · ` +
       `requests: nhd ${report.counters.nhdRequests}, parcel-geom ${report.counters.parcelGeometryRequests}, ` +
-      `epqs ${report.counters.epqsRequests}`,
+      `epqs ${report.counters.epqsRequests} · ` +
+      // ⛔ Reported even when zero. A run that does not say how many parcels it
+      // gave up on, and how slow its worst one was, cannot be sized — which is
+      // how a five-hour run produced one line of output and left "hung" and
+      // "grinding" indistinguishable from outside.
+      `timeouts ${report.counters.timeouts} · slowest water ${(report.counters.slowestWaterMs / 1000).toFixed(1)}s`,
   );
 }
 
