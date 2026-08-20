@@ -367,7 +367,19 @@ test('changing one weight moves the score and NOTHING structural', () => {
     now: NOW,
     parcelSourceOf: () => null,
   });
-  assert.notEqual(base.scored[0]!.total, heavier.scored[0]!.total, 'the weight must actually move the number');
+  // ⛔ NOT scored[0]. That is the CHEAPEST row in the cohort, so under magnitude
+  // normalisation its per_acre is exactly 100 — identical to its water — and no
+  // reweighting of two equal components can move their mean. That is correct
+  // behaviour, and it silently made this assertion untestable at the top of the
+  // ranking. Pick a row whose components genuinely differ.
+  const idx = base.scored.findIndex((s) => {
+    const pa = s.components.find((c) => c.id === 'per_acre');
+    return pa?.status === 'scored' && pa.normalized !== null && pa.normalized > 0 && pa.normalized < 100;
+  });
+  assert.ok(idx >= 0, 'fixture must contain a row whose per_acre is neither floor nor ceiling');
+  const movedId = base.scored[idx]!.record_id;
+  const after = heavier.scored.find((s) => s.record_id === movedId)!;
+  assert.notEqual(base.scored[idx]!.total, after.total, 'the weight must actually move the number');
   assert.deepEqual(
     base.scored.map((s) => s.components.map((c) => c.id)),
     heavier.scored.map((s) => s.components.map((c) => c.id)),

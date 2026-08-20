@@ -200,7 +200,34 @@ snapshot the only copy of 175 MB of cached geometry before Phase 4 changes the c
 
 ---
 
-### Phase 1 — Cohort-relative magnitude normalization (the decisive fix)
+### ⛔ Phase 1 — SUPERSEDED BY MEASUREMENT 2026-08-19. It is not the decisive fix.
+
+> **Attempted, measured, reverted.** The variant comparison this phase demanded was run through the
+> REAL cohort machinery, and it falsified the phase's own premise. Full numbers and method in
+> `docs/probe-log.md` ("per_acre normalization: three variants, measured").
+>
+> | axis | full corpus (206,499 rows) | top-750 slice |
+> |---|---|---|
+> | current rank percentile | distinct **101**, IQR **50**, mode 1.1% | distinct **1** |
+> | (a) log min–max | distinct **101**, IQR 22 | distinct 6 |
+> | (b) log median/IQR | distinct **101**, IQR 24 | distinct **1** |
+>
+> All three discriminate across the corpus; all three saturate in the slice they publish, because
+> `topN()` selects the top of the axis it then reports. Implemented variant (a) end to end and it moved
+> the published set from 1 to 4 distinct scores — a semantic change to the signal's meaning for almost
+> no gain — so it was reverted rather than shipped on a falsified premise.
+>
+> **C6 was right the first time.** The CE-2 entry in `premise-probes.md`, which retracted it, rested on
+> a simulation keyed by COUNTY rather than `(fips, use-bucket, band)`; it predicted 85 distinct scores
+> where the production path yields 4. A simulation that does not run the production code path is a
+> hypothesis, and it will agree with whoever proposed it.
+>
+> **The decisive fix is Phase 2 (TB-1).** Ranking cannot be repaired by changing the transform; the
+> selector and the score must be different axes. What survives from this phase: the red fixture
+> `fixtures/gates/listings-saturated.json` (a dated snapshot of the real failure, uncapturable once
+> fixed) and the score-spread gate, which belongs in Phase 2 where it can actually pass.
+
+#### Original text, kept for the record — Cohort-relative magnitude normalization
 
 `depends_on_claims: [C5, C6]` — and it **retires C6's remedy clause**.
 

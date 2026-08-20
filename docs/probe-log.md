@@ -949,3 +949,55 @@ recorded rather than attempted.
 
 **Cost of the gap:** tax delinquency is the highest-volume distress signal available anywhere in the
 corpus, and it is out of reach in the one county where the document is otherwise perfectly readable.
+
+---
+
+## 2026-08-19 — per_acre normalization: three variants, measured. The transform is NOT the problem.
+
+Phase 1 of `docs/plans/2026-08-19-ranking-sweep.md` said to compare normalization variants on the
+real data and pick by measurement rather than assumption. The measurement overturned the phase.
+
+**Method.** Variants computed through the REAL cohort machinery (`readWarehouse` -> `detectValueFloors`
+-> `buildCohorts` -> `cohortKey`), floor rows excluded exactly as `buildCohorts` excludes them, cohorts
+below `per_acre.min_cohort` (50) skipped. Evaluated over the **full scorable corpus (206,499 rows)**,
+which is selection-independent, and then over the **top-750 slice** each axis would itself publish.
+
+| axis | FULL CORPUS (206,499) | TOP-750 SLICE |
+|---|---|---|
+| current — rank percentile, `invert(percentileOf())` | distinct **101**, p25=25 p50=50 p75=75, IQR **50**, mode 1.1% | distinct **1**, all 100, IQR 0 |
+| (a) log10 min–max within cohort | distinct **101**, IQR 22 | distinct 6, range 95–100, IQR 3 |
+| (b) log10 median/IQR within cohort | distinct **101**, IQR 24 | distinct **1**, all 100, IQR 0 |
+
+**Conclusion: every one of the three discriminates beautifully across the corpus, and every one
+saturates in the slice that gets published.** The rank transform is not broken — over the corpus it is
+perfectly uniform (p10=10, p25=25, p50=50, mode share 1.1%), which is what a rank transform should be.
+`topN()` selects the top of the very axis it then publishes, so ANY monotone function of $/acre is flat
+in its own top slice. Changing the function moves the saturation a little (1 -> 6 distinct); it does not
+remove it.
+
+**Why the published rows cannot be separated cohort-relatively.** 282 of 481 published scorable rows
+(58.6%) sit at or within half a percentile of their cohort MINIMUM — most cohorts contribute one
+published row, and that row is the cheapest in it. There is nothing below them to measure against.
+
+**Two dead ends recorded so they are not re-tried:**
+
+- Min–max on a log axis is crushed by cohort maxima. Real cohorts carry absurd upper ends —
+  `n=11,739  lo=$119.76  hi=$4,286,036/acre`, `n=3,214  lo=$38.07  hi=$1,388,418/acre` (slivers or
+  bad assessments). The log span is then ~4.5 decades, so every genuinely cheap row lands within a
+  few points of 100.
+- Median/IQR anchoring is worse, not better, despite being the more "robust" choice: the published
+  rows are many IQRs below their cohort median, so the clamp puts them all at exactly 100.
+
+⛔ **A retraction of a retraction, recorded in full because the error is instructive.** `claims-table.md`
+C6 said the saturation was "by SELECTION, not by broken normalization". The G4a critic challenged it and
+I agreed, writing it up as correlated error CE-2 on the strength of a simulation that keyed cohorts by
+COUNTY instead of `(fips, use-bucket, acreage-band)` and so used populations that do not exist. That
+simulation predicted 85 distinct scores; the real machinery delivers 4. **C6 was right the first time.**
+The lesson is not "trust the first answer" — it is that a simulation which does not run the production
+code path is a hypothesis, not a measurement, and it will happily agree with whoever proposed it.
+
+**Consequence for the plan.** Phase 1 is NOT the decisive fix and cannot reach the success signal alone.
+The decisive fix is Phase 2 / TB-1: declare ONE selection axis, publish a pool against it, and score
+within the pool on something other than the axis that chose it. The G4b tiebreak expert reached this
+before any of the measurements above, and for exactly the right reason: *"'wire and measure' cannot even
+produce an interpretable measurement until one declared axis exists."*
