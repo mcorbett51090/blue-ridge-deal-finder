@@ -28,6 +28,7 @@ const GATES = [
   ['verify-ledger-reconciles.mjs', 'the county ledger agrees with the parcels table'],
   ['verify-interchange.mjs', 'the evidence producer and the scorer name the SAME path, and nothing is lost crossing it'],
   ['verify-status-sources.mjs', 'every source the reader can see resolves to a registry entry'],
+  ['verify-event-log-size.mjs', 'the append-only event log stays under GitHub\'s blob limit'],
   ['verify-controls.mjs', 'META: every gate proven to go RED against its fixture'],
 ];
 

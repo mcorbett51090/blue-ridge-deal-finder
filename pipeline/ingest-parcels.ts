@@ -21,7 +21,7 @@
  * The alternative — letting a failed fetch mark 47,388 parcels absent — writes
  * an outage into the audit trail as a fact about the world.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
@@ -52,6 +52,7 @@ import {
   readPriorParcels,
   readPriorState,
   swapPointer,
+  assertPriorStateNotLost,
 } from './store/warehouse.ts';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -138,6 +139,15 @@ async function main(): Promise<void> {
   const prior = readPriorState(priorFile);
   const priorParcels = readPriorParcels(priorFile);
   const priorCountyRuns = readPriorCountyRuns(priorFile);
+
+  // Refuses when prior state was LOST rather than never existing — see
+  // assertPriorStateNotLost for the measurement that motivated it.
+  assertPriorStateNotLost(
+    prior.size,
+    existsSync(join(ROOT, 'data', 'runs'))
+      ? readdirSync(join(ROOT, 'data', 'runs')).filter((f: string) => f.endsWith('.json')).length
+      : 0,
+  );
 
   // ── 5-8. per county ─────────────────────────────────────────────────────
   const staged: StagedParcel[] = [];

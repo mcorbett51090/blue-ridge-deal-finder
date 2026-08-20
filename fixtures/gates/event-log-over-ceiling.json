@@ -1,0 +1,5 @@
+{
+ "_why": "RED FIXTURE — a ceiling the committed 49.5 MiB event log already exceeds.",
+ "max_mib": 1,
+ "hard_limit_mib": 100
+}

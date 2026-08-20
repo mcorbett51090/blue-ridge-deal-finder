@@ -213,6 +213,40 @@ export function readPriorCountyRuns(path: string | null): Map<string, PriorCount
   return out;
 }
 
+/**
+ * ⛔ LOST PRIOR STATE IS NOT A FIRST RUN — and `readPriorState` cannot tell them
+ * apart, because it returns an empty map for both.
+ *
+ * `data/warehouse/` is gitignored by design (the corpus lives in the
+ * off-platform mirror), so on a hosted runner the prior warehouse is ALWAYS
+ * absent. Every row then compares against nothing and is emitted `kind: 'new'`.
+ * Measured 2026-08-19: data/events/2026-08/nc-onemap-parcels.ndjson holds
+ * 235,421 lines across 51,903,096 bytes and EVERY line is `new` — not one
+ * `changed`, `stale` or `returned` in the entire history.
+ *
+ * The quieter harm is the worse one. The append-only log grows by a full corpus
+ * per run and sits at 49.5 MiB of GitHub's 100 MiB hard blob limit, which
+ * rejects AT PUSH — after the ingest has run and after the ephemeral runner
+ * warehouse is gone. But before that: the change feed becomes FALSE. "235,421
+ * parcels are new" is a claim about the world, and nothing changed; we simply
+ * could not see the past. A change feed that reports everything as new reports
+ * nothing at all.
+ *
+ * Evidence that a prior run happened is a recorded run manifest. Empty prior
+ * state PLUS recorded runs means state was lost, and the honest response is to
+ * refuse rather than to publish a delta we know is wrong.
+ */
+export function assertPriorStateNotLost(priorSize: number, priorRunsRecorded: number): void {
+  if (priorSize > 0 || priorRunsRecorded === 0) return;
+  throw new Error(
+    `prior warehouse state is EMPTY but ${priorRunsRecorded} run manifest(s) exist in data/runs/ — ` +
+      'this is LOST STATE, not a first run. Emitting the delta now would mark the entire corpus ' +
+      "`new`, inflating the append-only event log toward GitHub's 100 MiB blob limit and publishing " +
+      'a change feed that is false. Restore the warehouse first (`npm run mirror` keeps one, and ' +
+      'RECOVERY.md documents the restore), or clear data/runs/ if this genuinely is a fresh start.',
+  );
+}
+
 export function readPriorState(path: string | null): Map<string, PriorRow> {
   const prior = new Map<string, PriorRow>();
   if (!path || !existsSync(path)) return prior;

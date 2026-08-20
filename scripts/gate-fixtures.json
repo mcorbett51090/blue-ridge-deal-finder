@@ -188,6 +188,16 @@
      "site/public/data/status.json": "gates/status-never-run-denial.json"
     }
    }
+  ],
+  "verify-event-log-size.mjs": [
+   {
+    "name": "event-log-over-ceiling",
+    "expect": "red",
+    "_why": "GitHub rejects a blob over 100 MiB AT PUSH — after the ingest has run and, on a hosted runner, after the ephemeral warehouse has been discarded, so the whole run is lost to a limit found too late. Measured 2026-08-19: data/events/2026-08/nc-onemap-parcels.ndjson was 49.5 MiB / 235,421 lines, EVERY line kind:'new', because the delta compares against a warehouse that is gitignored and therefore always absent in CI. The fixture plants a strict ceiling rather than an oversized file: it proves the comparison and the failure path without committing 80 MiB to every clone.",
+    "plant": {
+     "data/events/size-policy.json": "gates/event-log-over-ceiling.json"
+    }
+   }
   ]
  },
  "non_verify_gates": {

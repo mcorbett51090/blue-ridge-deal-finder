@@ -1,0 +1,19 @@
+{
+  "_why": [
+    "The ceiling for any single append-only event file, in MiB.",
+    "",
+    "GitHub rejects a blob over 100 MiB and does it AT PUSH — after the ingest has",
+    "run and, on a hosted runner, after the ephemeral warehouse has been discarded.",
+    "So the whole run is lost to a limit discovered too late. `max_mib` sits below",
+    "the hard limit on purpose: a gate that fires at 100 fires exactly when the push",
+    "fails, which is no warning at all.",
+    "",
+    "Measured 2026-08-19: nc-onemap-parcels.ndjson was 49.5 MiB across 235,421",
+    "lines, every one of them kind:'new', because the delta is computed against a",
+    "warehouse that is gitignored and therefore always absent in CI.",
+    "",
+    "It lives here rather than in the gate so the number is reviewable in a diff."
+  ],
+  "max_mib": 80,
+  "hard_limit_mib": 100
+}

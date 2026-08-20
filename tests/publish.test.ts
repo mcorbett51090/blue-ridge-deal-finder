@@ -30,6 +30,7 @@ import {
   readCountySeeds,
 } from '../publish/coverage.ts';
 import { assertScoreDerivable, deriveScore, type PublishedListing } from '../publish/payload.ts';
+import { assertPriorStateNotLost } from '../pipeline/store/warehouse.ts';
 import { PublishAllowlistError, loadAllowlist, project } from '../publish/export.ts';
 
 const ROOT = join(import.meta.dirname, '..');
@@ -407,4 +408,33 @@ test('⛔ every acreage_basis the payload emits is one the card actually renders
     !card.includes("acreage_basis === 'no-such-basis'"),
     'CONTROL: a basis the card does not handle must be detectable by this test',
   );
+});
+
+
+// ---------------------------------------------------------------------------
+// LOST PRIOR STATE vs A FIRST RUN
+// ---------------------------------------------------------------------------
+
+test('⛔ empty prior state WITH recorded runs is refused — a lost warehouse is not a first run', () => {
+  // `data/warehouse/` is gitignored by design, so on a hosted runner the prior
+  // warehouse is ALWAYS absent and every row compares against nothing. Measured
+  // on the committed log: 235,421 lines, 51,903,096 bytes, and EVERY line is
+  // `kind: "new"` — not one changed/stale/returned in the whole history.
+  //
+  // Two harms. The log grows by a full corpus per run and sits at 49.5 MiB of
+  // GitHub's 100 MiB hard blob limit, which rejects AT PUSH — after the ingest
+  // has run and after the ephemeral runner warehouse is gone. And before that,
+  // the change feed is simply FALSE: nothing changed, we just could not see the
+  // past. A feed that reports everything as new reports nothing.
+  assert.throws(
+    () => assertPriorStateNotLost(0, 6),
+    /LOST STATE, not a first run/,
+    'empty prior + recorded runs is lost state and must refuse',
+  );
+
+  // BOTH other directions must pass, or the guard is just an unconditional throw
+  // that would block every genuine first run of the project.
+  assert.doesNotThrow(() => assertPriorStateNotLost(0, 0), 'a genuine first run has no manifests and must proceed');
+  assert.doesNotThrow(() => assertPriorStateNotLost(235421, 6), 'a normal run with prior state must proceed');
+  assert.doesNotThrow(() => assertPriorStateNotLost(1, 99), 'any prior state at all is enough to compute a delta');
 });
