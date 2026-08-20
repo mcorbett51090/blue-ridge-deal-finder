@@ -5,8 +5,8 @@
     "header of publish/status.ts for what it claimed and why no gate caught it."
   ],
   "data_observed_at": "2026-08-19T18:48:35.720Z",
-  "last_run_at": "2026-08-20T03:48:06.114Z",
-  "built_at": "2026-08-20T03:48:06.114Z",
+  "last_run_at": "2026-08-20T10:14:58.750Z",
+  "built_at": "2026-08-20T10:14:58.750Z",
   "lane1_rows": 8,
   "lane2_rows": 650,
   "sources": [

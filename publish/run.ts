@@ -26,6 +26,7 @@ import { loadWeights, assertWeightsSumTo100 } from '../pipeline/score/config.ts'
 import { loadEnrichment } from '../pipeline/score/enrich-contract.ts';
 import { buildEvidenceContract } from '../pipeline/ingest/distress/to-contract.ts';
 import { buildSourceStatuses, buildRefusals } from './status.ts';
+import { toPublishedNotices } from './notices.ts';
 import type { SourceRef } from '../pipeline/score/enrich-contract.ts';
 import { readWarehouse, type WarehouseParcel } from '../pipeline/score/read-warehouse.ts';
 import { scoreCorpus, topN } from '../pipeline/score/corpus.ts';
@@ -264,6 +265,26 @@ async function main(): Promise<void> {
     },
   };
 
+  // ⛔ NOTICES GO THROUGH THE FAIL-CLOSED ALLOWLIST TOO. `project()` was called
+  // exactly once in this repo — for 'listing' — so notices shipped RAW for as
+  // long as they have existed. Measured pre-state control:
+  //   project('notice', rows[0], allowlist)
+  //   -> notice payload carries non-allowlisted key(s): bid_id, title, record_url
+  // Three of seven keys off-contract, one of them free text lifted verbatim from
+  // a county site and rendered on the homepage. The next notice sources queued
+  // are Georgia SALE-UNDER-POWER legals, whose titles carry the debtor's name.
+  const { notices: mappedNotices, unrecognised: unrecognisedNotices } = toPublishedNotices(
+    ROOT,
+    notices as Array<Record<string, unknown>>,
+    'nc-haywood-bids',
+  );
+  const publishedNotices = mappedNotices.map((n) =>
+    project('notice', n as unknown as Record<string, unknown>, allowlist),
+  );
+  if (unrecognisedNotices > 0) {
+    console.log(`  ⚠ ${unrecognisedNotices} notice(s) whose mechanism was not recognised — published as 'county-notice', never guessed`);
+  }
+
   const outDir = join(ROOT, 'publish', 'out');
   mkdirSync(outDir, { recursive: true });
   const write = (path: string, data: unknown): number => {
@@ -284,8 +305,8 @@ async function main(): Promise<void> {
     // Astro's import graph inside site/, which is what its build expects.
     siteListings: write(join(ROOT, 'site', 'src', 'data', 'listings.json'), listings),
     siteCoverage: write(join(ROOT, 'site', 'src', 'data', 'coverage.json'), coverage),
-    notices: write(join(outDir, 'notices.json'), notices),
-    siteNotices: write(join(ROOT, 'site', 'src', 'data', 'notices.json'), notices),
+    notices: write(join(outDir, 'notices.json'), publishedNotices),
+    siteNotices: write(join(ROOT, 'site', 'src', 'data', 'notices.json'), publishedNotices),
   };
 
   // ⛔ THE FRESHNESS SURFACE IS NOW PRODUCED, NOT HAND-TYPED.

@@ -86,8 +86,25 @@ const walk = (d) => {
 };
 for (const d of scanDirs) walk(join(ROOT, d));
 
+/**
+ * ⛔ STRIP COMMENTS FIRST. This gate flagged `publish/notices.ts` for naming
+ * `data/evidence/.` — text that appears only inside a doc comment DESCRIBING the
+ * regex `^data/evidence/.+\.json$`. A grep is satisfied by the thing being
+ * described, not only by the thing being done, and this repo's egress gate
+ * already strips comments for exactly that reason.
+ *
+ * A gate that fires on its own documentation trains people to ignore it.
+ */
+function stripComments(src) {
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .split('\n')
+    .map((line) => line.replace(/(^|[^:])\/\/.*$/, '$1'))
+    .join('\n');
+}
+
 for (const f of files) {
-  const src = readFileSync(f, 'utf8');
+  const src = stripComments(readFileSync(f, 'utf8'));
   const referenced = new Set();
   for (const m of src.matchAll(/'data',\s*'evidence',\s*'([\w.-]+)'/g)) referenced.add(m[1]);
   for (const m of src.matchAll(/data\/evidence\/([\w.-]+)/g)) referenced.add(m[1]);

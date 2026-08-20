@@ -105,6 +105,14 @@
     "plant": {
      "data/evidence/for-sale.json": "gates/evidence-freetext-value.json"
     }
+   },
+   {
+    "name": "notices-freetext-debtor",
+    "expect": "red",
+    "_why": "project() — the fail-closed field allowlist — was called exactly ONCE in this repo, for 'listing'. Notices shipped RAW for as long as they existed, carrying bid_id/title/record_url, none of which the notice allowlist declares; the measured pre-state control was 'notice payload carries non-allowlisted key(s): bid_id, title, record_url'. NoticeBanner rendered {n.title} — county free text — on the homepage. Today's Haywood titles are benign, but the Georgia legal-organ sources queued next carry the DEBTOR'S NAME in exactly that field, and verify-no-pii matches field NAMES, so 'title' would have sailed through.",
+    "plant": {
+     "publish/out/notices.json": "gates/notices-freetext-debtor.json"
+    }
    }
   ],
   "verify-coverage.mjs": [

@@ -145,6 +145,66 @@ function scanEvidenceValues(text, path) {
   return hits;
 }
 
+/**
+ * VALUE-LEVEL SCREEN for the NOTICE contract.
+ *
+ * ⛔ Scoped separately from the evidence screen on purpose. The evidence rule
+ * ("no free text at all") cannot be applied to every published file — listings
+ * carry legitimate prose in `note` and `basis` strings, and running the strict
+ * rule there would produce thousands of false positives, which is how a real
+ * signal gets switched off.
+ *
+ * Notices CAN take the strict treatment because their contract is closed: every
+ * field has a known shape. Notices are built from county foreclosure postings —
+ * and the Georgia legal-organ sources queued next carry the DEBTOR'S NAME in the
+ * advertisement title. Until now nothing screened them: `project()` never ran on
+ * notices, and the evidence screen is regex-scoped to `^data/evidence/`.
+ */
+const NOTICE_KINDS = new Set(['tax-foreclosure', 'sale-under-power', 'sheriff-sale', 'county-notice']);
+const NOTICE_SHAPES = {
+  notice_id: /^[A-Za-z0-9._-]{1,40}$/,
+  source_id: /^[a-z0-9-]{1,60}$/,
+  state: /^[A-Z]{2}$/,
+  county: /^[A-Za-z][A-Za-z .'-]{0,40}$/,
+  fips: /^[0-9]{5}$/,
+  source_url: /^https?:\/\/\S+$/,
+  observed_at: /^\d{4}-\d{2}-\d{2}([T ].*)?$/,
+  sale_date: /^\d{4}-\d{2}-\d{2}$/,
+};
+
+function scanNoticeValues(text, path) {
+  const hits = [];
+  let rows;
+  try {
+    const doc = JSON.parse(text);
+    rows = Array.isArray(doc) ? doc : (doc.notices ?? []);
+  } catch {
+    return [`${path}: not parseable JSON — the notice contract must be machine-checkable`];
+  }
+  for (const [i, n] of rows.entries()) {
+    if (!n || typeof n !== 'object') continue;
+    for (const [k, v] of Object.entries(n)) {
+      if (v === null) continue;
+      if (k === 'kind') {
+        if (!NOTICE_KINDS.has(v)) hits.push(`${path}[${i}].kind '${String(v).slice(0, 40)}' is outside the closed vocabulary`);
+        continue;
+      }
+      const shape = NOTICE_SHAPES[k];
+      if (!shape) {
+        hits.push(`${path}[${i}].${k} is not a field the notice contract declares — an undeclared field on a surface built from foreclosure postings is an unreviewed one`);
+        continue;
+      }
+      if (typeof v !== 'string' || !shape.test(v)) {
+        hits.push(
+          `${path}[${i}].${k} does not match its declared shape — "${String(v).slice(0, 60)}". ` +
+            'County postings name people; a value that is not the shape we expect may be carrying one.',
+        );
+      }
+    }
+  }
+  return hits;
+}
+
 function scanFiles(files, base) {
   const hits = [];
   for (const f of files) {
@@ -159,6 +219,12 @@ function scanFiles(files, base) {
     hits.push(...scanText(text, rel));
     // The evidence contract gets the extra, value-level screen.
     if (/^data\/evidence\/.+\.json$/.test(rel)) hits.push(...scanEvidenceValues(text, rel));
+    // ⛔ PUBLISHED notice surfaces only — publish/out and the site's copy, both
+    // of them, never just one. NOT data/distress/notices.json: that is the
+    // INGEST record of what the county actually posted, and it legitimately
+    // keeps the raw `title` because the title is what we classify from. The
+    // contract applies where the bytes reach a reader.
+    if (/^(publish\/out|site\/src\/data)\/notices\.json$/.test(rel)) hits.push(...scanNoticeValues(text, rel));
   }
   return hits;
 }
@@ -274,6 +340,49 @@ if (!existsSync(allowlistPath)) {
     }
   }
   gate.ok(`publish allowlist carries no PII field (${kinds.length} kind(s): ${kinds.join(', ')})`);
+}
+
+
+
+// ⛔ THE RAW COUNTY TEXT MUST NEVER REACH A PUBLISHED SURFACE.
+//
+// The ingest keeps the county's own `title` — that is the record of what was
+// posted, and it is what `classifyNotice` reads. The published contract has no
+// free-text field at all. This asserts the SEAM between them: every title in
+// data/distress/notices.json must be absent from every published notice file.
+//
+// It matters because the sources queued next are Georgia legal-organ
+// advertisements, whose titles conventionally carry the DEBTOR'S NAME. A
+// regression that re-added `title` to the projection would put a named
+// individual's foreclosure on the homepage, and no field-NAME check would see
+// it — the field is called `title`, which is not a PII field name.
+{
+  const ingestPath = join(root, 'data/distress/notices.json');
+  if (existsSync(ingestPath)) {
+    let titles = [];
+    try {
+      const doc = JSON.parse(readFileSync(ingestPath, 'utf8'));
+      titles = ((Array.isArray(doc) ? doc : doc.notices) ?? [])
+        .map((n) => n?.title)
+        .filter((t) => typeof t === 'string' && t.trim().length > 8);
+    } catch { /* an unreadable ingest asserts nothing */ }
+    let checked = 0;
+    for (const surface of ['publish/out/notices.json', 'site/src/data/notices.json']) {
+      const sp = join(root, surface);
+      if (!existsSync(sp)) continue;
+      checked += 1;
+      const body = readFileSync(sp, 'utf8');
+      for (const t of titles) {
+        if (body.includes(t)) {
+          gate.fail(
+            `${surface}: carries the county's raw posting text verbatim ("${t.slice(0, 60)}") — ` +
+              'the published contract has no free-text field, and these postings name people',
+          );
+        }
+      }
+    }
+    gate.info(`notice seam: ${titles.length} ingest title(s) confirmed absent from ${checked} published surface(s)`);
+  }
 }
 
 gate.finish();

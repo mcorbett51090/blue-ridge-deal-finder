@@ -13,13 +13,42 @@
  */
 import notices from '../data/notices.json';
 
+/** ⛔ The published NOTICE CONTRACT — and `title` is deliberately not in it.
+ *
+ *  This component used to render `{n.title}`: free text lifted verbatim from a
+ *  county website, straight onto the homepage. The fail-closed field allowlist
+ *  never ran on notices (`project()` was called once, for 'listing'), so nothing
+ *  checked what was in that string. Today's three read "Tax foreclosure Sale
+ *  August 20, 2026 at 10:00 a.m." — harmless, and inconsistently cased, which is
+ *  the tell that they were verbatim.
+ *
+ *  The notice sources queued next are Georgia legal-organ advertisements, whose
+ *  titles conventionally read "SALE UNDER POWER …" followed by the DEBTOR'S
+ *  NAME. `verify-no-pii.mjs` would not have caught it: it matches field names,
+ *  and its value-level screen is scoped to the evidence contract.
+ *
+ *  So the label below is OURS, derived from a closed-vocabulary `kind`. The
+ *  county's words are used to classify and then discarded. */
+type NoticeKind = 'tax-foreclosure' | 'sale-under-power' | 'sheriff-sale' | 'county-notice';
+
 type Notice = {
-  bid_id: string;
-  title: string;
-  record_url: string;
+  notice_id: string;
+  kind: NoticeKind;
+  source_url: string;
   county: string;
   state: string;
   sale_date: string | null;
+};
+
+/** ⛔ These differ in what a reader would DO. A tax foreclosure is a county
+ *  auction with an upset-bid window; a sale under power is a private,
+ *  lender-driven sale with none. Labelling one as the other sends someone to the
+ *  wrong place on the wrong day with the wrong money. */
+const KIND_LABEL: Record<NoticeKind, string> = {
+  'tax-foreclosure': 'Tax foreclosure sale',
+  'sale-under-power': 'Sale under power (lender-initiated)',
+  'sheriff-sale': "Sheriff's sale",
+  'county-notice': 'County notice — the mechanism could not be identified from the posting',
 };
 
 const all = (notices as Notice[]) ?? [];
@@ -62,9 +91,10 @@ const days = (d: string | null): number | null => {
                       : `in ${d} days`}
               </span>
               <span class="notice__body">
-                <strong>{n.county} County, {n.state}</strong> — {n.title}
+                <strong>{n.county} County, {n.state}</strong> — {KIND_LABEL[n.kind] ?? KIND_LABEL['county-notice']}
+                {n.sale_date && <> on {n.sale_date}</>}
                 <br />
-                <a href={n.record_url} rel="noopener nofollow external" target="_blank">
+                <a href={n.source_url} rel="noopener nofollow external" target="_blank">
                   County notice ↗
                 </a>
               </span>

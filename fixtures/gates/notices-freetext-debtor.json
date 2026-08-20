@@ -1,0 +1,16 @@
+[
+ {
+  "notice_id": "GA-2026-0417",
+  "source_id": "ga-union-legals",
+  "kind": "sale-under-power",
+  "state": "GA",
+  "county": "Union",
+  "fips": "13291",
+  "source_url": "https://example-legal-organ.test/notice/417",
+  "observed_at": "2026-08-20T09:00:00Z",
+  "sale_date": "2026-09-01",
+  "parcel_ref": null,
+  "matched_record_id": null,
+  "title": "NOTICE OF SALE UNDER POWER, GEORGIA, UNION COUNTY — MARVIN L. HOLLIFIELD AND SANDRA HOLLIFIELD"
+ }
+]
