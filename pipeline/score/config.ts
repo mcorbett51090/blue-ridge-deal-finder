@@ -14,6 +14,17 @@ import { join } from 'node:path';
 import yaml from 'js-yaml';
 import { z } from 'zod';
 
+/** The distress `kind` vocabulary. Lives HERE, beside the increments that must
+ *  cover it, so the two cannot drift into different files and disagree. */
+export const DistressKindSchema = z.enum([
+  'tax_sale_listed',
+  'foreclosure_notice',
+  'tax_delinquent',
+  'upset_bid_window_open',
+  'county_owned_reo',
+]);
+export type DistressKind = z.infer<typeof DistressKindSchema>;
+
 export const WeightsSchema = z.object({
   components: z.object({
     discount: z.number().nonnegative(),
@@ -44,6 +55,7 @@ export const WeightsSchema = z.object({
       foreclosure_notice: z.number().nonnegative(),
       tax_delinquent: z.number().nonnegative(),
       upset_bid_window_open: z.number().nonnegative(),
+      county_owned_reo: z.number().nonnegative(),
     }),
   }),
   vetoes: z.object({
@@ -71,5 +83,43 @@ export function assertWeightsSumTo100(cfg: ScoreConfig): void {
   const sum = Object.values(cfg.components).reduce((a, b) => a + b, 0);
   if (Math.abs(sum - 100) > 1e-9) {
     throw new Error(`weights.yaml: nominal component weights sum to ${sum}, not 100`);
+  }
+  assertDistressIncrementsComplete(cfg);
+}
+
+/**
+ * EVERY declared distress `kind` must carry an increment.
+ *
+ * ⛔ This is a structural invariant, and it is checked here because the failure
+ * it prevents is silent and shaped exactly like a correct result.
+ * `scoreDistress()` does `cfg.distress.increments[kind]` and then `total += inc`.
+ * For a kind with no increment that is `undefined`, so:
+ *
+ *     total += undefined   ->  NaN
+ *     clamp(NaN, 0, 100)   ->  NaN        (Math.min(100, Math.max(0, NaN)))
+ *     JSON.stringify(NaN)  ->  null
+ *
+ * The component would go out through `scoredComponent` — claiming status
+ * `scored`, carrying its full nominal weight into the DENOMINATOR — with a value
+ * that serialises to null. The row then reads "we could not measure this" while
+ * dated, linked, priced evidence sits on disk, and the composite's numerator is
+ * quietly poisoned by a NaN. Nothing downstream catches it: the payload is valid
+ * JSON, the score derives consistently from a broken breakdown, and every gate
+ * stays green.
+ *
+ * Adding an enum member without its weight is a one-line change that a reviewer
+ * reads as complete, which is why this refuses at load time instead of trusting
+ * anyone to remember. (FORGE tiebreak TB-2 addendum, 2026-08-19.)
+ */
+export function assertDistressIncrementsComplete(cfg: ScoreConfig): void {
+  const declared = DistressKindSchema.options;
+  const have = cfg.distress.increments as Record<string, number | undefined>;
+  const missing = declared.filter((k) => typeof have[k] !== 'number');
+  if (missing.length) {
+    throw new Error(
+      `weights.yaml: distress.increments is missing ${missing.join(', ')} — ` +
+        'a declared kind with no increment scores NaN and publishes as null. ' +
+        'Add the increment in the same commit as the enum member.',
+    );
   }
 }

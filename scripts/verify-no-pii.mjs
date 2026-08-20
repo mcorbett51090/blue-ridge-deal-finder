@@ -79,6 +79,72 @@ function scanText(text, path) {
   return hits;
 }
 
+/**
+ * VALUE-LEVEL SCREEN for data/evidence/** — structural, not a name detector.
+ *
+ * ⛔ Why a structure check and not a name regex. These files are built from
+ * county foreclosure and REO documents, the documents most likely to carry a
+ * person's name, and the rest of this gate matches field NAMES only — a grantor
+ * name sitting in a VALUE passes it completely. A name REGEX would be the
+ * obvious answer and it is the wrong one: it fails open on every spelling it did
+ * not anticipate, and it fails closed on "Jackson County", which is a place.
+ *
+ * The evidence contract has no free-text field at all, by construction: every
+ * value is a closed-vocabulary `kind`, a URL, an ISO timestamp, a number, null,
+ * or a label this repo authored. So the honest assertion is not "does this look
+ * like a name" but "is this value one of the shapes the contract can produce".
+ * Anything else is off-contract and refused, whatever it says. That catches a
+ * name without ever trying to recognise one — including names it has never seen.
+ */
+const EVIDENCE_ALLOWED_KEYS = new Set([
+  'kind', 'label', 'source_url', 'observed_at', 'sale_date', 'opening_bid', 'price',
+]);
+const ISO_RE = /^\d{4}-\d{2}-\d{2}([T ].*)?$/;
+const URL_RE = /^https?:\/\/\S+$/;
+/** Labels this repo authors. Kept explicit and short — if a new one is needed it
+ *  is one line here, and that line is a deliberate decision to publish a string. */
+const AUTHORED_LABELS = new Set(['County-owned, acquired through foreclosure']);
+
+function scanEvidenceValues(text, path) {
+  const hits = [];
+  let doc;
+  try {
+    doc = JSON.parse(text);
+  } catch {
+    return [`${path}: not parseable JSON — the evidence contract must be machine-checkable`];
+  }
+  const visit = (node, where) => {
+    if (node === null || typeof node === 'number' || typeof node === 'boolean') return;
+    if (typeof node === 'string') {
+      if (URL_RE.test(node) || ISO_RE.test(node) || AUTHORED_LABELS.has(node)) return;
+      if (/^[a-z][a-z0-9_-]*$/.test(node)) return; // a closed-vocabulary token
+      hits.push(
+        `${path}: ${where} carries free text that the contract cannot produce — ` +
+          `"${node.slice(0, 60)}${node.length > 60 ? '…' : ''}". Evidence values are URLs, ISO ` +
+          'timestamps, closed-vocabulary tokens, numbers or authored labels; anything else may carry a name.',
+      );
+      return;
+    }
+    if (Array.isArray(node)) {
+      node.forEach((v, i) => visit(v, `${where}[${i}]`));
+      return;
+    }
+    for (const [k, v] of Object.entries(node)) {
+      // Record ids are object KEYS at the top level and are parcel identifiers.
+      const isTopLevelId = where === '$';
+      if (!isTopLevelId && !EVIDENCE_ALLOWED_KEYS.has(k)) {
+        hits.push(
+          `${path}: ${where}.${k} is not a field the evidence contract declares — ` +
+            'an undeclared field is an unreviewed surface, and this one is built from foreclosure documents.',
+        );
+      }
+      visit(v, `${where}.${k}`);
+    }
+  };
+  visit(doc, '$');
+  return hits;
+}
+
 function scanFiles(files, base) {
   const hits = [];
   for (const f of files) {
@@ -91,6 +157,8 @@ function scanFiles(files, base) {
       continue; // binary or unreadable — nothing to grep
     }
     hits.push(...scanText(text, rel));
+    // The evidence contract gets the extra, value-level screen.
+    if (/^data\/evidence\/.+\.json$/.test(rel)) hits.push(...scanEvidenceValues(text, rel));
   }
   return hits;
 }

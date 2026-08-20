@@ -68,6 +68,20 @@ distress:
     foreclosure_notice: 35
     tax_delinquent: 30
     upset_bid_window_open: 15
+    # ⛔ THE HIGHEST INCREMENT, and it must exist the moment the enum does.
+    # `scoreDistress` does `increments[kind]` and then `total += inc`; an
+    # UNDECLARED kind yields undefined -> NaN -> clamp(NaN) -> a component that
+    # claims to be `scored`, carries weight 31 into the denominator, and
+    # serialises its value to null. The row would read "unknown" while dated,
+    # linked, priced evidence sat on disk. Adding the enum without this key ships
+    # exactly that, which is why they land in one commit.
+    #
+    # 60 because REO is a COMPLETED state, not a pending notice: the county
+    # already owns the parcel outright and will sell it directly. There is no
+    # auction to lose, no redemption period for the owner to cure, and no upset
+    # bid to be outrun — the strongest distress signal available, and the only
+    # one where "you can buy this today" is literally true.
+    county_owned_reo: 60
 
 vetoes:
   # ⛔ HARD VETOES, NOT DEDUCTIONS (plan §5.6). A deduction still competes; on

@@ -11,7 +11,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { loadWeights, assertWeightsSumTo100, parseWeights } from '../pipeline/score/config.ts';
+import {
+  loadWeights,
+  assertWeightsSumTo100,
+  assertDistressIncrementsComplete,
+  parseWeights,
+} from '../pipeline/score/config.ts';
 import { EMPTY_ENRICHMENT, type Enrichment } from '../pipeline/score/enrich-contract.ts';
 import { scoreCorpus, topN } from '../pipeline/score/corpus.ts';
 import type { WarehouseParcel } from '../pipeline/score/read-warehouse.ts';
@@ -25,7 +30,7 @@ import {
 } from '../pipeline/score/cohorts.ts';
 import { percentileRank, rollUp, withContributions } from '../pipeline/score/index.ts';
 import { evaluateGates, isVetoed } from '../pipeline/score/vetoes.ts';
-import { scorePerAcre, scoreWater, assertComponentsCoherent } from '../pipeline/score/signals.ts';
+import { scorePerAcre, scoreWater, scoreDistress, assertComponentsCoherent } from '../pipeline/score/signals.ts';
 import type { ScoreComponent } from '../pipeline/score/schema.ts';
 
 const ROOT = join(import.meta.dirname, '..');
@@ -424,4 +429,55 @@ test('scorePerAcre never divides by an unknown, whatever shape the unknown arriv
     assert.equal(c.raw, null);
     assert.equal(c.effective_weight, 0);
   }
+});
+
+
+// ---------------------------------------------------------------------------
+// DISTRESS — the NaN precondition (FORGE tiebreak TB-2 addendum, 2026-08-19)
+// ---------------------------------------------------------------------------
+
+const OBS = (kind: string) => [
+  {
+    kind: kind as never,
+    source_url: 'https://www.jacksonnc.org/DocumentCenter/View/2164',
+    observed_at: '2026-08-19T18:48:35.720Z',
+  },
+];
+
+test('⛔ county_owned_reo scores its DECLARED increment — and an undeclared kind is UNKNOWN, never NaN', () => {
+  // DIRECTION 1 — the declared kind produces a real number.
+  const reo = scoreDistress(OBS('county_owned_reo') as never, CFG, true);
+  assert.equal(reo.status, 'scored', 'a county-owned REO is evidence, and it must score');
+  assert.equal(typeof reo.normalized, 'number');
+  assert.ok(Number.isFinite(reo.normalized as number), 'NaN is not a score');
+  assert.equal(reo.normalized, CFG.distress.increments.county_owned_reo);
+  assert.match(reo.basis, /county owned reo/, 'the basis names the mechanism, verbatim, on the card');
+
+  // DIRECTION 2 — an UNDECLARED kind. Without both directions this test is
+  // satisfied by a scorer that nulls everything, which is the bug next door.
+  const bogus = scoreDistress(OBS('sheriff_auction_pending') as never, CFG, true);
+  assert.equal(bogus.status, 'unknown', 'no increment means we cannot weigh it — unknown, not scored');
+  assert.equal(bogus.normalized, null);
+  assert.ok(
+    !Number.isNaN(bogus.normalized as unknown as number),
+    'the defect being guarded: undefined increment -> NaN -> serialises to null while claiming to be scored',
+  );
+  assert.match(bogus.basis, /cannot be weighed|no scoring increment/i, 'and it says why');
+});
+
+test('⛔ a declared distress kind with no increment is refused at LOAD time, not at score time', () => {
+  // The real drift: someone adds an enum member and forgets weights.yaml. That
+  // is a one-line change a reviewer reads as complete.
+  const crippled = {
+    ...CFG,
+    distress: { increments: { ...CFG.distress.increments } as Record<string, number> },
+  };
+  delete crippled.distress.increments.county_owned_reo;
+  assert.throws(
+    () => assertDistressIncrementsComplete(crippled as never),
+    /county_owned_reo/,
+    'the loader must refuse a vocabulary its weights do not cover',
+  );
+  // CONTROL: the real config passes, so the assertion above is not vacuous.
+  assert.doesNotThrow(() => assertDistressIncrementsComplete(CFG));
 });

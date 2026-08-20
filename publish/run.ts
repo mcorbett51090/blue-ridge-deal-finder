@@ -24,6 +24,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadWeights, assertWeightsSumTo100 } from '../pipeline/score/config.ts';
 import { loadEnrichment } from '../pipeline/score/enrich-contract.ts';
+import { buildEvidenceContract } from '../pipeline/ingest/distress/to-contract.ts';
 import type { SourceRef } from '../pipeline/score/enrich-contract.ts';
 import { readWarehouse, type WarehouseParcel } from '../pipeline/score/read-warehouse.ts';
 import { scoreCorpus, topN } from '../pipeline/score/corpus.ts';
@@ -56,6 +57,14 @@ async function main(): Promise<void> {
   assertWeightsSumTo100(cfg);
 
   const wh = readWarehouse(ROOT);
+  // ⛔ BUILD THE EVIDENCE CONTRACT BEFORE LOADING IT. The ingest writes
+  // data/distress/evidence.json; the SCORER reads data/evidence/{for-sale,distress}.json,
+  // a directory that had never existed — so `discount` (38) and `distress` (31),
+  // 69 of the 100 composite points, were unreachable for every parcel while the
+  // prices sat one directory away. publish/ read the ingest path directly for the
+  // card, which is exactly why the seam was invisible: the site showed "$9,500"
+  // and looked correct.
+  const interchange = buildEvidenceContract(ROOT);
   const enrichment = loadEnrichment(ROOT);
   const registry = loadRegistry(ROOT);
   const seeds = readCountySeeds(ROOT);
@@ -76,11 +85,21 @@ async function main(): Promise<void> {
   // ⛔ An ABSENT distress file is "no distress ingest has run", NOT "no
   // distressed properties exist". The two are different and only one is a fact
   // about the counties. Lane 1's empty state already says which.
+  // The ingest file is still read, for ONE reason: the CARD's display fields
+  // (`since`, `generic_label`, `how_to_verify`) are not in the scoring contract
+  // and should not be — the contract carries only what `discount` and `distress`
+  // consume, and deliberately no free text (see to-contract.ts).
   const distressPath = join(ROOT, 'data/distress/evidence.json');
   const distressEvidence: Record<string, PublishedListing['for_sale_evidence']> = existsSync(distressPath)
     ? (JSON.parse(readFileSync(distressPath, 'utf8')).evidence ?? {})
     : {};
-  const forSaleIds = new Set(Object.keys(distressEvidence));
+
+  // ⛔ LANE MEMBERSHIP HAS ONE PRODUCER, and it is the CONTRACT — not the ingest
+  // file. Deriving it from the ingest while the scorer read the contract is what
+  // let the two disagree silently: a row could sit in Lane 1 on the card while
+  // `distress` scored `unknown` for the very same parcel. One source, or they
+  // drift the first time either side changes.
+  const forSaleIds = new Set(enrichment.forSale.keys());
 
   // County-LEVEL notices: real sale events that cannot be joined to a parcel
   // because the property identity is in a scanned PDF. Published separately so
@@ -151,12 +170,17 @@ async function main(): Promise<void> {
       registry.denials,
     );
     const distress = distressEvidence[c.row.record_id] ?? null;
+    // The ASKING PRICE comes from the contract, which is the same object
+    // `scoreDiscount` divides by — so the number on the card and the number in
+    // the score cannot disagree.
+    const contractPrice = enrichment.forSale.get(c.row.record_id)?.price ?? null;
     const water = enrichment.water.get(c.row.record_id);
     const liv = enrichment.livability.get(c.row.record_id);
     const listing = toListing(c, {
       provenance,
       reappraisalYear: vintage.byFips.get(c.row.fips)?.next_reappraisal_year ?? null,
       forSaleEvidence: distress,
+      price: contractPrice,
       water: water
         ? {
             has_stream: water.has_stream,

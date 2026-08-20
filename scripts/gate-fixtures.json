@@ -1,163 +1,181 @@
 {
-  "_why": [
-    "The pairing that verify-controls.mjs enforces: every gate, the fixture that",
-    "must make it exit non-zero, and the baseline that must not.",
-    "A gate listed here with no red fixture is not yet a gate. A gate present in",
-    "scripts/ and absent from here fails the meta-gate outright \u2014 which is what",
-    "stops a new gate from shipping unproven."
+ "_why": [
+  "The pairing that verify-controls.mjs enforces: every gate, the fixture that",
+  "must make it exit non-zero, and the baseline that must not.",
+  "A gate listed here with no red fixture is not yet a gate. A gate present in",
+  "scripts/ and absent from here fails the meta-gate outright — which is what",
+  "stops a new gate from shipping unproven."
+ ],
+ "gates": {
+  "verify-sources.mjs": [
+   {
+    "name": "source-missing-legal-basis",
+    "expect": "red",
+    "plant": {
+     "sources/sources.yaml": "gates/source-missing-legal-basis.yaml"
+    }
+   },
+   {
+    "name": "denied-host-enabled",
+    "expect": "red",
+    "plant": {
+     "sources/sources.yaml": "gates/denied-host-enabled.yaml"
+    }
+   },
+   {
+    "name": "points-layer-url",
+    "expect": "red",
+    "plant": {
+     "sources/sources.yaml": "gates/points-layer-url.yaml"
+    }
+   },
+   {
+    "name": "enrich-refused-host-enabled",
+    "expect": "red",
+    "plant": {
+     "sources/sources.enrich.yaml": "gates/enrich-refused-host-enabled.yaml"
+    }
+   },
+   {
+    "name": "enrich-unreachable-robots-enabled",
+    "expect": "red",
+    "plant": {
+     "sources/sources.enrich.yaml": "gates/enrich-unreachable-robots-enabled.yaml"
+    }
+   }
   ],
-  "gates": {
-    "verify-sources.mjs": [
-      {
-        "name": "source-missing-legal-basis",
-        "expect": "red",
-        "plant": {
-          "sources/sources.yaml": "gates/source-missing-legal-basis.yaml"
-        }
-      },
-      {
-        "name": "denied-host-enabled",
-        "expect": "red",
-        "plant": {
-          "sources/sources.yaml": "gates/denied-host-enabled.yaml"
-        }
-      },
-      {
-        "name": "points-layer-url",
-        "expect": "red",
-        "plant": {
-          "sources/sources.yaml": "gates/points-layer-url.yaml"
-        }
-      },
-      {
-        "name": "enrich-refused-host-enabled",
-        "expect": "red",
-        "plant": {
-          "sources/sources.enrich.yaml": "gates/enrich-refused-host-enabled.yaml"
-        }
-      },
-      {
-        "name": "enrich-unreachable-robots-enabled",
-        "expect": "red",
-        "plant": {
-          "sources/sources.enrich.yaml": "gates/enrich-unreachable-robots-enabled.yaml"
-        }
-      }
-    ],
-    "verify-egress-allowlist.mjs": [
-      {
-        "name": "egress-violation",
-        "expect": "red",
-        "plant": {
-          "pipeline/normalize/egress-violation.ts": "egress-violation.ts"
-        }
-      },
-      {
-        "name": "site-frontmatter-egress",
-        "expect": "red",
-        "plant": {
-          "site/src/pages/leak.astro": "site-frontmatter-egress.astro"
-        }
-      }
-    ],
-    "verify-no-pii.mjs": [
-      {
-        "name": "pii-in-data-surface",
-        "expect": "red",
-        "plant": {
-          "data/parcels-sample.json": "pii-present.json"
-        }
-      },
-      {
-        "name": "pii-in-publish-out-surface",
-        "expect": "red",
-        "plant": {
-          "publish/out/parcels.json": "pii-present.json"
-        }
-      },
-      {
-        "name": "pii-in-site-dist-surface",
-        "expect": "red",
-        "plant": {
-          "site/dist/parcels.json": "pii-present.json"
-        }
-      }
-    ],
-    "verify-coverage.mjs": [
-      {
-        "name": "counties-36-rows",
-        "expect": "red",
-        "plant": {
-          "seeds/counties.csv": "gates/counties-36-rows.csv"
-        }
-      },
-      {
-        "name": "counties-bad-tier",
-        "expect": "red",
-        "plant": {
-          "seeds/counties.csv": "gates/counties-bad-tier.csv"
-        }
-      }
-    ],
-    "verify-ingest-guards.mjs": [
-      {
-        "name": "guard-accepted-a-must-reject",
-        "expect": "red",
-        "plant": {
-          "fixtures/ingest-expectations.json": "gates/ingest-expectations-broken.json"
-        }
-      }
-    ],
-    "verify-provenance.mjs": [
-      {
-        "name": "provenance-homepage",
-        "expect": "red",
-        "_why": "The owner clicked a Fannin County GA row and landed on https://www.gsccca.org/ \u2014 a bare homepage that does not show the record, on a host that is on our own denylist so we never fetched it. A link that does not resolve to the record is a false claim of provenance, and it is worse than no link because it looks like verification.",
-        "plant": {
-          "site/src/data/listings.json": "gates/provenance-homepage.json"
-        }
-      }
-    ],
-    "verify-ledger-reconciles.mjs": [
-      {
-        "name": "ledger-drift",
-        "expect": "red",
-        "_why": "Measured 2026-08-19: the warehouse held 235,421 parcels while county_runs claimed 171,661 \u2014 Watauga (46,252) and Mitchell (17,508) sat in the file while the ledger called them not-run. coverage.json is built from that ledger, so the site would have rendered 'we cannot see this county' over 63,760 parcels we hold.",
-        "plant": {
-          "data/warehouse/warehouse-drifted.sqlite": "gates/ledger-drift/warehouse-drifted.sqlite",
-          "data/warehouse/warehouse-pointer.json": "gates/ledger-drift/warehouse-pointer.json"
-        }
-      }
-    ]
-  },
-  "non_verify_gates": {
-    "check-freshness.mjs": [
-      {
-        "name": "stale-run",
-        "expect": "red",
-        "args": [
-          "--max-age-days",
-          "10"
-        ],
-        "plant": {
-          "data/runs/2026-01-01-nc.json": "gates/run-manifest-stale.json"
-        }
-      },
-      {
-        "name": "same-run-generous-budget",
-        "expect": "green",
-        "args": [
-          "--max-age-days",
-          "100000"
-        ],
-        "plant": {
-          "data/runs/2026-01-01-nc.json": "gates/run-manifest-stale.json"
-        }
-      }
-    ]
-  },
-  "exempt_from_pairing": [
-    "verify-all.mjs",
-    "verify-controls.mjs"
+  "verify-egress-allowlist.mjs": [
+   {
+    "name": "egress-violation",
+    "expect": "red",
+    "plant": {
+     "pipeline/normalize/egress-violation.ts": "egress-violation.ts"
+    }
+   },
+   {
+    "name": "site-frontmatter-egress",
+    "expect": "red",
+    "plant": {
+     "site/src/pages/leak.astro": "site-frontmatter-egress.astro"
+    }
+   }
+  ],
+  "verify-no-pii.mjs": [
+   {
+    "name": "pii-in-data-surface",
+    "expect": "red",
+    "plant": {
+     "data/parcels-sample.json": "pii-present.json"
+    }
+   },
+   {
+    "name": "pii-in-publish-out-surface",
+    "expect": "red",
+    "plant": {
+     "publish/out/parcels.json": "pii-present.json"
+    }
+   },
+   {
+    "name": "pii-in-site-dist-surface",
+    "expect": "red",
+    "plant": {
+     "site/dist/parcels.json": "pii-present.json"
+    }
+   },
+   {
+    "name": "evidence-freetext-value",
+    "expect": "red",
+    "_why": "verify-no-pii matches field NAMES, so a grantor name sitting in a VALUE passed it completely — and data/evidence/** is built from county foreclosure and REO documents, the documents most likely to carry one. The screen is STRUCTURAL rather than a name regex: the evidence contract has no free-text field at all, so any value that is not a URL, ISO timestamp, closed-vocabulary token, number or authored label is off-contract and refused, whatever it says. That catches names it has never seen, and does not fire on 'Jackson County'.",
+    "plant": {
+     "data/evidence/for-sale.json": "gates/evidence-freetext-value.json"
+    }
+   }
+  ],
+  "verify-coverage.mjs": [
+   {
+    "name": "counties-36-rows",
+    "expect": "red",
+    "plant": {
+     "seeds/counties.csv": "gates/counties-36-rows.csv"
+    }
+   },
+   {
+    "name": "counties-bad-tier",
+    "expect": "red",
+    "plant": {
+     "seeds/counties.csv": "gates/counties-bad-tier.csv"
+    }
+   }
+  ],
+  "verify-ingest-guards.mjs": [
+   {
+    "name": "guard-accepted-a-must-reject",
+    "expect": "red",
+    "plant": {
+     "fixtures/ingest-expectations.json": "gates/ingest-expectations-broken.json"
+    }
+   }
+  ],
+  "verify-provenance.mjs": [
+   {
+    "name": "provenance-homepage",
+    "expect": "red",
+    "_why": "The owner clicked a Fannin County GA row and landed on https://www.gsccca.org/ — a bare homepage that does not show the record, on a host that is on our own denylist so we never fetched it. A link that does not resolve to the record is a false claim of provenance, and it is worse than no link because it looks like verification.",
+    "plant": {
+     "site/src/data/listings.json": "gates/provenance-homepage.json"
+    }
+   }
+  ],
+  "verify-ledger-reconciles.mjs": [
+   {
+    "name": "ledger-drift",
+    "expect": "red",
+    "_why": "Measured 2026-08-19: the warehouse held 235,421 parcels while county_runs claimed 171,661 — Watauga (46,252) and Mitchell (17,508) sat in the file while the ledger called them not-run. coverage.json is built from that ledger, so the site would have rendered 'we cannot see this county' over 63,760 parcels we hold.",
+    "plant": {
+     "data/warehouse/warehouse-drifted.sqlite": "gates/ledger-drift/warehouse-drifted.sqlite",
+     "data/warehouse/warehouse-pointer.json": "gates/ledger-drift/warehouse-pointer.json"
+    }
+   }
+  ],
+  "verify-interchange.mjs": [
+   {
+    "name": "evidence-off-contract",
+    "expect": "red",
+    "_why": "Measured 2026-08-19: pipeline/ingest-distress.ts wrote data/distress/evidence.json while pipeline/score/enrich-contract.ts read data/evidence/{for-sale,distress}.json — a directory that had never existed. discount (38) and distress (31), 69 of 100 composite points, were unreachable for every parcel while the prices sat one directory away, and every test passed because each side was internally consistent. The fixture drops ONE record rather than emptying the file: a partial translation is the version that hides, because the output still looks populated.",
+    "plant": {
+     "data/evidence/for-sale.json": "gates/evidence-off-contract.json"
+    }
+   }
   ]
+ },
+ "non_verify_gates": {
+  "check-freshness.mjs": [
+   {
+    "name": "stale-run",
+    "expect": "red",
+    "args": [
+     "--max-age-days",
+     "10"
+    ],
+    "plant": {
+     "data/runs/2026-01-01-nc.json": "gates/run-manifest-stale.json"
+    }
+   },
+   {
+    "name": "same-run-generous-budget",
+    "expect": "green",
+    "args": [
+     "--max-age-days",
+     "100000"
+    ],
+    "plant": {
+     "data/runs/2026-01-01-nc.json": "gates/run-manifest-stale.json"
+    }
+   }
+  ]
+ },
+ "exempt_from_pairing": [
+  "verify-all.mjs",
+  "verify-controls.mjs"
+ ]
 }

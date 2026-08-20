@@ -434,6 +434,20 @@ export function scoreDistress(
   const parts: string[] = [];
   for (const [kind, obs] of kinds) {
     const inc = cfg.distress.increments[kind as keyof typeof cfg.distress.increments];
+    // ⛔ BELT AND BRACES. assertDistressIncrementsComplete() refuses this at load
+    // time, so reaching here means the config was bypassed. Refuse honestly
+    // rather than let `total += undefined` become NaN and publish as null — a
+    // component that claims to be scored while carrying no number is worse than
+    // one that admits it does not know.
+    if (typeof inc !== 'number' || !Number.isFinite(inc)) {
+      return unknownComponent(
+        'distress',
+        nominal,
+        `A '${kind.replace(/_/g, ' ')}' notice is on file for this parcel, but no scoring increment ` +
+          'is declared for that kind, so it cannot be weighed. Unknown, not zero — the notice is real.',
+        [{ url: obs.source_url, retrieved_at: obs.observed_at, kind: obs.kind }],
+      );
+    }
     total += inc;
     parts.push(`${kind.replace(/_/g, ' ')} (+${inc}, observed ${obs.observed_at.slice(0, 10)})`);
   }

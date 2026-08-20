@@ -95,7 +95,14 @@ export type PublishedListing = {
    *  on the 26% of parcels the county publishes no address for. */
   site_address: string | null;
   site_address_unknown_reason: string | null;
-  lane: 'market' | 'prospect';
+  /* ⛔ `lane` IS DELIBERATELY NOT PUBLISHED. It had TWO producers and one of
+     them was wrong: this file hardcoded `lane: 'prospect'` for every row while
+     the site derived it from `for_sale_evidence` — so the payload labelled all
+     8 Lane-1 properties as prospecting, and only the site's own derivation hid
+     it. A field with two producers is a field that disagrees with itself the
+     first time either side changes; `for_sale_evidence` is the single fact that
+     decides the lane, and `laneOf()` in site/src/lib/deals.ts is its one
+     reader. Deriving beats storing when the derivation is one comparison. */
   source_url: string | null;
   provenance: Provenance;
   first_seen: string;
@@ -156,6 +163,9 @@ function toSignal(c: ScoreComponent): PublishedSignal {
 export type ToListingContext = {
   /** From data/distress/evidence.json, keyed by record_id. */
   forSaleEvidence?: PublishedListing['for_sale_evidence'];
+  /** Asking price from the evidence CONTRACT — the same number `discount`
+   *  divides by, so the card and the score cannot disagree. */
+  price?: number | null;
   provenance: Provenance;
   reappraisalYear: number | null;
   /** `null` means NOT MEASURED. It never means "no water" — see publish/run.ts. */
@@ -186,7 +196,7 @@ export function toListing(s: ScoredParcel & { rank: number | null }, ctx: ToList
         : null,
     acres: p.acreage,
     assessed_value: p.value,
-    price: null,
+    price: ctx.price ?? null,
     score,
     // 4dp, not the raw float. The ordering needs the precision (428 distinct
     // values across 500 rows survive at 4dp); 14 significant digits of IEEE
@@ -219,7 +229,6 @@ export function toListing(s: ScoredParcel & { rank: number | null }, ctx: ToList
       p.siteadd === null || p.siteadd.trim() === ''
         ? 'The county publishes no situs address for this parcel. Common on vacant land, which often has no assigned address at all.'
         : null,
-    lane: 'prospect',
     source_url: ctx.provenance.record_url,
     provenance: ctx.provenance,
     first_seen: p.first_seen,

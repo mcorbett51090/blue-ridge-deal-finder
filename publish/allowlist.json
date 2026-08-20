@@ -7,7 +7,8 @@
   "nobody added it to a denylist. No PII field appears here and none may be",
   "added; scripts/verify-no-pii.mjs asserts that independently.",
   "The `listing` kind is the PUBLISHED site payload (publish/payload.ts). It is a different projection from `parcel`: the site's key names, plus the structured `provenance` object that replaced the bare source URL after a fixture row cited a homepage on a DENIED host.",
-  "`cheapness` / `cheapness_basis` (added 2026-08-19) are the SELECTION AXIS, published separately from `score` on purpose: publish ranks on cheapness, so a cheapness folded into the score would pin every published row at that score's maximum — measured, 500 rows tied at 100. Neither field is owner-derived; both come from parval/acreage against a cohort percentile."
+  "`cheapness` / `cheapness_basis` (added 2026-08-19) are the SELECTION AXIS, published separately from `score` on purpose: publish ranks on cheapness, so a cheapness folded into the score would pin every published row at that score's maximum — measured, 500 rows tied at 100. Neither field is owner-derived; both come from parval/acreage against a cohort percentile.",
+  "`lane` was REMOVED from the listing projection 2026-08-19: payload.ts hardcoded 'prospect' for every row while the site derived the real value from for_sale_evidence, so the published payload mislabelled all 8 Lane-1 properties. One producer — for_sale_evidence — and one derivation, laneOf()."
  ],
  "parcel": [
   "record_id",
@@ -75,7 +76,6 @@
   "water",
   "flood_zone",
   "parcel_use",
-  "lane",
   "source_url",
   "provenance",
   "first_seen",

@@ -31,6 +31,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
+import { DistressKindSchema } from './config.ts';
 
 export const SourceRefSchema = z.object({
   url: z.string().url(),
@@ -83,7 +84,10 @@ export type LivabilityFacts = z.infer<typeof LivabilityFactsSchema>;
 /** §5.3 — every increment requires a cited observation. No LLM anywhere in the
  *  ingest path, so there is no field here for an inferred one. */
 export const DistressObservationSchema = z.object({
-  kind: z.enum(['tax_sale_listed', 'foreclosure_notice', 'tax_delinquent', 'upset_bid_window_open']),
+  // ⛔ ONE vocabulary, imported — not a second copy. A restated enum is a
+  // vocabulary that disagrees with the increments the first time either is
+  // edited, and the disagreement scores NaN. See assertDistressIncrementsComplete.
+  kind: DistressKindSchema,
   source_url: z.string().url(),
   observed_at: z.string().datetime(),
 });
@@ -96,7 +100,25 @@ export type DistressObservation = z.infer<typeof DistressObservationSchema>;
  * construction. It is not a gap to be filled in later with an estimate.
  */
 export const ForSaleEvidenceSchema = z.object({
-  kind: z.enum(['listing', 'tax-foreclosure', 'sheriff-sale', 'master-in-equity', 'estate-notice', 'auction']),
+  // ⛔ `county-owned-reo` is its OWN member and must not be folded into
+  // `tax-foreclosure`. It is a COMPLETED outright-ownership state — the county
+  // already took the property and now sells it directly, with no auction, no
+  // redemption window and no competing bids — whereas every other member here
+  // describes a process unfolding TOWARD a future sale. `scoreDistress()` builds
+  // the component's `basis` as `kind.replace(/_/g,' ')` and schema.ts documents
+  // basis as rendered verbatim on the card, so collapsing the two would print a
+  // false mechanism sentence on the only 8 properties a reader can actually buy.
+  // A reader acting on "tax delinquent" versus "already county-owned, buy
+  // directly" does something different. (FORGE tiebreak TB-2, 2026-08-19.)
+  kind: z.enum([
+    'listing',
+    'tax-foreclosure',
+    'county-owned-reo',
+    'sheriff-sale',
+    'master-in-equity',
+    'estate-notice',
+    'auction',
+  ]),
   label: z.string().min(1),
   source_url: z.string().url(),
   observed_at: z.string().datetime(),

@@ -66,9 +66,22 @@ export interface WaterSignal {
  *  A source URL is REQUIRED at the type level once evidence is asserted — an
  *  unsourced "this is for sale" claim literally will not typecheck. */
 export interface ForSaleEvidence {
+  /** ⛔ `county_owned_reo` is snake_case here because that is what the INGEST
+   *  emits and what this payload actually carries — the type describes the data,
+   *  it does not wish for it. (The scoring contract spells the same mechanism
+   *  `county-owned-reo`; they are different vocabularies for different
+   *  consumers, and `to-contract.ts` is the one place that maps between them.)
+   *
+   *  It is its own member and must never be folded into `tax-foreclosure`: the
+   *  county already OWNS these outright and sells them directly — no auction, no
+   *  redemption window, no competing bids — where every other member describes a
+   *  process unfolding toward a future sale. These 8 rows are the only
+   *  properties on the site a reader can actually buy, so the distinction is the
+   *  most load-bearing label here. */
   kind:
     | 'listing'
     | 'tax-foreclosure'
+    | 'county_owned_reo'
     | 'sheriff-sale'
     | 'master-in-equity'
     | 'estate-notice'

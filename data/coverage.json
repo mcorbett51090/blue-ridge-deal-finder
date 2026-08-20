@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T00:47:09.692Z",
+  "generated_at": "2026-08-20T01:17:33.899Z",
   "counties": [
     {
       "fips": "37189",
@@ -101,7 +101,7 @@
       "data_state": "ingested",
       "rows": 41291,
       "published": 113,
-      "scorable": 39919,
+      "scorable": 39927,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
       "note": "Collected and scored — the rows below are published from real parcel records."
