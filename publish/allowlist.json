@@ -1,12 +1,13 @@
 {
  "_comment": [
-  "The field allowlist for every published payload (plan \u00a74.4 surface 4).",
+  "The field allowlist for every published payload (plan §4.4 surface 4).",
   "It FAILS CLOSED: a key not on this list is a hard error, not a warning.",
-  "That direction matters \u2014 the failure mode being defended against is a new",
+  "That direction matters — the failure mode being defended against is a new",
   "upstream field arriving with owner data in it and riding to dist/ because",
   "nobody added it to a denylist. No PII field appears here and none may be",
   "added; scripts/verify-no-pii.mjs asserts that independently.",
-  "The `listing` kind is the PUBLISHED site payload (publish/payload.ts). It is a different projection from `parcel`: the site's key names, plus the structured `provenance` object that replaced the bare source URL after a fixture row cited a homepage on a DENIED host."
+  "The `listing` kind is the PUBLISHED site payload (publish/payload.ts). It is a different projection from `parcel`: the site's key names, plus the structured `provenance` object that replaced the bare source URL after a fixture row cited a homepage on a DENIED host.",
+  "`cheapness` / `cheapness_basis` (added 2026-08-19) are the SELECTION AXIS, published separately from `score` on purpose: publish ranks on cheapness, so a cheapness folded into the score would pin every published row at that score's maximum — measured, 500 rows tied at 100. Neither field is owner-derived; both come from parval/acreage against a cohort percentile."
  ],
  "parcel": [
   "record_id",
@@ -67,6 +68,8 @@
   "price",
   "score",
   "score_breakdown",
+  "cheapness",
+  "cheapness_basis",
   "confidence",
   "for_sale_evidence",
   "water",

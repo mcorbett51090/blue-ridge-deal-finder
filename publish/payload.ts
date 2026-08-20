@@ -52,6 +52,23 @@ export type PublishedListing = {
   score: number | null;
   score_breakdown: { signals: PublishedSignal[]; denominator: number; unknown_count: number };
   confidence: number;
+  /** THE SELECTION AXIS, 0..100, cheaper = higher — published as its own number
+   *  rather than folded into `score`.
+   *
+   *  ⛔ This separation is load-bearing, not cosmetic. `publish` chooses which
+   *  parcels ship by ranking on cheapness; if cheapness were also IN the score,
+   *  every published row would sit at the top of the axis it was selected by and
+   *  the score would be pinned at its maximum. Measured 2026-08-19: it was —
+   *  500 published rows tied at exactly 100. Swapping the transform does not fix
+   *  it (rank, log min–max and log median/IQR all saturate in their own top
+   *  slice); separating the two jobs does.
+   *
+   *  `null` = not measurable (thin cohort, unknown value or acreage, or an
+   *  administrative value floor). It is NOT "expensive", and it must never sort
+   *  as if it were. */
+  cheapness: number | null;
+  /** Why cheapness is what it is, rendered verbatim — including when it is null. */
+  cheapness_basis: string;
   /** Non-null moves the row into LANE 1. Null is Lane 2 (prospecting). This is
    *  the single field that separates "a property exists" from "you can buy it". */
   for_sale_evidence: {
@@ -171,6 +188,16 @@ export function toListing(s: ScoredParcel & { rank: number | null }, ctx: ToList
     assessed_value: p.value,
     price: null,
     score,
+    // 4dp, not the raw float. The ordering needs the precision (428 distinct
+    // values across 500 rows survive at 4dp); 14 significant digits of IEEE
+    // noise in a published payload is not a measurement, it is an artefact.
+    // ⛔ The NUMBER is deliberately not what the card shows. The published set
+    // IS the cheapest ~0.25% of the corpus, so every percentile lands in
+    // 99.7–100 and 'cheaper than 99.997%' reads identically to 'cheaper than
+    // 99.72%'. The reader gets $/acre and the cohort range, from
+    // `cheapness_basis`; this field exists to ORDER the set, not to be read.
+    cheapness: s.cheapness === null ? null : Math.round(s.cheapness * 1e4) / 1e4,
+    cheapness_basis: s.cheapness_basis,
     score_breakdown: {
       signals,
       denominator: denominatorOf(signals),

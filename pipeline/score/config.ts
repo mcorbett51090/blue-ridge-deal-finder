@@ -18,7 +18,6 @@ export const WeightsSchema = z.object({
   components: z.object({
     discount: z.number().nonnegative(),
     distress: z.number().nonnegative(),
-    per_acre: z.number().nonnegative(),
     water: z.number().nonnegative(),
     livability: z.number().nonnegative(),
   }),

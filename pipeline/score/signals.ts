@@ -88,7 +88,10 @@ export function scorePerAcre(
   cfg: ScoreConfig,
   parcelSource: SourceRef | null,
 ): ScoreComponent {
-  const nominal = cfg.components.per_acre;
+  // ⛔ 100, not a weight from `components`. `per_acre` is no longer IN the
+  // composite — it is the declared SELECTION axis, published as `cheapness`.
+  // A signal cannot both choose the shortlist and grade it; see weights.yaml.
+  const nominal = 100;
   const sources = parcelSource ? [parcelSource] : [];
 
   if (row.value === null || !(row.value > 0)) {

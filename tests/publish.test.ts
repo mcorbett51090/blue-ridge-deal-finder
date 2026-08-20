@@ -132,14 +132,38 @@ test('⛔ every published score is exactly what its breakdown derives', () => {
   const rows = JSON.parse(readFileSync(PUBLISHED, 'utf8')) as PublishedListing[];
   for (const r of rows) assertScoreDerivable(r);
 
-  // CONTROL: mutate ONE signal's weight on ONE row. The site fails its build on
-  // this; so must we, two systems earlier.
-  // Same reason as below: rows[0] is now an unscored Lane-1 row with NO scored
-  // signal to mutate, so the control would have had nothing to corrupt and
-  // would have passed by doing nothing.
-  const victim = structuredClone(
-    rows.find((x) => x.score_breakdown.signals.some((s) => s.value !== null))!,
-  );
+  // ⛔ THE CONTROLS RUN ON A SYNTHETIC ROW, and that is deliberate as of
+  // 2026-08-19. They used to hunt the live corpus for a row with a scored
+  // signal to corrupt. Since `per_acre` became the SELECTION AXIS rather than a
+  // composite component, NO published row has a scored signal — discount,
+  // distress, water and livability all lack inputs — so `find()` returned
+  // undefined and these controls died on a TypeError.
+  //
+  // The arithmetic is what is under test here, not whether today's corpus
+  // happens to contain a scored row. Binding a correctness control to a DATA
+  // condition means it silently stops testing the moment the data changes,
+  // which is the failure this suite exists to prevent. The loop above still
+  // runs over every real row.
+  const synthetic = (): PublishedListing =>
+    structuredClone({
+      ...rows[0]!,
+      id: 'synthetic:control',
+      score: 61, // water 19x1 + livability 12x0 = 19 over denominator 31 -> round(61.29)
+      score_breakdown: {
+        signals: [
+          { key: 'water', label: 'Water', weight: 19, value: 1, note: 'synthetic' },
+          { key: 'livability', label: 'Livability', weight: 12, value: 0, note: 'synthetic' },
+          { key: 'distress', label: 'Distress', weight: 31, value: null, note: 'synthetic unknown' },
+        ],
+        denominator: 31,
+        unknown_count: 1,
+      },
+    } as PublishedListing);
+  const base = synthetic();
+  assert.equal(base.score, deriveScore(base.score_breakdown.signals), 'the synthetic row must itself be self-consistent, or the controls below prove nothing');
+  assertScoreDerivable(base);
+
+  const victim = synthetic();
   const scored = victim.score_breakdown.signals.find((s) => s.value !== null)!;
   scored.weight += 7;
   assert.throws(
@@ -150,7 +174,7 @@ test('⛔ every published score is exactly what its breakdown derives', () => {
 
   // CONTROL 2: an unknown signal published with weight 0 is an unknown scored
   // as zero, which is the defect this whole project is built around.
-  const victim2 = structuredClone(rows[0]!);
+  const victim2 = synthetic();
   const unknown = victim2.score_breakdown.signals.find((s) => s.value === null)!;
   unknown.weight = 0;
   assert.throws(() => assertScoreDerivable(victim2), /unknown scored as zero/);
@@ -163,8 +187,31 @@ test('unknown signals are excluded from the denominator in the PUBLISHED payload
   // so it has no measurable signal at all and `score` is null. This test is
   // about the denominator of a row that HAS a score; pick one explicitly and
   // assert that such a row exists, rather than assuming a position.
-  const r = rows.find((x) => typeof x.score === 'number' && x.score_breakdown.signals.some((s) => s.value === null));
-  assert.ok(r, 'the corpus must contain a row that is scored AND has an unknown, or this test is vacuous');
+  // ⛔ As of 2026-08-19 the live corpus contains NO scored row at all: `per_acre`
+  // moved to the selection axis and the four composite signals have no inputs
+  // yet. That is an honest state, not a regression — but it made this test
+  // vacuous, so the denominator arithmetic is now exercised on a synthetic row
+  // and the corpus is asserted separately for the property it CAN still carry
+  // (an unknown always ships its nominal weight, never 0).
+  for (const row of rows) {
+    for (const sig of row.score_breakdown.signals) {
+      assert.ok(sig.weight > 0, `${row.id}: signal ${sig.key} ships weight 0 — an unknown scored as zero`);
+    }
+  }
+  const r: PublishedListing = structuredClone({
+    ...rows[0]!,
+    id: 'synthetic:denominator',
+    score: 61, // water 19x1 + livability 12x0 = 19 over denominator 31 -> round(61.29)
+    score_breakdown: {
+      signals: [
+        { key: 'water', label: 'Water', weight: 19, value: 1, note: 'synthetic' },
+        { key: 'livability', label: 'Livability', weight: 12, value: 0, note: 'synthetic' },
+        { key: 'distress', label: 'Distress', weight: 31, value: null, note: 'synthetic unknown' },
+      ],
+      denominator: 31,
+      unknown_count: 1,
+    },
+  } as PublishedListing);
   const unknowns = r.score_breakdown.signals.filter((s) => s.value === null);
   assert.ok(unknowns.length > 0, 'the real corpus has unknowns — if not, this test is vacuous');
   assert.equal(

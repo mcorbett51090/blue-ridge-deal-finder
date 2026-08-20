@@ -130,6 +130,19 @@ const vintage = (() => {
     }
   </p>
 
+  {/* ⛔ CHEAPNESS FIRST, and as a SENTENCE not a number. This is the axis the
+      shortlist was actually selected on, so it is the honest headline. The
+      published set is the cheapest ~0.25% of the corpus, which means every
+      cheapness value lands in 99.7–100 — printing "99.9972" would look precise
+      and tell the reader nothing. `cheapness_basis` carries the $/acre and the
+      size of the cohort it was compared against, which is checkable. */}
+  {l.cheapness_basis && (
+    <p class="dcard__cheap">
+      <span class="dcard__cheap-k">Why it is here</span>
+      {l.cheapness_basis}
+    </p>
+  )}
+
   <ScoreMeter score={l.score} breakdown={l.score_breakdown} confidence={l.confidence} />
 
   <dl class="dcard__facts">
@@ -316,6 +329,22 @@ const vintage = (() => {
   }
   /* Lane 2 carries a visible left rule as well as its label, so the two lanes
      are distinguishable at a glance even when a card is seen out of context. */
+  .dcard__cheap {
+    margin: 0 0 var(--space-2xs);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    line-height: 1.4;
+    color: var(--ink-soft);
+    max-width: none;
+  }
+  .dcard__cheap-k {
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: var(--step--2);
+    font-weight: 700;
+    color: var(--ink);
+  }
   .dcard[data-lane='prospect'] {
     border-left: 3px solid var(--lane-prospect);
   }

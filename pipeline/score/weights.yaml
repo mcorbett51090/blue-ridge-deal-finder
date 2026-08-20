@@ -4,19 +4,26 @@
 #
 # Nominal weights sum to 100. `effective_weight` = nominal × vintage_confidence
 # × cohort_penalty, computed per row at score time, never edited here.
+# ⛔ `per_acre` IS NOT HERE ANY MORE, and its absence is the whole point.
+# It is the SELECTION axis (see `per_acre:` below, and `cheapness` in the
+# published payload), and a signal cannot both choose the shortlist and grade
+# it. Measured 2026-08-19: `publish` took topN by the composite while `per_acre`
+# was the only signal firing, so the published slice was the top of the very
+# axis it reported and all 500 scored rows tied at exactly 100. Substituting a
+# different transform does not help — rank, log min–max and log median/IQR all
+# discriminate across the corpus (distinct 101) and all saturate in their own
+# top slice (1, 6, 1). See docs/probe-log.md.
 components:
   # parval ÷ a price that ONLY for_sale_evidence can supply. There is no sale-
   # PRICE field among the 71 (TB2 §2, verified across the full field list), so
   # `discount` is permanently `unknown` for every Lane-2 row, by construction.
-  discount: 30
+  discount: 38
   # Cited observations only, each with a source_url. Nothing model-inferred.
-  distress: 25
-  # parval / acreage vs a (cntyfips, use-bucket, acreage-band) percentile.
-  per_acre: 20
+  distress: 31
   # USGS NHD geometry (E5.1-E5.3) — computed from GEOMETRY, never from text.
-  water: 15
+  water: 19
   # FEMA NFHL (E5.4), USGS EPQS (C31), Census TIGER/Line.
-  livability: 10
+  livability: 12
 
 # ---------------------------------------------------------------------------
 # The rest of the tunables. Same rule as the weights: they live HERE and are

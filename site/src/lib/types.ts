@@ -104,6 +104,19 @@ export interface Listing {
    *  NaN and every filter comparison silently went false. */
   score: number | null;
   score_breakdown: ScoreBreakdown;
+  /** THE SELECTION AXIS, 0..100, cheaper = higher. `publish` ORDERS by this, and
+   *  it is deliberately NOT part of `score`: a signal that picks the shortlist
+   *  cannot also grade it, or every published row sits at that signal's maximum
+   *  (measured 2026-08-19 — 500 rows tied at exactly 100).
+   *
+   *  ⛔ Do not render this NUMBER. The published set is the cheapest ~0.25% of
+   *  the corpus, so every value lands in 99.7–100 and the differences are
+   *  invisible to a reader. Render `cheapness_basis`, which carries the $/acre
+   *  and the cohort range — the facts a person can actually act on.
+   *  `null` = not measurable, which is not "expensive". */
+  cheapness: number | null;
+  /** Why cheapness is what it is, verbatim — present even when cheapness is null. */
+  cheapness_basis: string;
   for_sale_evidence: ForSaleEvidence | null;
   /** `null` = NOT MEASURED (the parcel was never enriched). It NEVER means
    *  "no water" — publishing false for an unmeasured parcel would render "No

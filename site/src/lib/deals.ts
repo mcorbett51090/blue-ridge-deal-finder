@@ -206,12 +206,27 @@ export function inFloodplain(l: Listing): boolean | null {
   return !/^(X|C|B)$/i.test(l.flood_zone);
 }
 
-/** Unscored rows sort LAST, and explicitly so. `b.score - a.score` coerced
- *  null to 0 via arithmetic — right answer, wrong reason, and it would have
- *  silently reversed the day a negative score became possible. */
+/**
+ * ⛔ ORDERED BY `cheapness`, NOT by `score`.
+ *
+ * `publish` selects the shortlist by cheapness, so cheapness is the axis this
+ * list is a view of, and sorting by anything else would show the rows in an
+ * order the selection did not use. It also cannot sort by score today: every
+ * published row has `score: null`, because the four composite signals
+ * (discount, distress, water, livability) have no inputs collected yet. That is
+ * an honest absence and it is exactly why the two were separated — a score that
+ * silently absorbed the selection axis read as a confident 100 for all 500 rows.
+ *
+ * Unmeasurable sorts LAST and explicitly: `?? -1`, never arithmetic on null.
+ */
 export const sorted = [...listings].sort(
-  (a, b) => (b.score ?? -1) - (a.score ?? -1) || a.id.localeCompare(b.id),
+  (a, b) => (b.cheapness ?? -1) - (a.cheapness ?? -1) || a.id.localeCompare(b.id),
 );
+
+/** True when NOTHING in the published set carries a score — today's state. The
+ *  UI uses it to stop offering a score filter that would empty the list at any
+ *  non-zero value, and to say why rather than looking broken. */
+export const NOTHING_IS_SCORED = listings.every((l) => l.score === null);
 
 export function byLane(lane: Lane): Listing[] {
   return sorted.filter((l) => laneOf(l) === lane);

@@ -182,7 +182,9 @@ test('⛔ identical absolute $/acre scores DIFFERENTLY in a cheap county and an 
 
   const { scored } = run([...cheap, ...dear, probeCheap, probeDear]);
   const of = (id: string) => scored.find((s) => s.row.record_id === id)!;
-  const pctOf = (id: string) => of(id).components.find((c) => c.id === 'per_acre')!.normalized;
+  // per_acre is the SELECTION AXIS now, carried as `cheapness` rather than as a
+  // composite component. Same number, same meaning, different field.
+  const pctOf = (id: string) => of(id).cheapness;
 
   assert.equal(of('probe-cheap').row.value! / of('probe-cheap').row.acreage!, 2000);
   assert.equal(of('probe-dear').row.value! / of('probe-dear').row.acreage!, 2000);
@@ -202,15 +204,17 @@ test('a cohort below the 50-comparable floor scores UNKNOWN, not a nonsense perc
   const thin = cohortOf(20, '37189', 'Watauga', 5000);
   const { scored, tallies } = run(thin);
   for (const s of scored) {
-    const c = s.components.find((x) => x.id === 'per_acre')!;
+    const c = { status: s.cheapness === null ? 'unknown' : 'scored', normalized: s.cheapness, basis: s.cheapness_basis } as const;
     assert.equal(c.status, 'unknown');
     assert.match(c.basis, /fewer than the 50/);
   }
-  assert.equal(tallies.known['per_acre'] ?? 0, 0);
+  // `known`/`unknown` tally the COMPOSITE components; cheapness is not one of
+  // them any more, so assert on the axis itself.
+  assert.equal(run(thin).scored.filter((s) => s.cheapness !== null).length, 0);
   // CONTROL: the same rows, one over the floor, DO score — so the assertion
   // above is about the floor and not about the fixture being broken.
   const fat = cohortOf(60, '37189', 'Watauga', 5000);
-  assert.ok((run(fat).tallies.known['per_acre'] ?? 0) === 60);
+  assert.ok(run(fat).scored.filter((s) => s.cheapness !== null).length === 60);
 });
 
 test('the fast binary-search percentile agrees with the readable reference implementation', () => {
@@ -276,8 +280,8 @@ test('⛔ the administrative $100 floor is UNKNOWN, not the cheapest land in the
 
   const { scored } = run([...floorRows, ...real]);
   const f = scored.find((s) => s.row.record_id === 'floor-0')!;
-  assert.equal(f.components.find((c) => c.id === 'per_acre')!.status, 'unknown');
-  assert.match(f.components.find((c) => c.id === 'per_acre')!.basis, /administrative floor/);
+  assert.equal(f.cheapness, null, 'a floor row has NO cheapness — it is not the cheapest land in the county');
+  assert.match(f.cheapness_basis, /administrative floor/);
   assert.equal(f.rank, null);
 
   // CONTROL 1: with too few rows on it, a low value is NOT a floor — it is just
@@ -358,7 +362,20 @@ test('changing one weight moves the score and NOTHING structural', () => {
     frontage_by_regime_m: null, has_stream: true, has_river: false, has_pond: false, source: { url: 'https://hydro.nationalmap.gov/x', retrieved_at: '2026-08-19T00:00:00.000Z', kind: 'nhd' } },
       ]),
     ),
-    present: { ...EMPTY_ENRICHMENT.present, water: true },
+    // ⛔ TWO scored composite components are required for this assertion to mean
+    // anything. `per_acre` used to supply the second one; it is now the SELECTION
+    // axis and no longer in the composite, so the fixture supplies slope instead.
+    // With a single scored signal the weighted mean is that signal's value
+    // whatever the weights are — the test would pass vacuously or fail for the
+    // wrong reason.
+    livability: new Map(
+      rows.map((r, i) => [
+        r.record_id,
+        { flood_zone: null, flood_coverage_fraction: null, slope_pct: (i % 25) + 1, road_distance_m: null,
+          source: { url: 'https://epqs.nationalmap.gov/x', retrieved_at: '2026-08-19T00:00:00.000Z', kind: 'epqs' } },
+      ]),
+    ),
+    present: { ...EMPTY_ENRICHMENT.present, water: true, livability: true },
   };
   const base = scoreCorpus(rows, { cfg: CFG, enrichment: enriched, now: NOW, parcelSourceOf: () => null });
   const heavier = scoreCorpus(rows, {
@@ -373,12 +390,13 @@ test('changing one weight moves the score and NOTHING structural', () => {
   // behaviour, and it silently made this assertion untestable at the top of the
   // ranking. Pick a row whose components genuinely differ.
   const idx = base.scored.findIndex((s) => {
-    const pa = s.components.find((c) => c.id === 'per_acre');
-    return pa?.status === 'scored' && pa.normalized !== null && pa.normalized > 0 && pa.normalized < 100;
+    const w = s.components.find((c) => c.id === 'water');
+    const l = s.components.find((c) => c.id === 'livability');
+    return w?.status === 'scored' && l?.status === 'scored' && l.normalized !== w.normalized;
   });
-  assert.ok(idx >= 0, 'fixture must contain a row whose per_acre is neither floor nor ceiling');
-  const movedId = base.scored[idx]!.record_id;
-  const after = heavier.scored.find((s) => s.record_id === movedId)!;
+  assert.ok(idx >= 0, 'fixture must contain a row with a scored component and an unknown one');
+  const movedId = base.scored[idx]!.row.record_id;
+  const after = heavier.scored.find((s) => s.row.record_id === movedId)!;
   assert.notEqual(base.scored[idx]!.total, after.total, 'the weight must actually move the number');
   assert.deepEqual(
     base.scored.map((s) => s.components.map((c) => c.id)),

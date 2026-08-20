@@ -30,6 +30,7 @@ import CoverageStrip from '../components/CoverageStrip.astro';
 import EmptyState from '../components/EmptyState.astro';
 import { withBase } from '../lib/nav';
 import {
+  NOTHING_IS_SCORED,
   byLane,
   countyFacets,
   states,
@@ -128,9 +129,38 @@ const coverageLite = coverage.map((c) => ({
           </select>
         </div>
 
+        {/* ⛔ A control that can only ever empty the list is worse than no
+            control. Today NOTHING is scored: `score` covers discount, distress,
+            water and livability, and none of those has inputs collected yet, so
+            any minimum above 0 would hide all 658 rows and read as a broken
+            filter rather than as an honest absence. It is disabled and SAYS WHY,
+            and it comes back on its own the moment a signal fires. */}
         <div class="rail__grp">
-          <label class="rail__label" for="f-score">Minimum score <span class="num" data-out-score>0</span></label>
-          <input id="f-score" type="range" min="0" max="100" step="5" value="0" class="rail__range" data-f-score />
+          <label class="rail__label" for="f-score">
+            Minimum score <span class="num" data-out-score>0</span>
+          </label>
+          <input
+            id="f-score"
+            type="range"
+            min="0"
+            max="100"
+            step="5"
+            value="0"
+            class="rail__range"
+            data-f-score
+            disabled={NOTHING_IS_SCORED}
+          />
+          {
+            NOTHING_IS_SCORED && (
+              <p class="rail__help">
+                Nothing is scored yet. The score covers water, slope, distress and discount — none of
+                those has been collected for these parcels, so every property here is honestly
+                <strong> not scored</strong> rather than scored zero. Properties are ordered by
+                assessed price per acre against comparable parcels in the same county; each card says
+                what it was compared against.
+              </p>
+            )
+          }
         </div>
 
         <div class="rail__grp">
@@ -491,7 +521,12 @@ const coverageLite = coverage.map((c) => ({
         fitTimer = window.setTimeout(() => applyFilter(true), 300);
       });
     }
-    bindRange('[data-f-score]', '[data-out-score]', (n) => (filters.minScore = n), String);
+    // Skipped entirely when the control is disabled — a disabled input emits no
+    // 'input' event, but binding it anyway would silently re-enable the filter
+    // if the markup ever changed without this line changing with it.
+    if (!document.querySelector('[data-f-score]')?.hasAttribute('disabled')) {
+      bindRange('[data-f-score]', '[data-out-score]', (n) => (filters.minScore = n), String);
+    }
     bindRange('[data-f-acres]', '[data-out-acres]', (n) => (filters.minAcres = n), (n) =>
       n === 0 ? 'any' : `${n} ac`,
     );

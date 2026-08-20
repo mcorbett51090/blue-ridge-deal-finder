@@ -48,6 +48,12 @@ export type ScoredParcel = {
   veto_reasons: string[];
   scored_count: number;
   unknown_count: number;
+  /** THE SELECTION AXIS, 0..100, cheaper = higher. null = not measurable, which
+   *  is NOT the same as expensive and must never sort as if it were. */
+  cheapness: number | null;
+  /** Why cheapness is what it is — rendered verbatim, same contract as a
+   *  component basis. Present even when cheapness is null, and then it says why. */
+  cheapness_basis: string;
   /** null = not in the ranking at all. Never a sentinel integer. */
   rank: number | null;
 };
@@ -136,10 +142,19 @@ export function scoreCorpus(
 
     // Order is weights.yaml order and is stable — the published breakdown is a
     // table a human reads, and a table whose rows move between runs is unreadable.
+    // ⛔ THE SELECTION AXIS, computed but deliberately NOT in the composite.
+    // `per_acre` chooses which parcels are published; a signal that selects the
+    // shortlist cannot also grade it, because the shortlist is then the top of
+    // its own axis and flat by construction (measured: 500 rows tied at 100).
+    // It ships as `cheapness`, its own published field, so the ordering is
+    // stated out loud instead of hiding inside a composite.
+    const cheapnessComponent = scorePerAcre(sig, cohorts, cfg, source);
+
+    // Order is weights.yaml order and is stable — the published breakdown is a
+    // table a human reads, and a table whose rows move between runs is unreadable.
     const components = withContributions([
       scoreDiscount(sig, enrichment.forSale.get(row.record_id), discountCohorts, cfg, now, source),
       scoreDistress(enrichment.distress.get(row.record_id), cfg, enrichment.present.distress),
-      scorePerAcre(sig, cohorts, cfg, source),
       scoreWater(enrichment.water.get(row.record_id), cfg, enrichment.present.water),
       scoreLivability(enrichment.livability.get(row.record_id), cfg, enrichment.present.livability),
     ]);
@@ -171,13 +186,27 @@ export function scoreCorpus(
       veto_reasons: reasons,
       scored_count: scoredCount,
       unknown_count: components.length - scoredCount,
+      cheapness:
+        cheapnessComponent.status === 'scored' ? (cheapnessComponent.normalized as number) : null,
+      cheapness_basis: cheapnessComponent.basis,
       rank: null,
     });
   }
 
+  // ⛔ RANK BY THE DECLARED AXIS (`cheapness`), NOT by the composite score.
+  // Sorting by `total` and then publishing `total` is what produced a published
+  // set of 500 rows all scoring exactly 100: the slice was the top of its own
+  // axis. Ranking on cheapness and grading on everything else keeps the two
+  // jobs apart, so the score can vary across the published rows instead of
+  // being pinned at its own maximum. A row with no cheapness is not rankable —
+  // it is not "cheapness 0", and it must not sort as if it were.
   const rankable = scored
-    .filter((s) => !s.vetoed && s.scored_count > 0)
-    .sort((a, b) => b.total - a.total || a.row.record_id.localeCompare(b.row.record_id));
+    .filter((s) => !s.vetoed && s.cheapness !== null)
+    .sort(
+      (a, b) =>
+        (b.cheapness as number) - (a.cheapness as number) ||
+        a.row.record_id.localeCompare(b.row.record_id),
+    );
   rankable.forEach((s, i) => {
     s.rank = i + 1;
   });

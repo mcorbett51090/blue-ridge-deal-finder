@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-19T23:59:23.862Z",
+  "generated_at": "2026-08-20T00:39:02.705Z",
   "warehouse": {
     "file": "warehouse-2026-08-19T15-48-58.sqlite",
     "sha256": "87d87fffd22ec40b55b50b9e417d4d0cf79dd8b9968c35cd8075169bc4aa4c0e",
@@ -10,13 +10,12 @@
   "published_rows": 658,
   "excluded": {
     "vetoed": 12225,
-    "no_scorable_signal": 177552,
-    "ranked_below_cutoff": 197307,
+    "no_scorable_signal": 375492,
+    "ranked_below_cutoff": 197282,
     "cutoff": 500
   },
   "signals": {
     "known": {
-      "per_acre": 206499,
       "water": 25,
       "livability": 4
     },
@@ -24,8 +23,7 @@
       "discount": 387742,
       "distress": 387742,
       "water": 387717,
-      "livability": 387738,
-      "per_acre": 181243
+      "livability": 387738
     }
   },
   "veto_by_reason": {
