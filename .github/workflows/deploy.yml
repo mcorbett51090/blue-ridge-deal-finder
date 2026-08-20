@@ -32,6 +32,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      # ⛔ THE GATE FAMILY NOW GATES THE DEPLOY. Measured 2026-08-19 on commit
+      # 6cfcb90: run 32302484748 "Deploy to GitHub Pages" SUCCEEDED while run
+      # 32302484690 "Gates" FAILED, on the same sha — and Gates was red on every
+      # push that day while the site shipped each time. A gate that cannot stop a
+      # release is documentation, not a gate.
+      #
+      # Run in THIS job rather than via `workflow_run:` on Gates, deliberately:
+      # workflow_run adds cross-workflow latency and, worse, can be satisfied by a
+      # STALE prior run of Gates rather than this commit's. One step, same
+      # checkout, same sha, no ambiguity. It duplicates ~40s of the Gates job;
+      # that is the correct price.
+      - name: Set up Node for the gate family
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Gate family — must pass BEFORE anything is built or published
+        run: npm run verify
       - name: Build Astro site
         uses: withastro/action@e84f40bd8d2caa9e768ec82ad30dd81f0b280853 # v6
         with:

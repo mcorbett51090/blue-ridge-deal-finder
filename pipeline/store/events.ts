@@ -82,7 +82,10 @@ export const RunManifestSchema = z.object({
   source_id: z.string(),
   started_at: z.string().datetime(),
   finished_at: z.string().datetime(),
-  /** `complete` gates the deploy: deploy.yml refuses a manifest that is not. */
+  /** ⛔ `complete` does NOT gate the deploy, and never has. Measured 2026-08-19:
+   *  the newest manifest is `status: "partial"` and the site deployed anyway, and
+   *  deploy.yml has no manifest check of any kind. Left as an honest status label;
+   *  the real deploy gate added in Phase 0 is `npm run verify` inside deploy.yml. */
   status: z.enum(['complete', 'partial', 'failed']),
   schema_fingerprint: z.string(),
   control_block: z.object({

@@ -307,7 +307,24 @@ test('water: a creek THROUGH the parcel scores 100; a creek 900 m away scores 0'
   );
   assert.equal(through.status, 'scored');
   assert.equal(through.normalized, 100);
-  assert.match(through.basis, /212 m/, 'the frontage LENGTH is stated, not just the fact of it');
+  // ⛔ INVERTED 2026-08-19, deliberately. This asserted /212 m/ — "the frontage
+  // LENGTH is stated, not just the fact of it" — and that was the right contract
+  // until the length was measured to be WRONG. `fetchCellBbox` merges
+  // quarter-splits with no dedupe by permanent_identifier (11 of 60 cached cells
+  // carry duplicates) and `computeWater` does `frontage += metres`, so the figure
+  // is inflated by up to 4x, worst in the densest hydrography. `scoreWater`
+  // normalises any frontage > 0 to the same 100, so the SCORE is unaffected and
+  // no gate could ever see it — it only ever surfaced on the card.
+  //
+  // So the invariant flips while the defect stands: state the FACT (which the
+  // duplication cannot corrupt), withhold the NUMBER. Phase 4's dedupe restores
+  // the length and this assertion goes back to /212 m/.
+  assert.match(through.basis, /runs THROUGH the parcel polygon/, 'the FACT of water on the parcel is still stated');
+  assert.doesNotMatch(
+    through.basis,
+    /\d+\s*m of mapped/,
+    'no frontage METRE figure may be published while the cell-merge dedupe is outstanding — it is inflated up to 4x',
+  );
 
   const farAway = scoreWater(
     { frontage_m: 0, min_dist_flowline_m: 900, min_dist_waterbody_m: null, waterbody_overlap_m2: null,

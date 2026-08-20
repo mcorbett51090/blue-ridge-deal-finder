@@ -79,6 +79,13 @@ if (wh) {
 // TIER 0 — raw ingest snapshots + the append-only event log + run manifests.
 for (const rel of ['data/raw', 'data/events', 'data/runs', 'data/distress', 'data/enrich']) {
   for (const f of filesUnder(join(ROOT, rel))) {
+    // ⛔ NEVER archive a `-shm`. It is SQLite's runtime shared-memory index, not
+    // data: it is rebuilt from the `-wal` on open, and handing SQLite a foreign
+    // one is unsafe. The previous archive copied it AND RECOVERY.md told the
+    // reader to restore it, which is a procedure that can corrupt the thing it is
+    // meant to rescue. The `-wal` is kept: it carries committed frames, and the
+    // mirror step now runs after a `wal_checkpoint(TRUNCATE)`, so it is normally 0 B.
+    if (f.endsWith('.sqlite-shm')) { skipped += 1; continue; }
     const name = f.slice(ROOT.length + 1).replace(/\//g, '__');
     const target = join(DEST, name);
     const srcHash = sha256(f);
@@ -116,6 +123,8 @@ happens. **These instructions are here, in the archive, on purpose.**
 | \`data__enrich__*\` | 0 | measured water / slope / road facts |
 | \`MANIFEST.json\` | — | sha256 and byte count for every file above |
 
+\`*.sqlite-shm\` is **excluded on purpose** — see step 3.
+
 ## To recover
 
 1. \`git clone\` the repo, or recreate it from any fork. The CODE is on GitHub
@@ -124,6 +133,12 @@ happens. **These instructions are here, in the archive, on purpose.**
    \`data/warehouse/warehouse-pointer.json\` naming it:
    \`{"current":"<filename>","sha256":"<from MANIFEST.json>"}\`
 3. Copy the \`data__*\` files back, converting \`__\` to \`/\`.
+   ⛔ There is deliberately **no \`-shm\`** in this archive, and you must not
+   create one. SQLite's \`-shm\` is a runtime shared-memory index, rebuilt from
+   the \`-wal\` on open; restoring a foreign one can corrupt the database this
+   procedure exists to rescue. A \`-wal\` beside a \`.sqlite\` is fine — open it
+   once and run \`PRAGMA wal_checkpoint(TRUNCATE); PRAGMA integrity_check;\`
+   before trusting it.
 4. \`npm ci --ignore-scripts && npm run verify\` — 8 gates must pass.
 5. \`npx tsx publish/run.ts && npm --prefix site run build\`.
 
