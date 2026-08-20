@@ -1,0 +1,91 @@
+{
+  "_comment": [
+    "The freshness surface. ONE file, two readers:",
+    "  • the build imports it (src/lib/deals.ts) to server-render /status/;",
+    "  • the browser FETCHES it at runtime and recomputes the staleness verdict",
+    "    against Date.now().",
+    "The second reader is the load-bearing one (plan §6.6 / RT-8): if deploy.yml",
+    "is what dies, a build-time badge freezes at its last-good value and reports",
+    "green forever — it would fail to the same root cause it is supposed to",
+    "detect. The browser can tell that a file dated three weeks ago is three",
+    "weeks old; a build cannot tell that it never ran.",
+    "",
+    "`data_observed_at` is max(observed_at) across published Lane-1 rows, NOT",
+    "last_run_at. 'we fetched recently' is not 'the data changed recently' — a",
+    "source serving a frozen snapshot for six months reports perfectly fresh",
+    "under the other measure.",
+    "",
+    "FIXTURE VALUES. Replaced by the pipeline's real emission at P6."
+  ],
+  "fixture": true,
+  "data_observed_at": "2026-08-18T11:04:00Z",
+  "last_run_at": "2026-08-18T11:36:00Z",
+  "built_at": "2026-08-19T00:00:00Z",
+  "lane1_rows": 12,
+  "lane2_rows": 15,
+  "sources": [
+    {
+      "source_id": "nc-onemap-parcels",
+      "label": "NC OneMap — statewide parcels",
+      "last_success": "2026-08-18T04:12:00Z",
+      "last_attempt": "2026-08-18T04:12:00Z",
+      "rows": 11,
+      "state": "ok",
+      "note": "11 NC counties. Ashe and Haywood publish parvaltype=Market, which is not comparable to the Assessed counties."
+    },
+    {
+      "source_id": "nc-tax-foreclosure",
+      "label": "NC county tax-foreclosure notices",
+      "last_success": "2026-08-18T11:04:00Z",
+      "last_attempt": "2026-08-18T11:04:00Z",
+      "rows": 6,
+      "state": "ok",
+      "note": "The only Lane-1 source measured against the 48-hour bar."
+    },
+    {
+      "source_id": "tn-property-boundaries",
+      "label": "TN property boundaries",
+      "last_success": "2026-08-18T04:31:00Z",
+      "last_attempt": "2026-08-18T04:31:00Z",
+      "rows": 5,
+      "state": "degraded",
+      "note": "Boundaries only — no assessed value. The TPAD hop that would carry it is unsettled, so all five TN counties are partial by construction."
+    },
+    {
+      "source_id": "va-county-gis",
+      "label": "VA county GIS (per-county)",
+      "last_success": "2026-08-04T02:10:00Z",
+      "last_attempt": "2026-08-18T02:10:00Z",
+      "rows": 4,
+      "state": "degraded",
+      "note": "Nine VA counties, each on its own portal; only four responded on the last pass. Augusta sits on VGSI and the 2025 VamaNet migration may have moved it."
+    },
+    {
+      "source_id": "ga-notices",
+      "label": "GA legal-organ / clerk notices",
+      "last_success": "2026-08-12T10:00:00Z",
+      "last_attempt": "2026-08-18T10:00:00Z",
+      "rows": 3,
+      "state": "degraded",
+      "note": "Notices only. qPublic blocks automated parcel access for all nine GA counties (E1.1-E1.4), so no parcel record exists behind any GA row."
+    },
+    {
+      "source_id": "sc-master-in-equity",
+      "label": "SC Master-in-Equity sale rosters",
+      "last_success": "2026-08-14T12:00:00Z",
+      "last_attempt": "2026-08-18T12:00:00Z",
+      "rows": 2,
+      "state": "degraded",
+      "note": "Pickens and Greenville rosters confirmed online. Oconee returned HTTP 500 on probe — that is UNKNOWN, not absent; a quiet Oconee means we cannot see it."
+    },
+    {
+      "source_id": "fema-nfhl",
+      "label": "FEMA National Flood Hazard Layer",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Not yet wired. Every flood_zone in the payload came from the county source, which is why so many are null."
+    }
+  ]
+}

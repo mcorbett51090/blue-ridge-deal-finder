@@ -25,6 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { loadWeights, assertWeightsSumTo100 } from '../pipeline/score/config.ts';
 import { loadEnrichment } from '../pipeline/score/enrich-contract.ts';
 import { buildEvidenceContract } from '../pipeline/ingest/distress/to-contract.ts';
+import { buildSourceStatuses } from './status.ts';
 import type { SourceRef } from '../pipeline/score/enrich-contract.ts';
 import { readWarehouse, type WarehouseParcel } from '../pipeline/score/read-warehouse.ts';
 import { scoreCorpus, topN } from '../pipeline/score/corpus.ts';
@@ -286,6 +287,33 @@ async function main(): Promise<void> {
     notices: write(join(outDir, 'notices.json'), notices),
     siteNotices: write(join(ROOT, 'site', 'src', 'data', 'notices.json'), notices),
   };
+
+  // ⛔ THE FRESHNESS SURFACE IS NOW PRODUCED, NOT HAND-TYPED.
+  // site/public/data/status.json carried `"fixture": true`, had zero producers
+  // in the repo, and shipped to production naming FOUR source_ids that exist in
+  // no registry — including `ga-notices`, which asserted a successful Georgia
+  // fetch on 2026-08-12 with `rows: 3` for a source that has never existed. It
+  // also reported lane1_rows 12 / lane2_rows 15 against a real 8 / 650.
+  // Every field below is derived from something on disk; where nothing is on
+  // disk the answer is `never-run`, never a plausible-looking date.
+  const lane1 = listings.filter((l) => l.for_sale_evidence !== null);
+  const observed = lane1
+    .map((l) => l.for_sale_evidence?.observed_at)
+    .filter((x): x is string => typeof x === 'string')
+    .sort();
+  write(join(ROOT, 'site', 'public', 'data', 'status.json'), {
+    _comment: [
+      'DERIVED by publish/status.ts — do not hand-edit. Its predecessor was a',
+      'fixture that shipped invented source history to production; see the',
+      'header of publish/status.ts for what it claimed and why no gate caught it.',
+    ],
+    data_observed_at: observed.length ? observed[observed.length - 1] : null,
+    last_run_at: now.toISOString(),
+    built_at: now.toISOString(),
+    lane1_rows: lane1.length,
+    lane2_rows: listings.length - lane1.length,
+    sources: buildSourceStatuses(ROOT),
+  });
 
   // data/coverage.json is the repo-level honesty surface the gate family checks
   // (37 rows, one per county) and the ingest writes a run-scoped version of it.

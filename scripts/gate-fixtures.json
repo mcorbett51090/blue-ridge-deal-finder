@@ -146,6 +146,16 @@
      "data/evidence/for-sale.json": "gates/evidence-off-contract.json"
     }
    }
+  ],
+  "verify-status-sources.mjs": [
+   {
+    "name": "status-fabricated-sources",
+    "expect": "red",
+    "_why": "THE ACTUAL HISTORICAL FAILURE, recovered from git rather than imitated. The deployed site served this file: `fixture: true` plus four source_ids existing in no registry, including ga-notices asserting a successful Georgia fetch on 2026-08-12 with rows: 3 for a source that never existed. site/scripts/verify-data.mjs check 11 validated its SHAPE and passed — a schema check cannot see an invented identifier, because 'ga-notices' is a well-formed string. Shape conformance and referential integrity are different assertions and only the second catches a fabrication.",
+    "plant": {
+     "site/public/data/status.json": "gates/status-fabricated-sources.json"
+    }
+   }
   ]
  },
  "non_verify_gates": {

@@ -1,91 +1,176 @@
 {
   "_comment": [
-    "The freshness surface. ONE file, two readers:",
-    "  • the build imports it (src/lib/deals.ts) to server-render /status/;",
-    "  • the browser FETCHES it at runtime and recomputes the staleness verdict",
-    "    against Date.now().",
-    "The second reader is the load-bearing one (plan §6.6 / RT-8): if deploy.yml",
-    "is what dies, a build-time badge freezes at its last-good value and reports",
-    "green forever — it would fail to the same root cause it is supposed to",
-    "detect. The browser can tell that a file dated three weeks ago is three",
-    "weeks old; a build cannot tell that it never ran.",
-    "",
-    "`data_observed_at` is max(observed_at) across published Lane-1 rows, NOT",
-    "last_run_at. 'we fetched recently' is not 'the data changed recently' — a",
-    "source serving a frozen snapshot for six months reports perfectly fresh",
-    "under the other measure.",
-    "",
-    "FIXTURE VALUES. Replaced by the pipeline's real emission at P6."
+    "DERIVED by publish/status.ts — do not hand-edit. Its predecessor was a",
+    "fixture that shipped invented source history to production; see the",
+    "header of publish/status.ts for what it claimed and why no gate caught it."
   ],
-  "fixture": true,
-  "data_observed_at": "2026-08-18T11:04:00Z",
-  "last_run_at": "2026-08-18T11:36:00Z",
-  "built_at": "2026-08-19T00:00:00Z",
-  "lane1_rows": 12,
-  "lane2_rows": 15,
+  "data_observed_at": "2026-08-19T18:48:35.720Z",
+  "last_run_at": "2026-08-20T03:23:07.938Z",
+  "built_at": "2026-08-20T03:23:07.938Z",
+  "lane1_rows": 8,
+  "lane2_rows": 650,
   "sources": [
     {
-      "source_id": "nc-onemap-parcels",
-      "label": "NC OneMap — statewide parcels",
-      "last_success": "2026-08-18T04:12:00Z",
-      "last_attempt": "2026-08-18T04:12:00Z",
-      "rows": 11,
-      "state": "ok",
-      "note": "11 NC counties. Ashe and Haywood publish parvaltype=Market, which is not comparable to the Assessed counties."
-    },
-    {
-      "source_id": "nc-tax-foreclosure",
-      "label": "NC county tax-foreclosure notices",
-      "last_success": "2026-08-18T11:04:00Z",
-      "last_attempt": "2026-08-18T11:04:00Z",
-      "rows": 6,
-      "state": "ok",
-      "note": "The only Lane-1 source measured against the 48-hour bar."
-    },
-    {
-      "source_id": "tn-property-boundaries",
-      "label": "TN property boundaries",
-      "last_success": "2026-08-18T04:31:00Z",
-      "last_attempt": "2026-08-18T04:31:00Z",
-      "rows": 5,
-      "state": "degraded",
-      "note": "Boundaries only — no assessed value. The TPAD hop that would carry it is unsettled, so all five TN counties are partial by construction."
-    },
-    {
-      "source_id": "va-county-gis",
-      "label": "VA county GIS (per-county)",
-      "last_success": "2026-08-04T02:10:00Z",
-      "last_attempt": "2026-08-18T02:10:00Z",
-      "rows": 4,
-      "state": "degraded",
-      "note": "Nine VA counties, each on its own portal; only four responded on the last pass. Augusta sits on VGSI and the 2025 VamaNet migration may have moved it."
-    },
-    {
-      "source_id": "ga-notices",
-      "label": "GA legal-organ / clerk notices",
-      "last_success": "2026-08-12T10:00:00Z",
-      "last_attempt": "2026-08-18T10:00:00Z",
-      "rows": 3,
-      "state": "degraded",
-      "note": "Notices only. qPublic blocks automated parcel access for all nine GA counties (E1.1-E1.4), so no parcel record exists behind any GA row."
-    },
-    {
-      "source_id": "sc-master-in-equity",
-      "label": "SC Master-in-Equity sale rosters",
-      "last_success": "2026-08-14T12:00:00Z",
-      "last_attempt": "2026-08-18T12:00:00Z",
-      "rows": 2,
-      "state": "degraded",
-      "note": "Pickens and Greenville rosters confirmed online. Oconee returned HTTP 500 on probe — that is UNKNOWN, not absent; a quiet Oconee means we cannot see it."
-    },
-    {
-      "source_id": "fema-nfhl",
-      "label": "FEMA National Flood Hazard Layer",
+      "source_id": "buncombe-tax-foreclosures-trumba",
+      "label": "buncombe-tax-foreclosures-trumba",
       "last_success": null,
       "last_attempt": null,
       "rows": null,
       "state": "never-run",
-      "note": "Not yet wired. Every flood_zone in the payload came from the county source, which is why so many are null."
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "census-tigerweb",
+      "label": "census-tigerweb",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "fema-nfhl",
+      "label": "fema-nfhl",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "haywood-tax-foreclosures-civicengage",
+      "label": "haywood-tax-foreclosures-civicengage",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "jackson-county-reo-pdf",
+      "label": "jackson-county-reo-pdf",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "jackson-delinquent-accounts",
+      "label": "jackson-delinquent-accounts",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "nc-haywood-bids",
+      "label": "nc-haywood-bids",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "nc-jackson-reo",
+      "label": "nc-jackson-reo",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "nc-onemap-parcels",
+      "label": "nc-onemap-parcels",
+      "last_success": "2026-08-19T15:53:06.525Z",
+      "last_attempt": "2026-08-19T15:48:58.294Z",
+      "rows": 154329,
+      "state": "degraded",
+      "note": "Derived from 6 run manifest(s) in data/runs/."
+    },
+    {
+      "source_id": "nc-onemap-points",
+      "label": "nc-onemap-points",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "ncdor-reappraisal-schedule",
+      "label": "ncdor-reappraisal-schedule",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "oconee-sc-delinquent-tax-sale-list",
+      "label": "oconee-sc-delinquent-tax-sale-list",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "tn-property-boundaries",
+      "label": "tn-property-boundaries",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": 152321,
+      "state": "never-run",
+      "note": "No run manifest has been recorded for this source, but 152,321 parcel(s) in the warehouse are attributed to it — the data predates manifest recording. Its freshness is therefore UNKNOWN, not fresh."
+    },
+    {
+      "source_id": "usgs-epqs",
+      "label": "usgs-epqs",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "usgs-nhd",
+      "label": "usgs-nhd",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "usgs-nhd-area",
+      "label": "usgs-nhd-area",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "usgs-nhd-flowline",
+      "label": "usgs-nhd-flowline",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
+    },
+    {
+      "source_id": "usgs-nhd-waterbody",
+      "label": "usgs-nhd-waterbody",
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
     }
   ]
 }

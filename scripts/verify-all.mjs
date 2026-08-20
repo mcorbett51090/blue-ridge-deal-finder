@@ -27,6 +27,7 @@ const GATES = [
   ['verify-provenance.mjs', 'every source link shows the RECORD, never a homepage'],
   ['verify-ledger-reconciles.mjs', 'the county ledger agrees with the parcels table'],
   ['verify-interchange.mjs', 'the evidence producer and the scorer name the SAME path, and nothing is lost crossing it'],
+  ['verify-status-sources.mjs', 'every source the reader can see resolves to a registry entry'],
   ['verify-controls.mjs', 'META: every gate proven to go RED against its fixture'],
 ];
 
