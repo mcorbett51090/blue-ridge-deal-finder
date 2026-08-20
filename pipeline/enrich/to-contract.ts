@@ -19,15 +19,46 @@
  * we honour, not a measurement of "no flood risk".
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { DatabaseSync } from 'node:sqlite';
 import { join } from 'node:path';
 
 type Json = Record<string, unknown>;
 
+/**
+ * Every enrichment we HOLD, not merely the ones the last run reported.
+ *
+ * ⛔ Measured 2026-08-19: the sqlite cache held 93 enrichments while
+ * `enrichment-latest.json` — a per-RUN report — listed 25, because later runs
+ * were interrupted before writing their report. Projecting the contract from the
+ * report meant 68 already-paid-for enrichments were invisible to scoring: the
+ * work was done, the data was on disk, and nothing consumed it. That is the same
+ * shape as the evidence-path seam Phase 3 closed, one directory over.
+ *
+ * The cache is the durable record and is therefore the source of truth. The run
+ * report stays what it is — a report — and is used only as a fallback when no
+ * cache exists (a fresh checkout, or a test).
+ */
+function cachedEnrichments(root: string): Json[] | null {
+  const dbPath = join(root, 'data/enrich/enrichment.sqlite');
+  if (!existsSync(dbPath)) return null;
+  try {
+    const db = new DatabaseSync(dbPath, { readOnly: true });
+    const rows = db.prepare('SELECT payload FROM parcel_enrichment').all() as Record<string, unknown>[];
+    db.close();
+    return rows.map((r) => JSON.parse(String(r['payload'])) as Json);
+  } catch {
+    // A cache we cannot read is not a cache we may guess about — fall back to
+    // the report rather than silently projecting an empty contract.
+    return null;
+  }
+}
+
 export function buildContractFiles(root: string): { water: number; livability: number } {
+  const fromCache = cachedEnrichments(root);
   const src = join(root, 'data/enrich/enrichment-latest.json');
-  if (!existsSync(src)) return { water: 0, livability: 0 };
-  const doc = JSON.parse(readFileSync(src, 'utf8')) as Json;
-  const rows = (doc['results'] as Json[] | undefined) ?? [];
+  if (!fromCache && !existsSync(src)) return { water: 0, livability: 0 };
+  const doc = existsSync(src) ? (JSON.parse(readFileSync(src, 'utf8')) as Json) : {};
+  const rows = fromCache ?? ((doc['results'] as Json[] | undefined) ?? []);
 
   const water: Record<string, Json> = {};
   const livability: Record<string, Json> = {};

@@ -55,6 +55,22 @@ import { waterUnknown, type Regime, type WaterSignal } from './schema.ts';
  *  bands in weights.yaml top out at 400 m, so 500 m covers them with margin. */
 export const SEARCH_RADIUS_M = 500;
 
+/**
+ * Bumped whenever computeWater's ARITHMETIC changes, not when it merely gets
+ * faster.
+ *
+ * ⛔ The enrichment cache stores RESULTS, and getEnrichment() returns them
+ * verbatim — so a corrected computation reaches nobody until the rows computed
+ * by the old one are recognised as stale. Without this, the 2026-08-19 frontage
+ * fix (within-cell and cross-cell double counting) would have left every already
+ * enriched parcel serving its inflated number forever, and the more parcels got
+ * enriched the more expensive the eventual correction would be.
+ *
+ * 1 -> 2: dedupe by permanent_identifier within AND across cells; clip to the
+ * parcel search box. Frontage fell on 24 of 93 cached rows and rose on none.
+ */
+export const WATER_COMPUTATION_VERSION = 2;
+
 export const NHD_FLOWLINE_SOURCE = 'usgs-nhd-flowline';
 export const NHD_WATERBODY_SOURCE = 'usgs-nhd-waterbody';
 export const NHD_AREA_SOURCE = 'usgs-nhd-area';

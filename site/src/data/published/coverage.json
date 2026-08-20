@@ -114,7 +114,7 @@
     "data_state": "ingested",
     "rows": 21102,
     "published": 53,
-    "scorable": 19407,
+    "scorable": 19412,
     "ledger_status": "complete",
     "last_ingested_at": "2026-08-19T15:48:58.294Z",
     "note": "Collected and scored — the rows below are published from real parcel records."
@@ -129,7 +129,7 @@
     "data_state": "ingested",
     "rows": 29204,
     "published": 63,
-    "scorable": 28994,
+    "scorable": 28995,
     "ledger_status": "complete",
     "last_ingested_at": "2026-08-19T15:48:58.294Z",
     "note": "Collected and scored — the rows below are published from real parcel records."

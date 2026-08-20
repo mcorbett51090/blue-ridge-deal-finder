@@ -308,19 +308,16 @@ export function scoreWater(
       nominal,
       frontage,
       cfg.water.frontage_score,
-      // ⛔ THE METRE FIGURE IS SUPPRESSED, not deleted, until the Phase 4 dedupe lands.
-      // `fetchCellBbox` merges quarter-splits with no dedupe by permanent_identifier
-      // (11 of 60 cached cells carry duplicates), and computeWater does
-      // `frontage += metres`, so this number is inflated by up to 4x — worst in the
-      // densest hydrography, i.e. exactly the parcels a buyer would care about most.
-      // The score cannot see it (scoreWater normalises frontage>0 to a constant), so
-      // no gate and no test catches it. Printing a number we know is wrong on the
-      // site's one differentiating claim is the same defect class as a source link
-      // that looks like verification and is not. The BOOLEAN fact — water crosses the
-      // polygon — is unaffected by the duplication and is still true, so it stays.
-      'A mapped stream or river runs THROUGH the parcel polygon (USGS NHD). ' +
-        'Measured against the boundary geometry, not read off a listing adjective. ' +
-        'Frontage length is withheld pending a correction to the cell-merge dedupe.',
+      // ⛔ RESTORED 2026-08-19, and only because the correction was MEASURED.
+      // This figure was withheld for one commit while frontage was inflated up to
+      // 4x by duplicate features — counted once per quarter-fetch within a cell,
+      // and once per cell across cells. Both are fixed (dedupe by
+      // permanent_identifier within AND across the loaded cell set), and every
+      // cached enrichment was re-derived: 24 of 93 frontage values fell, none
+      // rose, which is the only direction a de-duplication can move them.
+      // See pipeline/enrich/recompute-water.ts and WATER_COMPUTATION_VERSION.
+      `${frontage.toFixed(0)} m of mapped stream or river runs THROUGH the parcel polygon (USGS NHD). ` +
+        'Measured against the boundary geometry, not read off a listing adjective.',
       sources,
     );
   }

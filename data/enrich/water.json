@@ -1,6 +1,6 @@
 {
  "37199:070900973179000:0": {
-  "frontage_m": 1365,
+  "frontage_m": 1206.3,
   "min_dist_flowline_m": 0,
   "min_dist_waterbody_m": 442.8,
   "waterbody_overlap_m2": 0,
@@ -12,7 +12,7 @@
   ],
   "frontage_by_regime_m": {
    "perennial": 0,
-   "intermittent": 1365,
+   "intermittent": 1206.3,
    "ephemeral": 0,
    "unspecified": 0
   },
@@ -23,7 +23,7 @@
   }
  },
  "37121:0884-00-38-9571:0": {
-  "frontage_m": 2481.4,
+  "frontage_m": 1240.7,
   "min_dist_flowline_m": 0,
   "min_dist_waterbody_m": null,
   "waterbody_overlap_m2": 0,
@@ -33,7 +33,7 @@
   "named_waters": [],
   "frontage_by_regime_m": {
    "perennial": 0,
-   "intermittent": 2481.4,
+   "intermittent": 1240.7,
    "ephemeral": 0,
    "unspecified": 0
   },
@@ -208,7 +208,7 @@
  "37199:084000786406000:0": {
   "frontage_m": 1165,
   "min_dist_flowline_m": 0,
-  "min_dist_waterbody_m": null,
+  "min_dist_waterbody_m": 499.5,
   "waterbody_overlap_m2": 0,
   "has_stream": true,
   "has_river": false,
@@ -230,7 +230,7 @@
   "frontage_m": 0,
   "min_dist_flowline_m": 8.4,
   "min_dist_waterbody_m": 0,
-  "waterbody_overlap_m2": 32314.2,
+  "waterbody_overlap_m2": 16157.1,
   "has_stream": false,
   "has_river": true,
   "has_pond": false,
@@ -357,7 +357,7 @@
   }
  },
  "37121:0789-00-27-3282:0": {
-  "frontage_m": 438,
+  "frontage_m": 219,
   "min_dist_flowline_m": 0,
   "min_dist_waterbody_m": null,
   "waterbody_overlap_m2": 0,
@@ -366,7 +366,7 @@
   "has_pond": false,
   "named_waters": [],
   "frontage_by_regime_m": {
-   "perennial": 438,
+   "perennial": 219,
    "intermittent": 0,
    "ephemeral": 0,
    "unspecified": 0
@@ -403,7 +403,7 @@
  "37199:080200502691000:0": {
   "frontage_m": 1185.7,
   "min_dist_flowline_m": 0,
-  "min_dist_waterbody_m": null,
+  "min_dist_waterbody_m": 499.5,
   "waterbody_overlap_m2": 0,
   "has_stream": true,
   "has_river": false,
@@ -489,17 +489,17 @@
   }
  },
  "37199:085200456933000:0": {
-  "frontage_m": 1149.4,
+  "frontage_m": 753.5,
   "min_dist_flowline_m": 0,
   "min_dist_waterbody_m": 0,
-  "waterbody_overlap_m2": 5301.2,
+  "waterbody_overlap_m2": 2650.6,
   "has_stream": true,
   "has_river": true,
   "has_pond": false,
   "named_waters": [],
   "frontage_by_regime_m": {
    "perennial": 0,
-   "intermittent": 1149.4,
+   "intermittent": 753.5,
    "ephemeral": 0,
    "unspecified": 0
   },
@@ -548,6 +548,1527 @@
   "source": {
    "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.52463632045657%2C%22ymin%22%3A36.13976953102811%2C%22xmax%22%3A-81.49702823754016%2C%22ymax%22%3A36.17015479310668%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
    "retrieved_at": "2026-08-19T16:38:53.763Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37011:186702660779:0": {
+  "frontage_m": 0,
+  "min_dist_flowline_m": 21.6,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": false,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.82961702191837%2C%22ymin%22%3A36.12194674124046%2C%22xmax%22%3A-81.81842284980769%2C%22ymax%22%3A36.13098729200532%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:23:51.301Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37011:186702675204:0": {
+  "frontage_m": 0,
+  "min_dist_flowline_m": 82.9,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": false,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.82822911386943%2C%22ymin%22%3A36.123222187963584%2C%22xmax%22%3A-81.81703225631037%2C%22ymax%22%3A36.13225654293732%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:23:51.301Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37011:186702675276:0": {
+  "frontage_m": 0,
+  "min_dist_flowline_m": 74.7,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": false,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.82807907988443%2C%22ymin%22%3A36.12325438702754%2C%22xmax%22%3A-81.8168882545528%2C%22ymax%22%3A36.13226753963886%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:23:51.301Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37011:181400854692:0": {
+  "frontage_m": 1437.4,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Fall Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 1437.4,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.99301386962817%2C%22ymin%22%3A36.02579538983485%2C%22xmax%22%3A-81.97080382084832%2C%22ymax%22%3A36.049736791338546%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:23:51.301Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:182090309408:0": {
+  "frontage_m": 14.9,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 7040.4,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [
+   "Long Shoals Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 14.9,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.41077241800438%2C%22ymin%22%3A36.46866200990532%2C%22xmax%22%3A-81.39131251993386%2C%22ymax%22%3A36.48481835148327%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:23:51.301Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:182090409955:0": {
+  "frontage_m": 0,
+  "min_dist_flowline_m": 127.1,
+  "min_dist_waterbody_m": 232.1,
+  "waterbody_overlap_m2": 0,
+  "has_stream": false,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.40892896228198%2C%22ymin%22%3A36.47051750231846%2C%22xmax%22%3A-81.39060626452043%2C%22ymax%22%3A36.48520296249929%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:23:51.301Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:182090501472:0": {
+  "frontage_m": 0,
+  "min_dist_flowline_m": 140.2,
+  "min_dist_waterbody_m": 499.4,
+  "waterbody_overlap_m2": 0,
+  "has_stream": false,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.40336093962688%2C%22ymin%22%3A36.47035251183631%2C%22xmax%22%3A-81.39097909553898%2C%22ymax%22%3A36.480214613842044%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:23:51.301Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:182999398250:0": {
+  "frontage_m": 204.1,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 155,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Nathans Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 87.1,
+   "intermittent": 117,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.41107023976772%2C%22ymin%22%3A36.46425482225008%2C%22xmax%22%3A-81.39094668056578%2C%22ymax%22%3A36.48002579787766%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:23:51.301Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:143916475914:0": {
+  "frontage_m": 1223.3,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Roan Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 1223.3,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.34466677568037%2C%22ymin%22%3A36.374922801342706%2C%22xmax%22%3A-81.31680078928751%2C%22ymax%22%3A36.397468741827545%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:23:51.301Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:032926619892:0": {
+  "frontage_m": 2012.8,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 421,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Three Top Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 1070.6,
+   "intermittent": 942.2,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.64519268337467%2C%22ymin%22%3A36.359682684842205%2C%22xmax%22%3A-81.60617001236236%2C%22ymax%22%3A36.380986382167116%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:23:51.301Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:8767768746:0": {
+  "frontage_m": 5409.8,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 499.4,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Puncheon Camp Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 5409.8
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.83422443060945%2C%22ymin%22%3A35.813564209517736%2C%22xmax%22%3A-82.80593506752388%2C%22ymax%22%3A35.83543424888147%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:8763848338:0": {
+  "frontage_m": 4295.8,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 2702,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 4295.8
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.82366587565443%2C%22ymin%22%3A35.69790572955537%2C%22xmax%22%3A-82.80014377205883%2C%22ymax%22%3A35.719424040386144%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:8596-41-0889-000:0": {
+  "frontage_m": 3863.3,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 3997.7,
+  "has_stream": true,
+  "has_river": true,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 3863.3
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.71848481679397%2C%22ymin%22%3A35.225683381327535%2C%22xmax%22%3A-82.69395922015636%2C%22ymax%22%3A35.2472439106053%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:102020341343:0": {
+  "frontage_m": 1096.5,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Big Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 1096.5,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.65494284863598%2C%22ymin%22%3A36.46811240164903%2C%22xmax%22%3A-81.63161486432021%2C%22ymax%22%3A36.49211911451026%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:8757758318:1": {
+  "frontage_m": 4052.3,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 287.7,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Spring Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 4052.3
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.86561750708898%2C%22ymin%22%3A35.81082921508627%2C%22xmax%22%3A-82.83696691206293%2C%22ymax%22%3A35.83042133413821%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:092997045627:0": {
+  "frontage_m": 2840.8,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 2681.6,
+  "has_stream": true,
+  "has_river": true,
+  "has_pond": false,
+  "named_waters": [
+   "Little Naked Creek",
+   "Naked Creek",
+   "Potter Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 2840.8,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.43406841849628%2C%22ymin%22%3A36.39935962574871%2C%22xmax%22%3A-81.3984289939779%2C%22ymax%22%3A36.42096341050595%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:9999-99-0929-000:0": {
+  "frontage_m": 2416,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 3.5,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 2416
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.84876135909518%2C%22ymin%22%3A35.15389853527804%2C%22xmax%22%3A-82.82192272919087%2C%22ymax%22%3A35.17519699138371%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:143928713271:0": {
+  "frontage_m": 527.9,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Cranberry Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 462.8,
+   "intermittent": 65,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.29617032458047%2C%22ymin%22%3A36.4127344355463%2C%22xmax%22%3A-81.27263263326248%2C%22ymax%22%3A36.43374031995168%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:8747583932:0": {
+  "frontage_m": 4217.1,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Hopis Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 4217.1
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.90673829903963%2C%22ymin%22%3A35.820065331846806%2C%22xmax%22%3A-82.88405140677854%2C%22ymax%22%3A35.84054868302725%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37011:180500828903:0": {
+  "frontage_m": 95.8,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 18076.7,
+  "has_stream": true,
+  "has_river": true,
+  "has_pond": false,
+  "named_waters": [
+   "Powdermill Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 95.8,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.02814937146161%2C%22ymin%22%3A36.04556807873289%2C%22xmax%22%3A-82.0027297118004%2C%22ymax%22%3A36.06836095964763%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7632-86-4758:0": {
+  "frontage_m": 1023.4,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 280.3,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 1023.4,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.24637806698297%2C%22ymin%22%3A35.388034104305405%2C%22xmax%22%3A-83.22074216189841%2C%22ymax%22%3A35.40982766644903%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:8773155018:0": {
+  "frontage_m": 4143.2,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 499.5,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Fall Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 4143.2
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.81434069951449%2C%22ymin%22%3A35.69881118336314%2C%22xmax%22%3A-82.78983628947378%2C%22ymax%22%3A35.72120959862898%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7643-21-8257:0": {
+  "frontage_m": 491,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 499.4,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Kitchen Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 491,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.23243368099617%2C%22ymin%22%3A35.40039101105486%2C%22xmax%22%3A-83.20825622314206%2C%22ymax%22%3A35.42084848222377%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:8564-37-8579-000:0": {
+  "frontage_m": 3920.6,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 499.5,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 3920.6
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.81508752889187%2C%22ymin%22%3A35.18186237748208%2C%22xmax%22%3A-82.79036142625911%2C%22ymax%22%3A35.206458569768685%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:8545-30-6278-000:0": {
+  "frontage_m": 2548.1,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 2403.8,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 2548.1
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.88467470936843%2C%22ymin%22%3A35.18935202850462%2C%22xmax%22%3A-82.85957714344406%2C%22ymax%22%3A35.207837432830416%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:9504-10-6828-001:0": {
+  "frontage_m": 5008.6,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 159.1,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Laurel Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 5008.6
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.68653174858271%2C%22ymin%22%3A35.16602339746522%2C%22xmax%22%3A-82.66390552146648%2C%22ymax%22%3A35.19237006552288%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:032929935753:0": {
+  "frontage_m": 0,
+  "min_dist_flowline_m": 221.3,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 15504.4,
+  "has_stream": false,
+  "has_river": true,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.63011566416249%2C%22ymin%22%3A36.4437203903109%2C%22xmax%22%3A-81.60410290466018%2C%22ymax%22%3A36.46339879533943%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7624-10-5375:0": {
+  "frontage_m": 871.2,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 5431.6,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 871.2,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.30570476645204%2C%22ymin%22%3A35.42461712928626%2C%22xmax%22%3A-83.27600069763376%2C%22ymax%22%3A35.44305853625248%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7587-28-7686:0": {
+  "frontage_m": 489,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 489,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.08886032951908%2C%22ymin%22%3A35.26013976703638%2C%22xmax%22%3A-83.06764764046306%2C%22ymax%22%3A35.28305870145088%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:9851101119:0": {
+  "frontage_m": 3264,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 3264
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.55523406630542%2C%22ymin%22%3A35.914900858482035%2C%22xmax%22%3A-82.53149975323032%2C%22ymax%22%3A35.93443738274925%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:9523-51-7404-000:0": {
+  "frontage_m": 2223.9,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 59587.8,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [
+   "Puncheon Creek",
+   "Reasonover Creek",
+   "Reasonover Lake"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 2223.9
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.6057505624594%2C%22ymin%22%3A35.146404353780525%2C%22xmax%22%3A-82.58479928038359%2C%22ymax%22%3A35.16837285411963%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:8502-73-1657-000:0": {
+  "frontage_m": 1558.7,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 1446.1,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [
+   "Rock Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 1558.7,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.00481026025562%2C%22ymin%22%3A35.10749647503088%2C%22xmax%22%3A-82.97830205485413%2C%22ymax%22%3A35.13080137827935%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:8592-48-0482-000:0": {
+  "frontage_m": 4164.2,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 6907.6,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [
+   "Little River",
+   "South Prong Little River",
+   "Steel Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 4164.2
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.71298803606099%2C%22ymin%22%3A35.1361010293039%2C%22xmax%22%3A-82.68963191231352%2C%22ymax%22%3A35.15526305544158%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7557-68-3623:0": {
+  "frontage_m": 285.7,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 215,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 285.7,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.17759603591513%2C%22ymin%22%3A35.256425654608954%2C%22xmax%22%3A-83.1546668532832%2C%22ymax%22%3A35.27859322388916%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:143928057800:0": {
+  "frontage_m": 967.6,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 473.9,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 967.6,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.32229157203655%2C%22ymin%22%3A36.42803344731934%2C%22xmax%22%3A-81.29617408377386%2C%22ymax%22%3A36.44484211907769%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:162051992979:0": {
+  "frontage_m": 845.3,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 845.3,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.53205224773451%2C%22ymin%22%3A36.51645464034792%2C%22xmax%22%3A-81.51040682808936%2C%22ymax%22%3A36.537054382174446%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7571-86-4796:0": {
+  "frontage_m": 1871.9,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 79310.7,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [
+   "Fowler Creek",
+   "Hampton Lake"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 701.2,
+   "intermittent": 1170.7,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.09641069636429%2C%22ymin%22%3A35.08696420161269%2C%22xmax%22%3A-83.06908485290397%2C%22ymax%22%3A35.11670404230597%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7567-51-6133:0": {
+  "frontage_m": 59,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 818.9,
+  "has_stream": true,
+  "has_river": true,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 59,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.14465669140932%2C%22ymin%22%3A35.2338650247063%2C%22xmax%22%3A-83.1210930363675%2C%22ymax%22%3A35.260730230157236%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7581-13-4038:0": {
+  "frontage_m": 2189.3,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 9566.7,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [
+   "Fowler Creek",
+   "Whitewater River"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 391,
+   "intermittent": 1798.4,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.08506734112468%2C%22ymin%22%3A35.07967928859169%2C%22xmax%22%3A-83.05863223501312%2C%22ymax%22%3A35.10430808248409%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:112917455621:0": {
+  "frontage_m": 1090.2,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 1090.2,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.68080579448113%2C%22ymin%22%3A36.393399638329115%2C%22xmax%22%3A-81.65752835676389%2C%22ymax%22%3A36.41323530731543%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7547-84-1476:0": {
+  "frontage_m": 892.4,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 892.4,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.20543801798797%2C%22ymin%22%3A35.24503668108433%2C%22xmax%22%3A-83.18360522066195%2C%22ymax%22%3A35.26729404424577%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37011:180100899079:0": {
+  "frontage_m": 489.9,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 97.1,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 489.9,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.02281046222303%2C%22ymin%22%3A35.95511180330384%2C%22xmax%22%3A-81.99738804828593%2C%22ymax%22%3A35.97357223601601%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:112917780343:0": {
+  "frontage_m": 1259.1,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 1259.1,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.67404494757862%2C%22ymin%22%3A36.399951270566895%2C%22xmax%22%3A-81.64776546254595%2C%22ymax%22%3A36.41817296918861%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:9851727940:0": {
+  "frontage_m": 3605.9,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 363.3,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Wilson Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 3605.9
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.53462431646167%2C%22ymin%22%3A35.923073690673135%2C%22xmax%22%3A-82.51010236312037%2C%22ymax%22%3A35.94118252064015%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7579-94-6223:0": {
+  "frontage_m": 1226.6,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Caney Fork"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 1226.6,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.10342524310539%2C%22ymin%22%3A35.3013738950536%2C%22xmax%22%3A-83.07765157290766%2C%22ymax%22%3A35.323907004785575%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37011:180100086064:0": {
+  "frontage_m": 1148.4,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 3010.9,
+  "has_stream": true,
+  "has_river": true,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 1148.4,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.04994697221777%2C%22ymin%22%3A35.9505799007137%2C%22xmax%22%3A-82.02528990554521%2C%22ymax%22%3A35.9688006811917%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:172011383804:0": {
+  "frontage_m": 2682.4,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Big Laurel Creek",
+   "Kilby Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 2682.4,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.69048509588494%2C%22ymin%22%3A36.510891627456346%2C%22xmax%22%3A-81.66363824469799%2C%22ymax%22%3A36.52824167218825%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:8798859038:0": {
+  "frontage_m": 5498.2,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 1308.2,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [
+   "Brush Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 5498.2
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.72617279507803%2C%22ymin%22%3A35.83746837310118%2C%22xmax%22%3A-82.70419489889446%2C%22ymax%22%3A35.85948425896743%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7674-92-1303:0": {
+  "frontage_m": 1835.9,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Woodfin Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 1835.9,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.11182851210629%2C%22ymin%22%3A35.434608376214065%2C%22xmax%22%3A-83.088748831168%2C%22ymax%22%3A35.455816334738564%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:8542-19-4723-001:0": {
+  "frontage_m": 4345.5,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 1060.1,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [
+   "Flat Creek",
+   "South Fork Flat Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 4345.5
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.8875124714372%2C%22ymin%22%3A35.13223090805227%2C%22xmax%22%3A-82.86037525844705%2C%22ymax%22%3A35.153760173638986%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37099:7579-32-8167:0": {
+  "frontage_m": 903.2,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 903.2,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-83.1209199853054%2C%22ymin%22%3A35.296842699200965%2C%22xmax%22%3A-83.09921892686869%2C%22ymax%22%3A35.31824046157915%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:032947151017:0": {
+  "frontage_m": 1390.3,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 499.5,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Ben Bolen Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 137.4,
+   "intermittent": 1252.8,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.5907283877058%2C%22ymin%22%3A36.39276384435258%2C%22xmax%22%3A-81.56615987227802%2C%22ymax%22%3A36.412082441532455%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:9709451949:0": {
+  "frontage_m": 2952,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 453.8,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Brush Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 2952
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.71636911873324%2C%22ymin%22%3A35.870824300969296%2C%22xmax%22%3A-82.68648198735507%2C%22ymax%22%3A35.88984972674567%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:9513-14-3589-000:0": {
+  "frontage_m": 2529,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Buckhorn Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 2529
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.6579952741209%2C%22ymin%22%3A35.15607852258805%2C%22xmax%22%3A-82.63388348558601%2C%22ymax%22%3A35.174460621229954%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37011:182300118042:0": {
+  "frontage_m": 1040.9,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Threemile Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 1040.9,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.97908513742907%2C%22ymin%22%3A35.98345754787229%2C%22xmax%22%3A-81.95836355541705%2C%22ymax%22%3A36.004943255738446%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:082033484473:0": {
+  "frontage_m": 544.7,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Ripshin Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 544.7,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.61983448737776%2C%22ymin%22%3A36.567778288292885%2C%22xmax%22%3A-81.59409670522311%2C%22ymax%22%3A36.586028692278674%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:8594-94-2018-000:0": {
+  "frontage_m": 7183.4,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 275.3,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Hogsed Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 7183.4
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.69990071852379%2C%22ymin%22%3A35.17960361781799%2C%22xmax%22%3A-82.67487603804416%2C%22ymax%22%3A35.20326741258451%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:8764467498:0": {
+  "frontage_m": 2629.1,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 2629.1
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.83724816185946%2C%22ymin%22%3A35.729145583771476%2C%22xmax%22%3A-82.81330510112852%2C%22ymax%22%3A35.75104356704648%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:9507-58-6656-000:0": {
+  "frontage_m": 3295.5,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 59.3,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Middle Prong Glade Creek",
+   "North Prong Glade Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 3295.5
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.69032129510012%2C%22ymin%22%3A35.27483960775483%2C%22xmax%22%3A-82.65994185444134%2C%22ymax%22%3A35.293759449859536%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37011:183500317894:0": {
+  "frontage_m": 4034.5,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "White Pine Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 4034.5
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.94171509337006%2C%22ymin%22%3A36.04416267624978%2C%22xmax%22%3A-81.9207339774391%2C%22ymax%22%3A36.06427959532098%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:9503-30-6675-000:0": {
+  "frontage_m": 2833,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 100,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 2833
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.6803879544812%2C%22ymin%22%3A35.142726572490965%2C%22xmax%22%3A-82.65700547906593%2C%22ymax%22%3A35.163329714140055%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:8574-82-9516-000:0": {
+  "frontage_m": 5132,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 3490.1,
+  "has_stream": true,
+  "has_river": true,
+  "has_pond": false,
+  "named_waters": [
+   "Adams Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 5132
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.76516610135144%2C%22ymin%22%3A35.17287002139384%2C%22xmax%22%3A-82.73972420602024%2C%22ymax%22%3A35.19592840950151%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37175:8574-27-9271-000:0": {
+  "frontage_m": 4298.5,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 7468,
+  "has_stream": true,
+  "has_river": true,
+  "has_pond": true,
+  "named_waters": [
+   "Catheys Creek",
+   "Spanish Oak Branch",
+   "Wilson Mill Creek"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 4298.5
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.78533549432399%2C%22ymin%22%3A35.180393743718454%2C%22xmax%22%3A-82.76349739928953%2C%22ymax%22%3A35.20375563929297%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:8745415185:0": {
+  "frontage_m": 4153.6,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 156.8,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Rockhouse Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 4153.6
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.9088689348052%2C%22ymin%22%3A35.74238684399918%2C%22xmax%22%3A-82.88138867135346%2C%22ymax%22%3A35.76018555558846%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:8789117513:0": {
+  "frontage_m": 3111.3,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 1634,
+  "has_stream": true,
+  "has_river": true,
+  "has_pond": false,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 3111.3
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.78510295434%2C%22ymin%22%3A35.85690798026608%2C%22xmax%22%3A-82.76522139246349%2C%22ymax%22%3A35.880427591871474%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:9811631643:0": {
+  "frontage_m": 3260.9,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 311.1,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Bearpen Branch",
+   "Palmer Camp Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 3260.9
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.67482106074193%2C%22ymin%22%3A35.9208397096119%2C%22xmax%22%3A-82.64832995127392%2C%22ymax%22%3A35.93939776643738%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37115:8747287357:0": {
+  "frontage_m": 4269.9,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": null,
+  "waterbody_overlap_m2": 0,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": false,
+  "named_waters": [
+   "Hickory Ridge Branch",
+   "Skiffly Branch"
+  ],
+  "frontage_by_regime_m": {
+   "perennial": 0,
+   "intermittent": 0,
+   "ephemeral": 0,
+   "unspecified": 4269.9
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-82.91626834467202%2C%22ymin%22%3A35.81681742037127%2C%22xmax%22%3A-82.89353802151284%2C%22ymax%22%3A35.835879355526366%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
+   "kind": "usgs-nhd"
+  }
+ },
+ "37009:143936169560:0": {
+  "frontage_m": 322.5,
+  "min_dist_flowline_m": 0,
+  "min_dist_waterbody_m": 0,
+  "waterbody_overlap_m2": 5409.5,
+  "has_stream": true,
+  "has_river": false,
+  "has_pond": true,
+  "named_waters": [],
+  "frontage_by_regime_m": {
+   "perennial": 61.5,
+   "intermittent": 260.9,
+   "ephemeral": 0,
+   "unspecified": 0
+  },
+  "source": {
+   "url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query?geometry=%7B%22xmin%22%3A-81.2895498759184%2C%22ymin%22%3A36.36843502303575%2C%22xmax%22%3A-81.25890347910588%2C%22ymax%22%3A36.391308390812725%2C%22spatialReference%22%3A%7B%22wkid%22%3A4326%7D%7D&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=permanent_identifier%2Cgnis_name%2Cftype%2Cfcode&returnGeometry=true&outSR=4326&geometryPrecision=6&f=json",
+   "retrieved_at": "2026-08-19T18:28:34.698Z",
    "kind": "usgs-nhd"
   }
  }

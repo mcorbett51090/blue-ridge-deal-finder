@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T01:17:33.899Z",
+  "generated_at": "2026-08-20T02:15:30.314Z",
   "warehouse": {
     "file": "warehouse-2026-08-19T15-48-58.sqlite",
     "sha256": "87d87fffd22ec40b55b50b9e417d4d0cf79dd8b9968c35cd8075169bc4aa4c0e",
@@ -10,20 +10,20 @@
   "published_rows": 658,
   "excluded": {
     "vetoed": 12225,
-    "no_scorable_signal": 375484,
+    "no_scorable_signal": 375416,
     "ranked_below_cutoff": 197282,
     "cutoff": 500
   },
   "signals": {
     "known": {
+      "water": 93,
       "distress": 8,
-      "water": 25,
       "livability": 4
     },
     "unknown": {
       "discount": 387742,
       "distress": 387734,
-      "water": 387717,
+      "water": 387649,
       "livability": 387738
     }
   },
