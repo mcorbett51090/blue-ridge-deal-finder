@@ -15,13 +15,39 @@
  *   7. key / dedupe / multi-part / unkeyed quarantine
  *   8. sentinels, basis allowlist, sourcedate -> deed_date, vintage join
  *   9. Tier 0 (row-granularity) -> warehouse rebuild -> events -> manifest
- *  10. data/coverage.json              — 38 rows, counties not run say SO
+ *
+ * ⛔ THE INGEST DOES NOT WRITE data/coverage.json. It used to, and the version
+ * it wrote was WRONG IN TWO WAYS AT ONCE — both of which only bite once the
+ * ingest actually starts succeeding, which is why neither was ever observed.
+ *
+ *   1. FALSE DEMOTION. It projected THIS RUN's countyReports straight to disk,
+ *      so every county not attempted this run was written `not-run` / rows
+ *      null. `chooseLedgerRow` already refuses to do that to the warehouse
+ *      ledger, for the reason its own comment gives: coverage.json is the
+ *      site's honesty surface, and a county wrongly downgraded renders "we
+ *      cannot see Watauga" over 46,252 parcels we hold. The fix was applied to
+ *      the ledger and not to the file built from it. So `--counties=Macon`
+ *      (the exact next operation planned — ADR 0009) would have demoted the
+ *      other eleven NC counties on the published site.
+ *   2. WRONG SHAPE. It emitted `status`, never `data_state` / `ledger_status` /
+ *      `region` / `published` / `scorable`. publish/status.ts reads this file
+ *      and tests `ledger_status === 'complete'`; against the ingest's shape that
+ *      key is undefined for every row, so every source degrades on the status
+ *      page. The workflow then `git add data/coverage.json`-ed the result.
+ *
+ * publish/coverage.ts::buildCoverage is the one producer. It derives
+ * `data_state` from a COUNT of the rows actually in the warehouse rather than
+ * from a run report, which makes it immune to (1) by construction, and it NAMES
+ * the ledger disagreement instead of smoothing it. A separately-maintained
+ * second producer of the same file is the bug generator that
+ * verify-ledger-reconciles.mjs was written to catch; the honest fix is one
+ * producer, not two that agree today.
  *
  * ⛔ A COUNTY THAT FAILS ITS FLOOR CONTRIBUTES NOTHING AND MARKS NOTHING STALE.
  * The alternative — letting a failed fetch mark 47,388 parcels absent — writes
  * an outage into the audit trail as a fact about the world.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
@@ -356,7 +382,6 @@ async function main(): Promise<void> {
     warehouse: { file: swap.pointer.current, sha256: swap.pointer.sha256, uploaded: swap.changed },
   };
   const manifestPath = writeRunManifest(ROOT, manifest);
-  writeCoverage(ROOT, countyReports, seenAt);
 
   console.log(
     `\n✓ run ${runId} — ${manifest.status}\n` +
@@ -368,44 +393,5 @@ async function main(): Promise<void> {
   );
 }
 
-/**
- * data/coverage.json — 38 rows, one per county, and the ones this system has
- * never ingested SAY SO. `status: 'not-run'` with `rows: null`, never `rows: 0`:
- * a zero is a measurement and this is an absence.
- */
-function writeCoverage(root: string, reports: RunManifest['counties'], at: string): void {
-  const lines = readFileSync(join(root, 'seeds', 'counties.csv'), 'utf8').trim().split('\n');
-  const header = (lines[0] ?? '').split(',').map((h) => h.trim());
-  const ix = Object.fromEntries(header.map((h, i) => [h, i]));
-  const byFips = new Map(reports.map((r) => [r.fips, r]));
-
-  const seen = new Set<string>();
-  const counties = [];
-  for (const line of lines.slice(1)) {
-    const c = line.split(',');
-    const fips = (c[ix['fips'] ?? 0] ?? '').trim();
-    if (seen.has(fips)) continue;
-    seen.add(fips);
-    const r = byFips.get(fips);
-    counties.push({
-      fips,
-      state: (c[ix['state'] ?? 1] ?? '').trim(),
-      county: (c[ix['county'] ?? 2] ?? '').trim(),
-      tier: (c[ix['tier'] ?? 4] ?? '').trim(),
-      parcel_source: (c[ix['parcel_source'] ?? 5] ?? '').trim() || null,
-      status: r ? r.status : 'no-source',
-      rows: r && r.status === 'complete' ? r.rows_warehoused : null,
-      unkeyed: r && r.status === 'complete' ? r.unkeyed : null,
-      last_ingested_at: r && r.status === 'complete' ? at : null,
-      note:
-        r?.note ??
-        (r ? null : 'no parcel source has been registered for this county — see P6/P8'),
-    });
-  }
-  writeFileSync(
-    join(root, 'data', 'coverage.json'),
-    `${JSON.stringify({ generated_at: at, counties }, null, 2)}\n`,
-  );
-}
 
 await main();
