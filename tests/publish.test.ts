@@ -281,7 +281,7 @@ test('⛔ the four coverage states never share a sentence', () => {
 
 test('coverage: a county with no source, one not run, one with a real zero and one live', () => {
   const seeds = readCountySeeds(ROOT);
-  assert.equal(seeds.length, 37, 'all 37 counties, always');
+  assert.equal(seeds.length, 38, 'all 38 counties, always');
   const rows = buildCoverage(
     seeds,
     [{ fips: '37199', county: 'Yancey', run_id: 'r', ingest_status: 'complete', rows_fetched: 17332, rows_warehoused: 17332, unkeyed: 0, ingested_at: '2026-08-19T00:00:00.000Z' }],
@@ -331,11 +331,11 @@ test('the ledger and the row count disagreeing is NAMED, never smoothed over', (
   assert.match(row.note, /46,252/);
 });
 
-test('the published coverage file on disk carries all 37 counties and every state', () => {
+test('the published coverage file on disk carries all 38 counties and every state', () => {
   const path = join(ROOT, 'data', 'coverage.json');
   assert.ok(existsSync(path), 'data/coverage.json is ABSENT — run `npm run publish`');
   const doc = JSON.parse(readFileSync(path, 'utf8')) as { counties: { fips: string; data_state: string; note: string }[] };
-  assert.equal(doc.counties.length, 37);
+  assert.equal(doc.counties.length, 38);
   const states = new Set(doc.counties.map((c) => c.data_state));
   assert.ok(states.has('no-source') && states.has('not-run') && states.has('ingested'), [...states].join(','));
   for (const c of doc.counties) assert.ok(c.note.trim() !== '', `${c.fips} has an empty note`);

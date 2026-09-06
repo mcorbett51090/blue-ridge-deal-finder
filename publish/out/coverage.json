@@ -95,7 +95,7 @@
       "fips": "37099",
       "state": "NC",
       "county": "Jackson",
-      "region": "NC High Country",
+      "region": "Highlands–Cashiers Plateau",
       "tier": "rich",
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
@@ -104,7 +104,22 @@
       "scorable": 39927,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
-      "note": "Collected and scored — the rows below are published from real parcel records."
+      "note": "Collected and scored — the rows below are published from real parcel records. (Source note: Glenville and Cashiers sit in this county — plateau parcels are already rich via the statewide anchor; see ADR 0009)"
+    },
+    {
+      "fips": "37113",
+      "state": "NC",
+      "county": "Macon",
+      "region": "Highlands–Cashiers Plateau",
+      "tier": "rich",
+      "parcel_source": "nc-onemap-parcels",
+      "data_state": "not-run",
+      "rows": null,
+      "published": 0,
+      "scorable": 0,
+      "ledger_status": null,
+      "last_ingested_at": null,
+      "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: Highlands sits in this county — NC OneMap MapServer/1 reconfirmed live 2026-09-05: 44699 parcels; 97.3% non-zero Assessed value; same statewide anchor already serving Jackson/Transylvania; not yet ingested — see ADR 0009)"
     },
     {
       "fips": "37115",
@@ -125,7 +140,7 @@
       "fips": "37175",
       "state": "NC",
       "county": "Transylvania",
-      "region": "NC High Country",
+      "region": "Highlands–Cashiers Plateau",
       "tier": "rich",
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
@@ -134,7 +149,7 @@
       "scorable": 28995,
       "ledger_status": "complete",
       "last_ingested_at": "2026-08-19T15:48:58.294Z",
-      "note": "Collected and scored — the rows below are published from real parcel records."
+      "note": "Collected and scored — the rows below are published from real parcel records. (Source note: Sapphire/Toxaway fringe sits in this county — plateau parcels are already rich via the statewide anchor; see ADR 0009)"
     },
     {
       "fips": "37199",

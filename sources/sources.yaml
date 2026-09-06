@@ -238,6 +238,16 @@
       Madison: 20000
       Mitchell: 16500
       Yancey: 16500
+      # Macon — MEASURED 2026-09-05 (docs/probe-log.md §11, ADR 0009), same
+      # statewide anchor: cntyname='Macon' returned {"count":44699} against the
+      # same positive/negative control pair as every other row on this list,
+      # parvaltype=Assessed on 100% of a sampled batch, zero-parval 1200/44699
+      # (2.7%). Floor is the measured count minus ~6%, matching the rounding
+      # this file already uses for its siblings. Registered here so a future
+      # `--counties=Macon` ingest has a measured floor rather than a guessed
+      # one — the row is NOT yet warehoused (seeds/counties.csv notes it
+      # `not yet ingested`; data/coverage.json carries data_state 'not-run').
+      Macon: 42000
     rolling_median_floor_pct: 50   # moving floor, on top of the static one
     max_delta_pct: 5
     max_zero_parval_pct: 4         # RT-3 value-distribution gate (1.7% measured, Watauga)

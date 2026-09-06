@@ -1,13 +1,19 @@
 #!/usr/bin/env node
 /**
- * verify-coverage.mjs — the county list is exactly 37 rows, and every row is tiered.
+ * verify-coverage.mjs — the county list is exactly 38 rows, and every row is tiered.
  *
- * 37 is arithmetic, not a preference: NC 11 + GA 9 + VA 9 + TN 5 + SC 3. The
+ * 38 is arithmetic, not a preference: NC 12 + GA 9 + VA 9 + TN 5 + SC 3. The
  * scope document said "~38" and an earlier probe said the tail was "22"; both
  * were one-off, in opposite directions, and neither error was visible until
  * someone added the columns up. A gate that asserts the total AND the per-state
  * split catches a row being added to one state and dropped from another, which
  * a bare total never would.
+ *
+ * ⛔ THE TOTAL MOVED ONCE, DELIBERATELY. Macon NC (37113) was added 2026-09-05
+ * to complete Highlands–Cashiers Plateau coverage alongside Jackson and
+ * Transylvania — see docs/decisions/0009-highlands-cashiers-plateau.md. NC
+ * moved from 11 to 12 and the total from 37 to 38 in the SAME commit as the
+ * seed row, so this gate and the row it counts never drift apart.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -16,8 +22,8 @@ import { Gate, inspectRoot } from './lib/gate.mjs';
 const gate = new Gate('verify-coverage');
 const root = inspectRoot();
 
-const EXPECTED_TOTAL = 37;
-const EXPECTED_BY_STATE = { NC: 11, GA: 9, VA: 9, TN: 5, SC: 3 };
+const EXPECTED_TOTAL = 38;
+const EXPECTED_BY_STATE = { NC: 12, GA: 9, VA: 9, TN: 5, SC: 3 };
 const TIER_ENUM = ['rich', 'partial', 'thin', 'notices-only'];
 
 const path = join(root, 'seeds', 'counties.csv');
@@ -34,7 +40,7 @@ if (!existsSync(path)) {
   const ix = Object.fromEntries(header.map((h, i) => [h, i]));
 
   if (rows.length !== EXPECTED_TOTAL) {
-    gate.fail(`counties.csv has ${rows.length} data rows, expected exactly ${EXPECTED_TOTAL} (NC 11 + GA 9 + VA 9 + TN 5 + SC 3)`);
+    gate.fail(`counties.csv has ${rows.length} data rows, expected exactly ${EXPECTED_TOTAL} (NC 12 + GA 9 + VA 9 + TN 5 + SC 3)`);
   } else {
     gate.ok(`counties.csv has exactly ${EXPECTED_TOTAL} rows`);
   }
