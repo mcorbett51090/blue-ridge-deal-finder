@@ -331,6 +331,40 @@ test('the ledger and the row count disagreeing is NAMED, never smoothed over', (
   assert.match(row.note, /46,252/);
 });
 
+/**
+ * ⛔ THE HONESTY SURFACE HAS EXACTLY ONE PRODUCER, AND THIS IS WHAT KEEPS IT
+ * THAT WAY. pipeline/ingest-parcels.ts used to write data/coverage.json too,
+ * from THIS RUN's county reports — so a partial run (`--counties=Macon`, the
+ * next planned operation) rewrote the other eleven NC counties as `not-run`
+ * with rows null, and the workflow committed it. buildCoverage cannot make that
+ * mistake: it derives data_state from a COUNT of warehouse rows, which the test
+ * directly above pins. The bug was never in the arithmetic — it was in there
+ * being a second writer at all, so the assertion has to be about the writers.
+ *
+ * A string check rather than a behavioural one on purpose: the defect is a
+ * write that should not exist, and you cannot observe a write that is absent by
+ * calling the function that no longer performs it.
+ */
+test('data/coverage.json has ONE producer — the ingest must not write it', () => {
+  const ingest = readFileSync(join(ROOT, 'pipeline', 'ingest-parcels.ts'), 'utf8');
+  const writes = ingest
+    .split('\n')
+    .filter((l) => !l.trimStart().startsWith('*') && !l.trimStart().startsWith('//'))
+    .filter((l) => /coverage\.json|writeCoverage/.test(l));
+  assert.deepEqual(
+    writes,
+    [],
+    `pipeline/ingest-parcels.ts references coverage.json in executable code:\n  ${writes.join('\n  ')}\n` +
+      'publish/coverage.ts::buildCoverage is the only producer — a second one demotes ' +
+      'every county the run did not attempt.',
+  );
+
+  // CONTROL — the check can fail. If this found nothing, the assertion above
+  // would be vacuous against any file at all, including an empty one.
+  const publisher = readFileSync(join(ROOT, 'publish', 'run.ts'), 'utf8');
+  assert.match(publisher, /'coverage\.json'/, 'publish/run.ts is the producer and must still name the file');
+});
+
 test('the published coverage file on disk carries all 38 counties and every state', () => {
   const path = join(ROOT, 'data', 'coverage.json');
   assert.ok(existsSync(path), 'data/coverage.json is ABSENT — run `npm run publish`');

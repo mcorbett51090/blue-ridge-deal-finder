@@ -51,8 +51,43 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Gate family — must pass BEFORE any socket opens
         run: npm run verify
+      # ADR 0008 local mirror (~/blue-ridge-archive) remains the real backup;
+      # Actions cache is CI continuity only — it does not survive losing GitHub.
+      - name: Restore warehouse cache (CI continuity only)
+        id: warehouse-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/warehouse
+          key: brdf-warehouse-v1-${{ github.run_id }}
+          restore-keys: |
+            brdf-warehouse-v1-
+      - name: Seed warehouse from Release warehouse-ci (soft)
+        if: hashFiles('data/warehouse/warehouse-pointer.json') == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p data/warehouse
+          # Soft: missing Release is not a hard fail — preflight below names
+          # the operator restore paths (cache / Release / local mirror).
+          gh release download warehouse-ci -D data/warehouse --clobber \
+            || echo "::notice::no Release tag warehouse-ci — soft miss; preflight will fail closed if still empty"
+      - name: Preflight — warehouse must be present before ingest
+        run: npm run ci:preflight-warehouse
       - name: Ingest NC parcels
         run: npm run ingest:parcels -- --counties="${{ inputs.counties }}"
+      - name: Save warehouse cache (CI continuity only)
+        if: success()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/warehouse
+          key: brdf-warehouse-v1-${{ github.run_id }}
+      - name: Upload warehouse artifact
+        if: success()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: warehouse
+          path: data/warehouse
+          retention-days: 14
       - name: Commit event log + manifest
         run: |
           git config user.name  "blue-ridge-bot"
