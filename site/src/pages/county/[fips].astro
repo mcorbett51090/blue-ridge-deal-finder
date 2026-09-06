@@ -125,25 +125,25 @@ const avg = fmtMoney(avgValue, 'No assessed values have been collected for this 
     <div class="callout callout--lane2">
       <p><strong>These are not listings.</strong> {LANE_BLURB.prospect}</p>
     </div>
-    <details class="cty__lane2">
-      <summary>Show {prospect.length} prospecting record{prospect.length === 1 ? '' : 's'}</summary>
-      {
-        prospect.length > 0 ? (
+    {
+      /* ⛔ "Show 0 prospecting records" as a clickable disclosure is a dead
+         control — opening it reveals nothing, and the verb "Show" over a zero
+         invites a click that can only confirm what the heading already said.
+         A zero-row county gets the EmptyState directly, with no toggle
+         chrome pretending there is something to reveal. */
+      prospect.length > 0 ? (
+        <details class="cty__lane2">
+          <summary>Show {prospect.length} prospecting record{prospect.length === 1 ? '' : 's'}</summary>
           <ul class="dir-grid">
             {prospect.map((l) => (
               <DealCard l={l} showCounty={false} />
             ))}
           </ul>
-        ) : (
-          <EmptyState
-            tier={county.tier}
-            county={county.county}
-            state={county.state}
-            lane="prospect"
-          />
-        )
-      }
-    </details>
+        </details>
+      ) : (
+        <EmptyState tier={county.tier} county={county.county} state={county.state} lane="prospect" />
+      )
+    }
 
     <p class="cty__back">
       <a href={withBase(`/?county=${county.fips}&state=${county.state}`)}>
