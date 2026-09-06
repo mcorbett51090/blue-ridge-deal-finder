@@ -15,7 +15,7 @@
  *   7. key / dedupe / multi-part / unkeyed quarantine
  *   8. sentinels, basis allowlist, sourcedate -> deed_date, vintage join
  *   9. Tier 0 (row-granularity) -> warehouse rebuild -> events -> manifest
- *  10. data/coverage.json              — 37 rows, counties not run say SO
+ *  10. data/coverage.json              — 38 rows, counties not run say SO
  *
  * ⛔ A COUNTY THAT FAILS ITS FLOOR CONTRIBUTES NOTHING AND MARKS NOTHING STALE.
  * The alternative — letting a failed fetch mark 47,388 parcels absent — writes
@@ -65,7 +65,7 @@ function arg(flag: string): string | null {
   return i >= 0 && i + 1 < process.argv.length ? (process.argv[i + 1] ?? null) : null;
 }
 
-/** The 11 NC target counties, read from the seed so the list has one home. */
+/** The 12 NC target counties, read from the seed so the list has one home. */
 function ncTargetCounties(): { fips: string; county: string }[] {
   const lines = readFileSync(join(ROOT, 'seeds', 'counties.csv'), 'utf8').trim().split('\n');
   const header = (lines[0] ?? '').split(',');
@@ -369,7 +369,7 @@ async function main(): Promise<void> {
 }
 
 /**
- * data/coverage.json — 37 rows, one per county, and the ones this system has
+ * data/coverage.json — 38 rows, one per county, and the ones this system has
  * never ingested SAY SO. `status: 'not-run'` with `rows: null`, never `rows: 0`:
  * a zero is a measurement and this is an absence.
  */

@@ -339,7 +339,7 @@ async function main(): Promise<void> {
   });
 
   // data/coverage.json is the repo-level honesty surface the gate family checks
-  // (37 rows, one per county) and the ingest writes a run-scoped version of it.
+  // (38 rows, one per county) and the ingest writes a run-scoped version of it.
   // This one is rebuilt from the WAREHOUSE, so a county whose ledger row was
   // lost to a wholesale rebuild still reports the parcels we actually hold.
   write(join(ROOT, 'data', 'coverage.json'), { generated_at: now.toISOString(), counties: coverage });

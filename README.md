@@ -1,6 +1,6 @@
 # Blue Ridge Deal Finder
 
-Finds under-market mountain property across 37 Blue Ridge counties — foreclosures, tax sales,
+Finds under-market mountain property across 38 Blue Ridge counties — foreclosures, tax sales,
 estate parcels and raw land — from **free public sources only**, and puts it on a map.
 
 Personal tool. One user. No accounts, no commerce, no external users.
@@ -33,7 +33,7 @@ parcels are almost entirely not on the market.
 
 | State | Counties | Tier | Reality |
 |---|---|---|---|
-| NC | 11 | `rich` | One free statewide endpoint: assessed value, acreage, sale date, use code |
+| NC | 12 | `rich` | One free statewide endpoint: assessed value, acreage, sale date, use code |
 | TN | 5 | `partial` | Statewide parcels, but **no assessed value**; the value hop is unsettled |
 | VA | 9 | `thin` | State layer is geometry only; several counties untested |
 | GA + SC | 12 | `notices-only` | No statewide parcel layer; dominant vendor is a confirmed bot wall |
@@ -41,6 +41,24 @@ parcels are almost entirely not on the market.
 An uncovered county must **never** render like a quiet one. `data/coverage.json` carries a tier per
 county and the UI is tier-aware — an empty result that reads as "no deals here" is the specific
 failure this design guards against.
+
+### Highlands–Cashiers Plateau is in scope
+
+Glenville, Highlands, Cashiers and Sapphire span three NC counties, all tagged
+`region: "Highlands–Cashiers Plateau"` in `seeds/counties.csv`: **Jackson** (37099, Glenville /
+Cashiers) and **Transylvania** (37175, Sapphire / Toxaway fringe) were already `rich` and ingested
+before this region existed as a label; **Macon** (37113, Highlands) was added once a live probe
+reconfirmed the *same* already-vetted statewide NC OneMap anchor covers it too — 44,699 parcels,
+97.3% carrying a non-zero Assessed value, `parvaltype=Assessed` on every sampled row. No new host,
+no new robots/ToS review: it is the identical `nc-onemap-parcels` endpoint already serving Jackson
+and Transylvania, filtered to one more county name.
+
+Macon's tier is `rich` but its `data_state` is `not-run` — the source is proven and its row floor is
+registered in `sources/sources.yaml`, but nobody has run the ingest against it yet. **Unknown is
+never zero.** A quiet Macon result on the map today means "not yet collected," not "nothing here." No
+standalone tax-foreclosure/notices feed specific to the plateau towns was found this pass (see
+`docs/decisions/0009-highlands-cashiers-plateau.md` and `docs/probe-log.md`); that lane is recorded
+as not-yet-found, not closed.
 
 ## Operating rules (non-negotiable)
 
@@ -63,7 +81,7 @@ pipeline/enrich/      nhd (water) · nfhl (flood) · epqs (slope) · tiger (road
 pipeline/score/       weights.yaml + pure scoring fn + golden fixtures
 publish/              field-allowlist export
 scripts/              the gate family — every gate ships a fixture proving it can FAIL
-seeds/counties.csv    the canonical 37
+seeds/counties.csv    the canonical 38
 site/                 Astro 5 + MapLibre, client-side filtering
 docs/probe-log.md     every probe: command, status, bytes, control block, verdict
 docs/decisions/       ADRs

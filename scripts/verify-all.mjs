@@ -21,7 +21,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const GATES = [
   ['verify-egress-allowlist.mjs', 'one egress path, enforced by an allowlist (RT-11)'],
   ['verify-sources.mjs', 'registry complete; the denylist wins every conflict'],
-  ['verify-coverage.mjs', 'exactly 37 counties, every one tiered'],
+  ['verify-coverage.mjs', 'exactly 38 counties, every one tiered'],
   ['verify-ingest-guards.mjs', 'the trust boundary rejects every known-bad payload'],
   ['verify-no-pii.mjs', 'no owner PII on any published surface (D1)'],
   ['verify-provenance.mjs', 'every source link shows the RECORD, never a homepage'],

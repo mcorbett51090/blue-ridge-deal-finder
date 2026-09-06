@@ -117,10 +117,10 @@
   ],
   "verify-coverage.mjs": [
    {
-    "name": "counties-36-rows",
+    "name": "counties-37-rows",
     "expect": "red",
     "plant": {
-     "seeds/counties.csv": "gates/counties-36-rows.csv"
+     "seeds/counties.csv": "gates/counties-37-rows.csv"
     }
    },
    {

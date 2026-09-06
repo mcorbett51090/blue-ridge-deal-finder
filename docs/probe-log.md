@@ -1001,3 +1001,105 @@ The decisive fix is Phase 2 / TB-1: declare ONE selection axis, publish a pool a
 within the pool on something other than the axis that chose it. The G4b tiebreak expert reached this
 before any of the measurements above, and for exactly the right reason: *"'wire and measure' cannot even
 produce an interpretable measurement until one declared axis exists."*
+
+---
+
+## §11 — Highlands–Cashiers Plateau: Macon NC parcel coverage — **PASS**
+
+**Run date:** 2026-09-05 · **Operator:** cloud coding agent · **Task:** expand coverage to the
+Highlands–Cashiers Plateau (Glenville, Highlands, Cashiers, Sapphire) for the owner.
+**User-Agent:** `blue-ridge-deal-finder/1.0 (+https://github.com/mcorbett51090/blue-ridge-deal-finder; matt@ravenpower.net)`
+
+Claim under test: the task's own prior was that Macon NC "likely" has no free parcel endpoint and
+should land at `notices-only` or `thin` "until proven" — explicitly warning against inventing rich
+NC OneMap coverage the way a GA county's shared name once nearly borrowed a Texas layer (see "North
+Georgia parcel sources" above). Transylvania was named alongside Macon in the same instruction, but
+Transylvania was **already** `rich` and ingested (29,204 parcels) before this run — nothing to prove
+there beyond a region relabel. Macon was the real unknown.
+
+### §11.1 Control block, reproduced against the live anchor before any Macon query
+
+```
+curl -A "$UA" '.../NC1Map_Parcels/MapServer/1/query?where=cntyname=%27Watauga%27&returnCountOnly=true&f=json'
+  -> {"count":47388}    POSITIVE control — matches E2.7 / sources.yaml exactly, 18 days later
+curl -A "$UA" '.../MapServer/1/query?where=cntyname=%27Zzzznotacounty%27&returnCountOnly=true&f=json'
+  -> {"count":0}         NEGATIVE control
+```
+
+Same host, same layer (`MapServer/1`, the polygon anchor — never `FeatureServer/0`), same schema
+fingerprint, same robots verdict (`absent`, re-confirmed unchanged) already registered and
+`enabled: true` in `sources/sources.yaml` for Jackson and Transylvania. No new source, no new legal
+review — this is the identical endpoint filtered to one more `cntyname` value.
+
+### §11.2 Macon — measured, not assumed
+
+```
+curl -A "$UA" '.../MapServer/1/query?where=cntyname=%27Macon%27&returnCountOnly=true&f=json'
+  -> {"count":44699}
+curl -A "$UA" '.../MapServer/1/query?where=cntyname=%27Macon%27+AND+parval=0&returnCountOnly=true&f=json'
+  -> {"count":1200}      2.7% zero-parval — under the anchor's own 4% max_zero_parval_pct ceiling
+curl -A "$UA" '.../MapServer/1/query?where=cntyname=%27Macon%27+AND+parvaltype=%27Assessed%27&returnCountOnly=true&f=json'
+  -> {"count":44699}     100% Assessed — 0 rows carry Ashe's 'Market' outlier type
+curl -A "$UA" '.../MapServer/1/query?where=cntyname=%27Macon%27+AND+parvaltype=%27Market%27&returnCountOnly=true&f=json'
+  -> {"count":0}
+```
+
+Sample (5 rows, `parval>0`, `orderByFields=objectid`), fields `parno,cntyname,parval,gisacres,
+saledate,parusedesc,parvaltype`:
+
+```
+6478769796  Macon  $1,820    0.2 ac   Assessed
+6489750616  Macon  $57,800   1.0 ac   Assessed
+6563760959  Macon  $146,670  260.15ac Assessed
+6592197644  Macon  $34,870   31.69ac  Assessed
+5595821769  Macon  $20,400   0.3 ac   Assessed
+```
+
+`parno`, `gisacres` and `parval` are all populated; the default-order first-5 sample (no `where`
+filter) returned five placeholder/blank rows (`parno:"", parval:0.0`) — a reminder that an unordered
+ArcGIS query is not a representative sample, consistent with §8's pagination findings on this same
+layer.
+
+**Verdict: PASS.** Macon NC (37113) carries real, free, statewide parcel coverage on the same anchor
+already vetted for the other 11 target counties. `seeds/counties.csv` tier set to `rich`; `not-run`
+recorded honestly in `data/coverage.json` since no ingest has pulled these rows into the warehouse
+yet; a measured floor (`Macon: 42000`, ~6% under the live count, matching this file's existing
+rounding convention) added to `sources/sources.yaml` for the run that eventually does. Full ruling:
+`docs/decisions/0009-highlands-cashiers-plateau.md`.
+
+### §11.3 Macon distress/notices — **NOT RUN**, not "not found"
+
+```
+curl -A "$UA" https://www.maconnc.org/robots.txt
+  -> 200, 1836 B — `*` group: Content-Signal search=yes/ai-train=no/use=reference, Allow: /
+     named blocks: Amazonbot, Applebot-Extended, Bytespider, CCBot, ClaudeBot, CloudflareBrowser-
+     RenderingCrawler, Google-Extended, GPTBot, meta-externalagent — none matches our product
+     token, same shape ADR 0003 already accepted for georgiapublicnotice.com/publicnoticevirginia.com
+curl -A "$UA" https://www.maconnc.org/999999-not-a-real-page-20260905
+  -> 404, 1293 B                                                    (negative control)
+curl -A "$UA" https://example.com/
+  -> 200, 559 B                                                     (positive control)
+
+curl -A "$UA" https://www.maconnc.org/sitemap.xml
+  -> 200, 21550 B, <lastmod>2010-06-23</lastmod> on every entry — a decade-stale artifact
+grep -c -i 'tax' macon_sitemap.xml    -> 0    POSITIVE control also 0 — INCONCLUSIVE, not absent
+grep -c -i 'zzqqx20260905' ...        -> 0    negative control
+
+/tax-department /tax-foreclosures /tax-collections /departments/tax  -> all 404
+```
+
+⚠️ **The positive control failing is the tell.** A grep for `tax` on a 100-county-government
+sitemap returning 0 is the same shape as §2.4's "60 events since 2007" line-folding trap and §10's
+Oconee 500 — a control that cannot fire proves nothing, so this is recorded **INCONCLUSIVE / NOT
+RUN**, exactly the distinction B14 needed a search tool to resolve in the original run. Macon's
+parcel-tier promotion (§11.2) does not depend on this; the notices lane for the Highlands–Cashiers
+Plateau stays an open question, not a closed one.
+
+### §11.4 Verdict summary
+
+| item | verdict | result |
+|---|---|---|
+| Transylvania region relabel | n/a | already `rich`/ingested; only `region` changed |
+| Jackson region relabel | n/a | already `rich`/ingested; only `region` changed |
+| Macon parcel coverage | **PASS** | 44,699 parcels, same statewide anchor, floor added |
+| Macon distress/notices | **NOT RUN** | sitemap stale, positive control 0/0 — needs search, not curl |

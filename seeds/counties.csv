@@ -5,9 +5,10 @@ fips,state,county,region,tier,parcel_source,notes
 37021,NC,Buncombe,Asheville,rich,nc-onemap-parcels,next reappraisal 2027 per NCDOR (last 2021, 6-yr cycle) — 26.8% of corpus repricess in one refresh; detector required
 37089,NC,Henderson,Asheville,rich,nc-onemap-parcels,
 37087,NC,Haywood,NC High Country,rich,nc-onemap-parcels,parvaltype=Market; A19 tax-foreclosure page confirmed
-37099,NC,Jackson,NC High Country,rich,nc-onemap-parcels,
+37099,NC,Jackson,Highlands–Cashiers Plateau,rich,nc-onemap-parcels,Glenville and Cashiers sit in this county — plateau parcels are already rich via the statewide anchor; see ADR 0009
+37113,NC,Macon,Highlands–Cashiers Plateau,rich,nc-onemap-parcels,Highlands sits in this county — NC OneMap MapServer/1 reconfirmed live 2026-09-05: 44699 parcels; 97.3% non-zero Assessed value; same statewide anchor already serving Jackson/Transylvania; not yet ingested — see ADR 0009
 37115,NC,Madison,NC High Country,rich,nc-onemap-parcels,
-37175,NC,Transylvania,NC High Country,rich,nc-onemap-parcels,
+37175,NC,Transylvania,Highlands–Cashiers Plateau,rich,nc-onemap-parcels,Sapphire/Toxaway fringe sits in this county — plateau parcels are already rich via the statewide anchor; see ADR 0009
 37199,NC,Yancey,NC High Country,rich,nc-onemap-parcels,
 37121,NC,Mitchell,NC High Country,rich,nc-onemap-parcels,
 47155,TN,Sevier,East TN,partial,tn-property-boundaries,no assessed value; TPAD hop unsettled
