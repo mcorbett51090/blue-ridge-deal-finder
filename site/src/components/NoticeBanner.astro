@@ -53,9 +53,16 @@ const KIND_LABEL: Record<NoticeKind, string> = {
 
 const all = (notices as Notice[]) ?? [];
 const today = new Date().toISOString().slice(0, 10);
-// Past sales are history, not opportunities. An unknown date is KEPT — dropping
-// it would silently hide a real notice we merely failed to parse a date from.
+// Past sales are history, not opportunities — but "history" still means SHOWN,
+// clearly labelled, not silently dropped. A notice that vanishes with no trace
+// the moment its date passes reads as "nothing happened here", when a real,
+// dated sale did happen. It moves to the archive list below instead.
+// An unknown date is KEPT in the live list — dropping it would silently hide a
+// real notice we merely failed to parse a date from.
 const live = all.filter((n) => n.sale_date === null || n.sale_date >= today);
+const past = all
+  .filter((n) => n.sale_date !== null && n.sale_date < today)
+  .sort((a, b) => (b.sale_date as string).localeCompare(a.sale_date as string));
 
 const days = (d: string | null): number | null => {
   if (!d) return null;
@@ -76,12 +83,12 @@ const days = (d: string | null): number | null => {
         so we can tell you the sale is happening and link you to the notice, but not which parcel it
         is. Open the notice to see the property.
       </p>
-      <ul class="notices__list">
+      <ul class="notices__list" data-notices-live>
         {live.map((n) => {
           const d = days(n.sale_date);
           return (
-            <li class="notice">
-              <span class={`notice__when${d !== null && d <= 1 ? ' notice__when--soon' : ''}`}>
+            <li class="notice" data-notice data-sale-date={n.sale_date ?? ''}>
+              <span class={`notice__when${d !== null && d <= 1 ? ' notice__when--soon' : ''}`} data-notice-when>
                 {n.sale_date === null
                   ? 'date not stated'
                   : d === 0
@@ -105,6 +112,86 @@ const days = (d: string | null): number | null => {
     </section>
   )
 }
+
+{
+  /* ARCHIVE — a sale whose date has passed is history, not an invitation, and
+     the whole point of this block is that it must never be mistaken for the
+     section above. Collapsed by default (closed <details>, no JS required),
+     visually muted, and every date is stated as PASSED rather than as a
+     countdown. */
+  past.length > 0 && (
+    <details class="notices notices--archive" data-notices-archive>
+      <summary class="notices__h notices__sum">
+        Past sale notices <span class="notices__n num">{past.length}</span>
+      </summary>
+      <p class="notices__blurb">
+        These sale dates have passed. Kept here for reference and provenance, not because the sale
+        is still happening — a notice does not disappear from this project just because its date did.
+      </p>
+      <ul class="notices__list" data-notices-past>
+        {past.map((n) => (
+          <li class="notice notice--past" data-notice data-sale-date={n.sale_date ?? ''}>
+            <span class="notice__when notice__when--past" data-notice-when>Sale date passed</span>
+            <span class="notice__body">
+              <strong>{n.county} County, {n.state}</strong> — {KIND_LABEL[n.kind] ?? KIND_LABEL['county-notice']}
+              {n.sale_date && <> — was {n.sale_date}</>}
+              <br />
+              <a href={n.source_url} rel="noopener nofollow external" target="_blank">
+                County notice ↗
+              </a>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </details>
+  )
+}
+
+<script>
+  // Re-verify against the VISITOR'S clock, not the build's. A static page
+  // built on day 0 and viewed on day 20 would otherwise keep telling a reader
+  // "in 3 days" about a sale that already happened three weeks ago — the exact
+  // "reads as current when it is not" failure this component exists to avoid.
+  // Cheap to redo client-side: at most a handful of notices exist at once.
+  (() => {
+    const liveList = document.querySelector<HTMLUListElement>('[data-notices-live]');
+    const archiveList = document.querySelector<HTMLUListElement>('[data-notices-past]');
+    const archiveDetails = document.querySelector<HTMLDetailsElement>('[data-notices-archive]');
+    const items = Array.from(document.querySelectorAll<HTMLLIElement>('[data-notice]'));
+    if (items.length === 0) return;
+
+    const todayIso = new Date().toISOString().slice(0, 10);
+    for (const li of items) {
+      const saleDate = li.dataset.saleDate || '';
+      if (saleDate === '' || saleDate >= todayIso) continue; // still live or undated — leave as rendered
+      if (li.classList.contains('notice--past')) continue; // already archived server-side
+      // A live-rendered notice whose date has since passed: move it to the
+      // archive list live, in the browser, rather than leaving it to read as
+      // current until the next rebuild.
+      li.classList.add('notice--past');
+      const whenEl = li.querySelector<HTMLElement>('[data-notice-when]');
+      if (whenEl) {
+        whenEl.textContent = 'Sale date passed';
+        whenEl.classList.remove('notice__when--soon');
+        whenEl.classList.add('notice__when--past');
+      }
+      if (archiveList) {
+        archiveList.appendChild(li);
+        if (archiveDetails) archiveDetails.hidden = false;
+      }
+    }
+    // The live section's own count and visibility need the same correction —
+    // otherwise a heading reading "Upcoming foreclosure sales — 3" could sit
+    // above a list that the loop above just emptied.
+    if (liveList) {
+      const remaining = liveList.querySelectorAll('[data-notice]').length;
+      const section = liveList.closest('section');
+      const countEl = section?.querySelector<HTMLElement>('.notices__n');
+      if (countEl) countEl.textContent = String(remaining);
+      if (section && remaining === 0) (section as HTMLElement).hidden = true;
+    }
+  })();
+</script>
 
 <style>
   .notices {
@@ -145,5 +232,38 @@ const days = (d: string | null): number | null => {
   .notice__when--soon { color: var(--sig-distress, #a8663a); font-weight: 600; }
   @media (max-width: 560px) {
     .notice { grid-template-columns: 1fr; gap: .1rem; }
+  }
+
+  /* --- Archive: visually the OPPOSITE of "upcoming and urgent" ------------- */
+  .notices--archive {
+    border-left-color: var(--ink-soft, #667575);
+    background: var(--band, #eef1ee);
+    opacity: 0.92;
+  }
+  .notices__sum {
+    cursor: pointer;
+    list-style: none;
+  }
+  .notices__sum::-webkit-details-marker {
+    display: none;
+  }
+  .notices__sum::before {
+    content: '▸';
+    margin-right: 0.4em;
+    color: var(--ink-soft, #667575);
+  }
+  .notices--archive[open] .notices__sum::before {
+    content: '▾';
+  }
+  .notice--past {
+    opacity: 0.8;
+  }
+  .notice--past .notice__body strong {
+    color: var(--ink-soft, #667575);
+  }
+  .notice__when--past {
+    color: var(--ink-soft, #667575) !important;
+    font-weight: 600;
+    font-style: italic;
   }
 </style>
