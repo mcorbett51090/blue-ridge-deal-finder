@@ -88,12 +88,42 @@ export interface ForSaleEvidence {
     | 'auction';
   /** Human label rendered on the card. */
   label: string;
-  /** The primary source, always linked. Owner requirement: every row links to its source. */
-  source_url: string;
+  /** ⛔ `source_url` is the ORIGINALLY DECLARED shape and is what the fixture
+   *  set still carries. The pipeline's real, live output (measured
+   *  2026-08-19, all 8 published Lane-1 rows) instead carries the
+   *  `record_url` / `generic_url` / `generic_label` / `how_to_verify` tier
+   *  used by `provenanceOf()` in lib/deals.ts, and `evidenceProvenanceOf()`
+   *  below mirrors that same normalisation for evidence specifically. Kept
+   *  optional, not deleted: a renderer that only checks `source_url` would
+   *  silently show "no direct link" for every row that instead carries
+   *  `generic_url` — which is exactly the bug this comment is here to keep
+   *  from coming back. Read through `evidenceProvenanceOf()`, never directly. */
+  source_url?: string;
+  record_url?: string | null;
+  generic_url?: string | null;
+  generic_label?: string | null;
+  how_to_verify?: string | null;
+  source_label?: string;
   /** ISO-8601. When the evidence was OBSERVED — not when we last ran. */
   observed_at: string;
-  sale_date: string | null;
-  opening_bid: number | null;
+  sale_date?: string | null;
+  /** The historical/fixture field name for the evidence's own stated price. */
+  opening_bid?: number | null;
+  /** The field name the LIVE pipeline actually emits for the same fact. Read
+   *  both via `evidencePrice()` below — never `ev.opening_bid` alone, which is
+   *  `undefined` on every row currently in production. */
+  price_usd?: number | null;
+  /** 'YYYY-MM' or similar — how long the county has held this. Not a full date. */
+  since?: string | null;
+}
+
+/** `ev.price_usd ?? ev.opening_bid`, named. Two field names have carried this
+ *  one fact across the fixture era and the live pipeline; this is the one
+ *  place that knows both. */
+export function evidencePrice(ev: ForSaleEvidence): number | null {
+  if (ev.price_usd !== undefined && ev.price_usd !== null) return ev.price_usd;
+  if (ev.opening_bid !== undefined && ev.opening_bid !== null) return ev.opening_bid;
+  return null;
 }
 
 export interface Listing {
@@ -138,8 +168,18 @@ export interface Listing {
   /** FEMA zone string, or null if unknown. 'X' = outside the 1% annual chance floodplain. */
   flood_zone: string | null;
   parcel_use: string;
+  /** The situs address, when the county publishes one. `null` = none on
+   *  record — never `''`, which would render as a blank line that reads like
+   *  a missing render rather than a real absence (enforced by
+   *  scripts/verify-data.mjs check 5). Read through `siteAddressOf()` in
+   *  lib/deals.ts, never directly — one county-system placeholder
+   *  ("0 DEFAULT STREET") needs filtering before display. */
+  site_address?: string | null;
   /** The primary source for the PARCEL record itself. Always present, always linked. */
   source_url: string;
+  /** Why `lat`/`lng` are null, when they are. The parcel ingest currently
+   *  stores attributes only — every published row has this reason set. */
+  geometry_unknown_reason?: string | null;
   first_seen: string;
   last_seen: string;
 

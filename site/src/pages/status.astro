@@ -33,6 +33,12 @@ const STATE_LABEL: Record<string, string> = {
   failed: 'Failed',
   'never-run': 'Never run',
 };
+
+/** The one-sentence version of the table below it, for a reader who will not
+ *  scan 18 rows: how many configured sources have ever produced anything,
+ *  versus how many are pure registration with nothing behind them yet. */
+const everRun = status.sources.filter((s) => s.state !== 'never-run').length;
+const neverRun = status.sources.length - everRun;
 ---
 
 <BaseLayout
@@ -51,16 +57,19 @@ const STATE_LABEL: Record<string, string> = {
     </header>
 
     <section class="cards">
-      <div class="statcard">
+      <div class="statcard" data-fresh-status data-observed={status.data_observed_at ?? ''} data-bar-hours={String(site.lane1FreshHours)} data-status-url={withBase('/data/status.json')}>
         <p class="statcard__k">Lane 1 data observed</p>
         <p class="statcard__v" data-status-observed>
-          {observed.known ? observed.text : 'never'}
+          <span data-status-when>{observed.known ? observed.text : 'never'}</span>
+          <span class="statcard__age" data-status-age></span>
         </p>
         <p class="statcard__n">
           The newest <code>observed_at</code> across published on-market rows — not the time the
           pipeline last ran. A source serving a frozen snapshot for six months would look perfectly
-          fresh under that other measure.
+          fresh under that other measure. This is the exact same fact the header badge shows; if the
+          two ever read differently, the badge or this card has a bug.
         </p>
+        <p class="statcard__todo" data-status-todo hidden></p>
       </div>
       <div class="statcard">
         <p class="statcard__k">Pipeline last ran</p>
@@ -96,6 +105,13 @@ const STATE_LABEL: Record<string, string> = {
       meaningful property of it, and a badge that would be red five days out of seven by design is a
       badge nobody reads.
     </p>
+    <p class="src-summary">
+      <strong class="num">{everRun}</strong> of <strong class="num">{status.sources.length}</strong>{' '}
+      configured sources have returned data at least once; <strong class="num">{neverRun}</strong>{' '}
+      {neverRun === 1 ? 'is' : 'are'} registered but have <strong>never run</strong> — those rows
+      read <code>never</code> below, not a stale date.
+    </p>
+    <div class="tbl-scroll">
     <table class="tbl">
       <caption>Every configured source, including the ones that have never run.</caption>
       <thead>
@@ -130,6 +146,7 @@ const STATE_LABEL: Record<string, string> = {
         }
       </tbody>
     </table>
+    </div>
 
     <h2 class="section-head" id="coverage">County coverage</h2>
     <p>
@@ -151,6 +168,7 @@ const STATE_LABEL: Record<string, string> = {
       }
     </dl>
 
+    <div class="tbl-scroll">
     <table class="tbl">
       <caption>
         All {counties.length} counties. Row counts are what is published today; they are never used
@@ -197,6 +215,7 @@ const STATE_LABEL: Record<string, string> = {
         }
       </tbody>
     </table>
+    </div>
     <p class="fine">
       Row counts are shown as total (on-market / prospecting).
     </p>
@@ -205,23 +224,57 @@ const STATE_LABEL: Record<string, string> = {
 
 <script>
   // The freshness verdict is a browser computation, here as well as in the
-  // header: a build cannot detect that it never ran.
+  // header — same module, same string. This file used to build its own fetch
+  // URL from `document.baseURI`, which resolves a RELATIVE path against the
+  // current PAGE (/status/data/status.json) rather than the site root
+  // (/data/status.json): a 404 on every load, silently swallowed into
+  // "freshness unknown" while the header badge, fetching the correct
+  // base-aware URL, reported the real number. Same fact, two answers, on the
+  // one page whose entire job is to be the honest one.
+  import { verdictFor, ageSuffix, whatToDo } from '../lib/freshness';
+
   (() => {
-    const el = document.querySelector<HTMLElement>('[data-status-observed]');
-    if (!el) return;
-    fetch(new URL('data/status.json', document.baseURI).href, { cache: 'no-store' })
+    const card = document.querySelector<HTMLElement>('[data-fresh-status]');
+    const whenEl = document.querySelector<HTMLElement>('[data-status-when]');
+    const ageEl = document.querySelector<HTMLElement>('[data-status-age]');
+    const todoEl = document.querySelector<HTMLElement>('[data-status-todo]');
+    if (!card || !whenEl) return;
+    const barHours = Number(card.dataset.barHours || '48');
+
+    function paint(iso: string | null) {
+      const v = verdictFor(iso, barHours);
+      card!.dataset.state = v.state;
+      if (ageEl) ageEl.textContent = ` ${ageSuffix(v, barHours)}`;
+      const todo = whatToDo(v.state);
+      if (todoEl) {
+        todoEl.hidden = !todo;
+        todoEl.textContent = todo ?? '';
+      }
+    }
+
+    paint(card.dataset.observed || null);
+
+    const url = card.dataset.statusUrl;
+    if (!url) return;
+    fetch(url, { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((j) => {
         const iso = typeof j?.data_observed_at === 'string' ? j.data_observed_at : null;
-        if (!iso) {
-          el.textContent = 'never';
-          return;
+        if (whenEl) {
+          whenEl.textContent = iso
+            ? new Date(iso).toLocaleString('en-US', {
+                year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+              })
+            : 'never';
         }
-        const hours = Math.floor((Date.now() - new Date(iso).getTime()) / 3600000);
-        el.textContent = `${new Date(iso).toLocaleString()} — ${hours} h ago`;
+        paint(iso);
       })
       .catch(() => {
-        el.textContent = 'status file unreachable — freshness unknown';
+        // An unreachable status file is itself a finding — say so rather than
+        // leaving the last-known (build-time) value looking authoritative.
+        card!.dataset.state = 'unknown';
+        if (ageEl) ageEl.textContent = ' — status file unreachable; freshness unknown';
       });
   })();
 </script>
@@ -258,6 +311,30 @@ const STATE_LABEL: Record<string, string> = {
   .statcard__n {
     font-size: var(--step--2);
     color: var(--ink-soft);
+    line-height: 1.45;
+    max-width: none;
+  }
+  .statcard__age {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  /* Same states, same colours, as the header badge — one verdict, painted
+     identically wherever it appears. */
+  [data-fresh-status][data-state='stale'] .statcard__v,
+  [data-fresh-status][data-state='never'] .statcard__v,
+  [data-fresh-status][data-state='stale'] .statcard__age,
+  [data-fresh-status][data-state='never'] .statcard__age {
+    color: var(--warn);
+  }
+  .statcard__todo {
+    margin-top: 0.5rem;
+    font-size: var(--step--2);
+    color: var(--warn);
+    background: var(--warn-bg);
+    border-radius: var(--radius-s);
+    padding: 0.4rem 0.6rem;
     line-height: 1.45;
     max-width: none;
   }
@@ -302,6 +379,35 @@ const STATE_LABEL: Record<string, string> = {
     font-size: var(--step--2);
     color: var(--ink-soft);
     margin-top: var(--space-2xs);
+  }
+  .src-summary {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink);
+    background: var(--band);
+    border-radius: var(--radius-s);
+    padding: 0.5rem 0.7rem;
+    max-width: none;
+  }
+  /* MOBILE P1 — a table with 5-6 columns does not fit a phone. Rather than
+     shrinking text past legibility or letting `body { overflow-x:hidden }`
+     (global.css) silently CLIP the Notes/Tier columns off-canvas, the table
+     scrolls INSIDE its own container. The scrollbar itself is the affordance;
+     a min-width on the table keeps columns from being crushed illegibly. */
+  .tbl-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: var(--space-m);
+  }
+  .tbl-scroll .tbl {
+    margin-top: 0;
+    min-width: 40rem;
+  }
+  @media (max-width: 720px) {
+    .tbl-scroll {
+      border: var(--hairline) solid var(--rule);
+      border-radius: var(--radius-s);
+    }
   }
   code {
     font-size: 0.9em;

@@ -27,10 +27,12 @@ import DealMap from '../components/DealMap.astro';
 import DealCard from '../components/DealCard.astro';
 import NoticeBanner from '../components/NoticeBanner.astro';
 import CoverageStrip from '../components/CoverageStrip.astro';
+import StaleBanner from '../components/StaleBanner.astro';
 import EmptyState from '../components/EmptyState.astro';
 import { withBase } from '../lib/nav';
 import {
   NOTHING_IS_SCORED,
+  NO_WATER_ENRICHED,
   byLane,
   countyFacets,
   states,
@@ -59,10 +61,29 @@ const coverageLite = coverage.map((c) => ({
   path="/"
   dash
 >
-  <div class="dash" data-dash data-view="map">
+  <div class="dash" data-dash data-view="list">
     <!-- ================= FILTER RAIL ================= -->
-    <aside class="dash__rail" aria-label="Filters">
-      <div class="rail__in">
+    <!-- MOBILE P1: collapsed by default below 1080px via `data-rail-open`
+         (unset = collapsed). Desktop CSS ignores the attribute entirely, so
+         nothing changes above that breakpoint. The toggle button is
+         `data-js-only`: without JS the rail renders fully open, same as
+         before — filters must never become unreachable just because a script
+         did not run. -->
+    <aside class="dash__rail" aria-label="Filters" data-rail>
+      <button
+        type="button"
+        class="rail__toggle"
+        data-rail-toggle
+        aria-expanded="false"
+        aria-controls="rail-body"
+        data-js-only
+      >
+        <span>Filters</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+          <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <div class="rail__in" id="rail-body">
         <div class="rail__grp">
           <label class="rail__label" for="f-q">Search</label>
           <input
@@ -180,11 +201,35 @@ const coverageLite = coverage.map((c) => ({
         <fieldset class="rail__grp">
           <legend class="rail__label">Signals</legend>
           <div class="rail__chips">
-            <button class="chip" type="button" data-f-toggle="water" aria-pressed="false">Water on parcel</button>
+            {/* ⛔ Water enrichment has not reached a single published row yet
+                (`water: null` on all 658) — every one reads "unknown", not
+                "no water". A toggle that can only ever return zero rows is the
+                same anti-pattern as the disabled score slider above: it looks
+                like a filter and is actually a trap. Disabled, and it comes
+                back on its own the moment enrichment reaches the first row. */}
+            <button
+              class="chip"
+              type="button"
+              data-f-toggle="water"
+              aria-pressed="false"
+              disabled={NO_WATER_ENRICHED}
+              title={NO_WATER_ENRICHED ? 'Water has not been measured for any published parcel yet — this would always show zero results.' : undefined}
+            >
+              Water on parcel
+            </button>
             <button class="chip" type="button" data-f-toggle="distress" aria-pressed="false">Distress only</button>
             <button class="chip" type="button" data-f-toggle="land" aria-pressed="false">Land only</button>
             <button class="chip" type="button" data-f-toggle="noflood" aria-pressed="false">Exclude floodplain</button>
           </div>
+          {
+            NO_WATER_ENRICHED && (
+              <p class="rail__help">
+                <strong>Water on parcel</strong> is disabled: the water layer has not been joined to any
+                published parcel yet, so every row reads unknown rather than yes/no. That is a gap in
+                enrichment, not a claim that no parcel here has water.
+              </p>
+            )
+          }
           <p class="rail__help">
             “Exclude floodplain” drops parcels known to be IN one. Parcels whose flood zone is
             <em>unknown</em> are kept and stay labelled unknown — dropping them would quietly turn a
@@ -204,6 +249,7 @@ const coverageLite = coverage.map((c) => ({
     <!-- ================= RESULTS ================= -->
     <section class="dash__results" aria-label="Results">
       <div class="res__head">
+        <StaleBanner />
         <CoverageStrip />
         <p class="res__count" data-count>
           Showing <strong class="num" data-shown>{market.length}</strong> of
@@ -263,8 +309,8 @@ const coverageLite = coverage.map((c) => ({
 
     <!-- Mobile-only: map and list are mutually exclusive below 860px. -->
     <div class="dash__seg" role="group" aria-label="Switch between map and list" data-js-only>
-      <button type="button" data-view-btn="map" aria-pressed="true">Map</button>
-      <button type="button" data-view-btn="list" aria-pressed="false">List</button>
+      <button type="button" data-view-btn="map" aria-pressed="false">Map</button>
+      <button type="button" data-view-btn="list" aria-pressed="true">List</button>
     </div>
   </div>
 
@@ -636,6 +682,27 @@ const coverageLite = coverage.map((c) => ({
       });
     }
 
+    // MOBILE P1 — "collapse filters". The default is OPEN (no attribute at
+    // all, matching the pre-change behaviour) so a no-JS visitor, or one whose
+    // script has not finished, always gets a working rail. Only once this runs
+    // AND the viewport is narrow do we collapse it — one auto-collapse on
+    // load, never re-imposed after the reader has opened it, and never applied
+    // above the breakpoint where the rail is the persistent sidebar anyway.
+    const railToggle = document.querySelector<HTMLButtonElement>('[data-rail-toggle]');
+    const railEl = document.querySelector<HTMLElement>('[data-rail]');
+    if (railToggle && railEl) {
+      const mq = window.matchMedia('(max-width: 1080px)');
+      const setCollapsed = (collapsed: boolean) => {
+        if (collapsed) railEl.setAttribute('data-rail-collapsed', '');
+        else railEl.removeAttribute('data-rail-collapsed');
+        railToggle.setAttribute('aria-expanded', String(!collapsed));
+      };
+      if (mq.matches) setCollapsed(true);
+      railToggle.addEventListener('click', () => {
+        setCollapsed(!railEl.hasAttribute('data-rail-collapsed'));
+      });
+    }
+
     // ---- The map handshake -------------------------------------------------
     // DealMap registers its `brdf:filtered` listener INSIDE an async dynamic
     // import, so it is provably not listening when the initial applyFilter()
@@ -673,6 +740,11 @@ const coverageLite = coverage.map((c) => ({
     overflow-y: auto;
     border-right: var(--hairline) solid var(--rule);
     background: var(--surface);
+  }
+  /* Desktop: this button never appears at all, JS or no JS — the rail is
+     always the persistent sidebar it has always been. */
+  .rail__toggle {
+    display: none;
   }
   .rail__in {
     padding: var(--space-s);
@@ -896,9 +968,48 @@ const coverageLite = coverage.map((c) => ({
       border-bottom: var(--hairline) solid var(--rule);
       max-height: 40vh;
     }
+    /* MOBILE P1 — "collapse filters". Below this width the rail no longer sits
+       beside the map as a fixed sidebar; left open it is 40vh of controls
+       between the reader and the actual results on every load. Collapsed by
+       default (no `data-rail-open`), with a "Filters" button as the only way
+       back in — visible ONLY here (desktop keeps `.rail__toggle { display:none }`
+       from above) and marked `data-js-only` so a no-JS visitor gets the rail
+       fully open instead of a dead, unclickable button. */
+    .rail__toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      width: 100%;
+      min-height: 44px;
+      padding: 0.6em var(--space-s);
+      font-family: var(--font-ui);
+      font-size: var(--step--1);
+      font-weight: 700;
+      color: var(--ink);
+      background: var(--surface);
+      border: 0;
+      cursor: pointer;
+    }
+    .rail__toggle svg {
+      transition: transform var(--dur-fast) var(--ease-soft);
+    }
+    .dash__rail:not([data-rail-collapsed]) .rail__toggle svg {
+      transform: rotate(180deg);
+    }
     .rail__in {
       grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
       align-items: start;
+    }
+    /* `data-rail-collapsed` is added by JS, never server-rendered — the
+       default (no JS, or JS not yet run) is OPEN, same as before this change.
+       A no-JS visitor must never be left with a permanently collapsed rail
+       behind a button that cannot do anything. */
+    .dash__rail[data-rail-collapsed] .rail__in {
+      display: none;
+    }
+    .dash__rail[data-rail-collapsed] {
+      max-height: none;
     }
     .dash__map {
       min-height: 60vh;

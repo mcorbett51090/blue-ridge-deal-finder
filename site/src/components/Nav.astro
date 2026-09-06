@@ -163,8 +163,19 @@ const links = [
   .topbar__ctrls {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: 0.35rem;
     gap: 0.5rem;
     margin-left: auto;
+  }
+  /* The two toggle buttons are the part of this row that MUST stay reachable —
+     they are the only way to change theme/palette, and there is no other
+     control for either. `flex-shrink: 0` keeps them at their full tap-target
+     size even when the freshness badge next to them cannot fit. */
+  .topbar__theme,
+  .topbar__cb {
+    flex-shrink: 0;
   }
   .topbar__theme,
   .topbar__cb {
@@ -195,6 +206,30 @@ const links = [
     }
     .topbar__nav a {
       font-size: var(--step--2);
+    }
+  }
+
+  /* ≤480px — MOBILE P1. The freshness badge's own text ("Aug 19, 2026, 11:48
+     AM PDT — 412 h old, past the 48 h bar") is long enough that, alongside the
+     brand mark, nav links and both toggle buttons, the row no longer fits —
+     and `body { overflow-x: hidden }` (global.css) does not wrap that overflow,
+     it CLIPS it, taking the theme/colour-blind buttons off-canvas with no way
+     back. Measured: at 390px width the pre-fix row was ~640px wide.
+     Fix: the badge is pushed onto its own full-width line, ordered AFTER the
+     buttons, so the buttons — the only affordance for either control — are
+     guaranteed a place on the first line every time, regardless of how long
+     the freshness string gets. */
+  @media (max-width: 480px) {
+    :global(.fresh) {
+      order: 3;
+      flex-basis: 100%;
+      justify-content: center;
+    }
+    .topbar__theme {
+      order: 1;
+    }
+    .topbar__cb {
+      order: 2;
     }
   }
 </style>

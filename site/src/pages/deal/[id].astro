@@ -13,6 +13,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ScoreMeter from '../../components/ScoreMeter.astro';
 import WatchButton from '../../components/WatchButton.astro';
 import { withBase } from '../../lib/nav';
+import { evidencePrice } from '../../lib/types';
 import {
   sorted,
   countyOf,
@@ -25,8 +26,13 @@ import {
   waterIsUnknown,
   waterLabel,
   inFloodplain,
+  provenanceOf,
+  evidenceProvenanceOf,
+  EVIDENCE_KIND_BADGE,
+  isDistressLead,
+  siteAddressOf,
 } from '../../lib/deals';
-import { fmtAcres, fmtDate, fmtDateTime, fmtDistance, fmtMoney, fmtPerAcre } from '../../lib/format';
+import { fmtAcres, fmtDate, fmtDateTime, fmtDistance, fmtMoney, fmtParcelUse, fmtPerAcre } from '../../lib/format';
 
 export const getStaticPaths = (() => {
   return sorted.map((l) => ({
@@ -37,7 +43,10 @@ export const getStaticPaths = (() => {
 
 const { l, county } = Astro.props;
 const lane = laneOf(l);
+const prov = provenanceOf(l);
+const addr = siteAddressOf(l);
 const ev = l.for_sale_evidence;
+const evProv = ev ? evidenceProvenanceOf(ev) : null;
 const acres = fmtAcres(l.acres);
 const value = fmtMoney(l.assessed_value);
 const perAcre = fmtPerAcre(l.assessed_value, l.acres);
@@ -47,8 +56,9 @@ const waterDist = fmtDistance(l.water?.distance_m ?? null);
 const firstSeen = fmtDate(l.first_seen);
 const lastSeen = fmtDate(l.last_seen);
 const observed = ev ? fmtDateTime(ev.observed_at) : null;
-const saleDate = ev ? fmtDate(ev.sale_date) : null;
-const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notice.') : null;
+const saleDate = ev ? fmtDate(ev.sale_date ?? null) : null;
+const saleDatePassed = !!(ev?.sale_date && Date.parse(ev.sale_date) < Date.now());
+const bid = ev ? fmtMoney(evidencePrice(ev), 'No price published in the notice.') : null;
 ---
 
 <BaseLayout
@@ -67,7 +77,8 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
 
     <header class="page__head">
       <p class="eyebrow">Record {l.id}</p>
-      <h1>{l.county} County, {l.state}</h1>
+      <h1>{addr ?? `${l.county} County, ${l.state}`}</h1>
+      {addr && <p class="d__subaddr">{l.county} County, {l.state}</p>}
       <p class="d__badges">
         <span class={`tag tag--lane-${lane}`}>{LANE_LABEL[lane]}</span>
         {
@@ -79,7 +90,14 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
             <span class="tier tier--notices-only">County not in the covered set</span>
           )
         }
-        <span class="tag tag--neutral">{l.parcel_use}</span>
+        {
+          ev && (
+            <span class={`tag ${isDistressLead(ev.kind) ? 'tag--distress' : 'tag--lane-market'}`}>
+              {EVIDENCE_KIND_BADGE[ev.kind]}
+            </span>
+          )
+        }
+        <span class="tag tag--neutral">{fmtParcelUse(l.parcel_use)}</span>
       </p>
       <p class="page__lead">{LANE_BLURB[lane]}</p>
     </header>
@@ -103,6 +121,7 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
           breakdown={l.score_breakdown}
           confidence={l.confidence}
           variant="detail"
+          assessedValueKnown={value.known}
         />
 
         <h2 class="section-head">The record</h2>
@@ -144,10 +163,10 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
                   <>
                     <span class="num">{value.text}</span>
                     {perAcre.known && <span class="d__basis num">{perAcre.text}</span>}
-                    {l.assessment_year !== undefined && (
+                    {l.assessment_year != null && (
                       <span class="d__basis">
                         Assessed {l.assessment_year}
-                        {l.reappraisal_year !== undefined &&
+                        {l.reappraisal_year != null &&
                           ` · ${l.county} reappraises ${l.reappraisal_year}, which will move this number.`}
                       </span>
                     )}
@@ -159,7 +178,7 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
             </dd>
           </div>
           <div>
-            <dt>{ev?.opening_bid != null ? 'Opening bid' : 'Asking price'}</dt>
+            <dt>{ev?.kind === 'auction' ? 'Opening bid' : 'Asking price'}</dt>
             <dd>
               {
                 price.known ? (
@@ -229,15 +248,25 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
           Only the booleans below are published.
         </p>
         <ul class="d__owner">
+          {/* ⛔ `!= null` (not `!== undefined`) is load-bearing here. The
+              published payload spells "not collected" as an explicit `null`
+              on this field, not an absent key — `!== undefined` let it through
+              and rendered `null ? 'yes' : 'no'`, i.e. a confident "no" for a
+              fact that was never measured. Measured 2026-08-19: 190 rows with
+              `owner_out_of_state: null` all read "Out-of-state owner: no" on
+              this page, and 150 rows read "no" for owner_is_entity the same
+              way — the exact "unknown rendered as a fact" defect this
+              project's own gates exist to catch, just not caught here because
+              it is a page-render bug, not a data bug. */}
           {
-            l.owner_out_of_state !== undefined && (
+            l.owner_out_of_state != null && (
               <li>
                 Out-of-state owner: <strong>{l.owner_out_of_state ? 'yes' : 'no'}</strong>
               </li>
             )
           }
           {
-            l.owner_is_entity !== undefined && (
+            l.owner_is_entity != null && (
               <li>
                 Owned by an entity rather than an individual:{' '}
                 <strong>{l.owner_is_entity ? 'yes' : 'no'}</strong>
@@ -245,16 +274,16 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
             )
           }
           {
-            l.tenure_years !== undefined && (
+            l.tenure_years != null && (
               <li>
                 Years since the last recorded transfer: <strong class="num">{l.tenure_years}</strong>
               </li>
             )
           }
           {
-            l.owner_out_of_state === undefined &&
-              l.owner_is_entity === undefined &&
-              l.tenure_years === undefined && (
+            l.owner_out_of_state == null &&
+              l.owner_is_entity == null &&
+              l.tenure_years == null && (
                 <li><span class="unk">No ownership signals collected for this record.</span></li>
               )
           }
@@ -268,43 +297,50 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
           <h2>Sources</h2>
           <p class="d__boxnote">Every figure above traces to one of these. Confirm before acting.</p>
           <ul class="d__srcs">
+            {/* ⛔ Reads through `provenanceOf()` / `evidenceProvenanceOf()` now,
+                not raw `l.record_url` / `l.source_label` / `l.how_to_verify` —
+                none of those top-level fields exist on ANY published row (the
+                real payload nests them under `l.provenance`), so this list
+                previously fell to "general source, not this record" for
+                every single row, including the 508 that actually carry an
+                exact per-parcel link. Same bug, same fix, as DealCard.astro. */}
             <li>
               {
-                l.record_url ? (
-                  <a href={l.record_url} rel="noopener nofollow external" target="_blank">
+                prov.recordUrl ? (
+                  <a href={prov.recordUrl} rel="noopener nofollow external" target="_blank">
                     Exact parcel record ↗
                   </a>
-                ) : l.source_url ? (
+                ) : prov.genericUrl ? (
                   <>
-                    <a href={l.source_url} rel="noopener nofollow external" target="_blank">
-                      {l.source_label ?? 'County source'} ↗
+                    <a href={prov.genericUrl} rel="noopener nofollow external" target="_blank">
+                      {prov.label} ↗
                     </a>
-                    <span class="d__scope"> — general source, not this record. {l.how_to_verify}</span>
+                    <span class="d__scope"> — general source, not this record. {prov.howToVerify}</span>
                   </>
                 ) : (
                   <span class="d__howto">
-                    <strong>No direct link.</strong> {l.how_to_verify}
+                    <strong>No direct link.</strong> {prov.howToVerify}
                   </span>
                 )
               }
             </li>
             {
-              ev && (
+              ev && evProv && (
                 <li>
-                  {ev.record_url ? (
-                    <a href={ev.record_url} rel="noopener nofollow external" target="_blank">
+                  {evProv.recordUrl ? (
+                    <a href={evProv.recordUrl} rel="noopener nofollow external" target="_blank">
                       {ev.label} ↗
                     </a>
-                  ) : ev.source_url ? (
+                  ) : evProv.genericUrl ? (
                     <>
-                      <a href={ev.source_url} rel="noopener nofollow external" target="_blank">
-                        {ev.source_label ?? ev.label} ↗
+                      <a href={evProv.genericUrl} rel="noopener nofollow external" target="_blank">
+                        {evProv.label} ↗
                       </a>
                       <span class="d__scope"> — general source, not this record</span>
                     </>
                   ) : (
                     <span class="d__howto">
-                      <strong>{ev.label} — no direct link.</strong> {ev.how_to_verify}
+                      <strong>{ev.label} — no direct link.</strong> {evProv.howToVerify}
                     </span>
                   )}
                   {observed?.known && <span class="d__basis">Observed {observed.text}</span>}
@@ -320,12 +356,18 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
               <h2>Evidence</h2>
               <dl class="d__evd">
                 <dt>Kind</dt>
-                <dd>{ev.kind}</dd>
+                <dd>{EVIDENCE_KIND_BADGE[ev.kind]}</dd>
                 <dt>Sale date</dt>
                 <dd>
-                  {saleDate?.known ? saleDate.text : <span class="unk">not published</span>}
+                  {
+                    saleDate?.known ? (
+                      saleDatePassed ? <span class="unk">sale date passed — was {saleDate.text}</span> : saleDate.text
+                    ) : (
+                      <span class="unk">not published</span>
+                    )
+                  }
                 </dd>
-                <dt>Opening bid</dt>
+                <dt>{ev.kind === 'auction' ? 'Opening bid' : 'Asking price'}</dt>
                 <dd>
                   {bid?.known ? <span class="num">{bid.text}</span> : <span class="unk">{bid?.text}</span>}
                 </dd>
@@ -390,6 +432,13 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
     color: var(--accent);
     text-decoration: none;
   }
+  .d__subaddr {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    margin: -0.2rem 0 0.5rem;
+    max-width: none;
+  }
   .d__badges {
     display: flex;
     gap: 0.4rem;
@@ -399,6 +448,11 @@ const bid = ev ? fmtMoney(ev.opening_bid, 'No opening bid published in the notic
   }
   .d__badges .tier {
     text-decoration: none;
+  }
+  .tag--distress {
+    color: var(--warn);
+    border-color: color-mix(in srgb, var(--warn) 50%, transparent);
+    background: color-mix(in srgb, var(--warn) 14%, var(--surface));
   }
   .d__grid {
     display: grid;

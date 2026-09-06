@@ -99,4 +99,26 @@ meta-gate that asserts this. A gate with no failing fixture is not a gate.
 
 ## Status
 
-Planning complete (see `docs/`). Build in progress. **Nothing here is live yet.**
+**The site is live:** https://mcorbett51090.github.io/blue-ridge-deal-finder/
+
+It is a personal tool for one user, kept honest by a build that fails closed rather than a
+promise. Two things worth knowing before you trust anything on it:
+
+- **This is a frozen snapshot, not a live feed.** The corpus and the published payload were last
+  regenerated **2026-08-19/20**. The weekly parcel ingest and the daily deploy are both defined
+  (`.github/workflows/ingest-parcels.yml`, `deploy.yml`) but have not produced a newer run since —
+  unsticking that pipeline is tracked as follow-up work, not done in this pass. Until it runs
+  again, the data on the site gets **days-to-weeks older with every day that passes**, and the
+  hub says so: a stale/snapshot banner appears once Lane 1 is past its 48-hour freshness bar, and
+  `/status/` states the exact source-by-source last-success timestamp, including the sources that
+  have never run at all.
+- **Two lanes, and the site never blurs them.** *On market / in distress* (Lane 1 — currently
+  **8 rows**: county-owned parcels acquired through tax foreclosure, all in Jackson County, NC)
+  is the only thing expanded by default and is the only lane with a dated, sourced claim that a
+  property is actually for sale. *Prospecting* (Lane 2 — currently **650 rows**) is every scored
+  parcel in a covered county with **no** such evidence; it ships collapsed, labelled in full
+  everywhere it appears, and is a research list, not a listing feed.
+
+None of that is a defect report — it is what "frozen snapshot" means, stated in the one place
+(the site itself) where it can't go stale silently. See `/status/` on the live site for the
+current numbers, and `/about/` for what this project does and does not claim.

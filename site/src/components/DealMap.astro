@@ -37,11 +37,17 @@
  * lands. The consumer below reads one object either way — that swap touches this
  * file and nothing else.
  */
-import { featureCollection, bounds, sorted } from '../lib/deals';
+import { featureCollection, bounds, sorted, hasWater, waterIsUnknown } from '../lib/deals';
 
 const fc = featureCollection();
 const bb = bounds(sorted);
 const payload = JSON.stringify({ fc, bounds: bb });
+
+/** Same gate as the rail's disabled "Water on parcel" chip: water enrichment
+ *  has not touched a single published row yet, so a ring legend implying two
+ *  distinguishable states (has water / no water) would be describing a
+ *  distinction that cannot currently occur on this map. */
+const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
 ---
 
 <div class="mapwrap" data-map-root>
@@ -69,8 +75,16 @@ const payload = JSON.stringify({ fc, bounds: bb });
     </ul>
     <p class="maplegend__t">Ring</p>
     <ul class="maplegend__keys">
-      <li><span class="ring ring--water"></span>Water on parcel</li>
-      <li><span class="ring ring--none"></span>No water / unknown</li>
+      {
+        anyWaterKnown ? (
+          <>
+            <li><span class="ring ring--water"></span>Water on parcel</li>
+            <li><span class="ring ring--none"></span>No water / unknown</li>
+          </>
+        ) : (
+          <li class="maplegend__unmeasured">Water: not yet measured for any published parcel</li>
+        )
+      }
       <li><span class="ring ring--watch"></span>On your watchlist</li>
     </ul>
     <p class="maplegend__note">
@@ -624,6 +638,11 @@ const payload = JSON.stringify({ fc, bounds: bb });
   .ring--water { box-shadow: 0 0 0 2.4px var(--sig-water); }
   .ring--none { box-shadow: 0 0 0 1px var(--map-ink); }
   .ring--watch { background: var(--accent-on); box-shadow: 0 0 0 3px var(--accent); }
+  .maplegend__unmeasured {
+    font-style: italic;
+    color: var(--ink-soft);
+    list-style: none;
+  }
   .maplegend__note {
     max-width: none;
     line-height: 1.35;

@@ -1,4 +1,18 @@
 ---
+/**
+ * 404 — generic first, always. The reference version of this page opened with
+ * a watchlist-specific explanation ("If you arrived from your watchlist...")
+ * on EVERY 404, including the far more common ones: a mistyped URL, an old
+ * bookmark to a page that was never a /deal/ page, someone just poking around.
+ * Leading with a narrow, low-probability explanation on every miss reads as
+ * either confused or presumptuous.
+ *
+ * The generic paragraph below covers the actual population of 404s. The
+ * watchlist-specific note is a second paragraph, hidden by default and
+ * revealed by its own script ONLY when both are true: the missed URL was a
+ * /deal/<id>/ path, and that id (or any id) is actually on this browser's
+ * watchlist — i.e., only when it is actually the likely explanation.
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { withBase } from '../lib/nav';
 ---
@@ -9,15 +23,40 @@ import { withBase } from '../lib/nav';
       <p class="eyebrow">404</p>
       <h1>That page is not here</h1>
       <p class="page__lead">
-        If you arrived from your watchlist, the most likely reason is that the record left the
-        published set on a later run — a weights change, or enough new records outranking it. Your
-        watchlist shows that state explicitly rather than linking you here; if it sent you here
-        anyway, that is a bug worth reporting.
+        The link is wrong, the page moved, or it never existed at this address. Nothing about your
+        watchlist or your browser caused this — start from the map below.
       </p>
     </header>
+
+    <p class="callout callout--watchlist" data-404-watchlist hidden>
+      <strong>If you arrived from your watchlist:</strong> the more likely reason is that this
+      record left the published set on a later run — a weights change, or enough new records
+      outranking it. The watchlist tray shows that state explicitly ("no longer scored") rather than
+      linking you to a dead page; if it sent you here anyway, that is a bug worth reporting.
+    </p>
+
     <p>
       <a class="btn btn--primary" href={withBase('/')}>Back to the map</a>
       <a class="btn btn--ghost" href={withBase('/status/')}>Data status</a>
     </p>
   </div>
 </BaseLayout>
+
+<script>
+  import { getItems } from '../lib/watchlist';
+  (() => {
+    const note = document.querySelector<HTMLElement>('[data-404-watchlist]');
+    if (!note) return;
+    const m = location.pathname.match(/\/deal\/([^/]+)\/?$/);
+    if (!m) return; // this 404 was not a /deal/ URL at all — the generic copy is the whole answer
+    const id = decodeURIComponent(m[1]);
+    const items = getItems();
+    if (items.some((i) => i.id === id) || items.length > 0) note.hidden = false;
+  })();
+</script>
+
+<style>
+  .callout--watchlist {
+    margin-top: var(--space-m);
+  }
+</style>

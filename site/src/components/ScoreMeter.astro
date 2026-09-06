@@ -11,6 +11,25 @@
  * "there is definitely no water" are different facts, and a scoring system that
  * flattens them will confidently rank a county we can't see below a county we
  * can, which is precisely backwards.
+ *
+ * ── TWO FIXES IN THIS PASS ───────────────────────────────────────────────────
+ *
+ * 1. TN-ON-NC COPY. The old unscored message was one hardcoded sentence
+ *    ("for East Tennessee that is structural: the state's parcel layer
+ *    publishes no assessed value") shown on EVERY unscored card regardless of
+ *    state. Measured 2026-08-19: 500 of 508 unscored cards are NORTH Carolina,
+ *    where an assessed value IS published — those rows are unscored because no
+ *    for-sale/distress evidence and no water/livability enrichment have
+ *    reached them yet, a completely different fact from East Tennessee's
+ *    structural gap, and the NC cards were citing someone else's reason. The
+ *    caller now passes `assessedValueKnown` (a fact it already has) and the
+ *    copy branches on THAT, not on a place name.
+ *
+ * 2. SCORE HIERARCHY. A score built from one signal at ~31% confidence is not
+ *    a number worth leading with, however large the digit. When evidence is
+ *    LOW, the confidence/fraction line is promoted ahead of the number and the
+ *    number itself is shrunk and desaturated — demoted, not deleted; the value
+ *    is still there for anyone who wants it, just not shouting.
  */
 import type { ScoreBreakdown } from '../lib/types';
 import { isLowEvidence } from '../lib/deals';
@@ -21,8 +40,13 @@ interface Props {
   breakdown: ScoreBreakdown;
   confidence?: number | undefined;
   variant?: 'card' | 'detail';
+  /** Whether THIS record's assessed value is actually known. Gates the
+   *  unscored explanation — see the file header. Defaults to `true` (the
+   *  generic "not enriched yet" story) so a caller that forgets to pass it
+   *  never falls back to the wrong hardcoded state-specific claim. */
+  assessedValueKnown?: boolean;
 }
-const { score, breakdown, confidence, variant = 'card' } = Astro.props;
+const { score, breakdown, confidence, variant = 'card', assessedValueKnown = true } = Astro.props;
 
 const scored = breakdown.signals.filter((s) => s.value !== null);
 const unknown = breakdown.signals.filter((s) => s.value === null);
@@ -47,12 +71,10 @@ const contributions = scored
   .sort((a, b) => b.points - a.points);
 ---
 
-<div class={`sm sm--${variant}`} data-band={band}>
+<div class={`sm sm--${variant}`} data-band={band} data-low={!unscored && low ? 'true' : undefined}>
   <div class="sm__head">
     {/* ⛔ An unscored row must never render a bare blank where a number goes —
-        that reads as a broken render, not as an honest absence. Measured case:
-        every East Tennessee parcel, because the state publishes no assessed
-        value, so discount (w30) and per_acre (w20) have no input at all. */}
+        that reads as a broken render, not as an honest absence. */}
     <span class="sm__val num" aria-hidden="true">{unscored ? '—' : score}</span>
     <span class="visually-hidden">
       {unscored
@@ -66,6 +88,8 @@ const contributions = scored
         {!unscored && <span style={`width:${score}%`}></span>}
       </span>
       <span class="sm__meta">
+        {!unscored && low && <strong class="sm__lowtag">Low evidence</strong>}
+        {!unscored && low && ' · '}
         {unscored
           ? 'not scored — no signal could be measured'
           : <>scored from <strong class="num">{scored.length}</strong> of <strong class="num">{total}</strong> signals</>}
@@ -77,9 +101,21 @@ const contributions = scored
   {
     unscored && (
       <p class="sm__low">
-        Not scored. Every signal is unknown for this parcel — for East Tennessee that is structural:
-        the state's parcel layer publishes no assessed value, so discount and $/acre have no input at
-        all. This is not a low score; it is the absence of one.
+        {
+          assessedValueKnown === false ? (
+            <>
+              Not scored. Every signal is unknown for this parcel, and that is structural here: this
+              county's parcel layer publishes no assessed value, so discount and $/acre have no input
+              at all. This is not a low score; it is the absence of one.
+            </>
+          ) : (
+            <>
+              Not scored. This parcel has an assessed value, but no for-sale/distress evidence and no
+              water/livability enrichment have been joined to it yet — that pass has not reached this
+              parcel. This is not a low score; it is the absence of one.
+            </>
+          )
+        }
       </p>
     )
   }
@@ -175,12 +211,21 @@ const contributions = scored
     color: var(--score-5);
     min-width: 2ch;
     text-align: right;
+    order: 1;
   }
   [data-band='1'] .sm__val { color: var(--score-1); }
   [data-band='2'] .sm__val { color: var(--score-2); }
   [data-band='3'] .sm__val { color: var(--score-3); }
   [data-band='4'] .sm__val { color: var(--score-4); }
   [data-band='5'] .sm__val { color: var(--score-5); }
+  /* Band 0 = unscored. It is OFF the ramp, not the bottom of it — without this
+     rule it fell through to the base `.sm__val` colour (`--score-5`, the
+     STRONGEST stop), so the "—" for a parcel nothing could be measured for
+     rendered in the boldest, most confident colour on the entire ramp. Same
+     desaturated grey the map already uses for the same state. */
+  [data-band='0'] .sm__val {
+    color: var(--score-unknown);
+  }
   /* Bands 1–2 are pale by design; on the light theme they need a darker ink to
      stay legible as TEXT, so the ramp only drives the bar there. */
   :root:not([data-theme='hollow']) [data-band='1'] .sm__val,
@@ -192,6 +237,7 @@ const contributions = scored
     gap: 0.25rem;
     flex: 1;
     min-width: 0;
+    order: 2;
   }
   .sm__bar {
     display: block;
@@ -218,6 +264,31 @@ const contributions = scored
   .sm__meta strong {
     color: var(--ink);
   }
+  .sm__lowtag {
+    color: var(--warn);
+  }
+
+  /* ── SCORE HIERARCHY — demote the number under the confidence line when
+     evidence is thin (`data-low`). `order` (not `flex-direction: row-reverse`,
+     which would also flip alignment) swaps which element leads visually
+     without touching the LTR reading order of either child's own content. The
+     number shrinks and loses its ramp colour: still present, no longer the
+     first or loudest thing on the card. Selector specificity — one extra
+     attribute selector — beats the `[data-band='N']` colour rules above
+     regardless of source order, so this does not need `!important`. */
+  .sm[data-low='true'] .sm__val {
+    order: 2;
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+    text-align: left;
+  }
+  .sm[data-low='true'] .sm__of {
+    order: 1;
+  }
+  .sm[data-low='true'] .sm__bar {
+    opacity: 0.6;
+  }
+
   .sm__low {
     margin-top: 0.45rem;
     font-size: var(--step--2);
