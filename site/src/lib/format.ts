@@ -75,3 +75,26 @@ export function fmtDistance(m: number | null): Maybe {
   if (m < 1000) return { known: true, text: `${Math.round(m)} m away` };
   return { known: true, text: `${(m / 1000).toFixed(1)} km away` };
 }
+
+/**
+ * Humanise a parcel-use string for DISPLAY only — never change the value used
+ * for filtering (`data-use` / the rail's `<option value>` stay the raw county
+ * string, so a saved filter or a deep link still matches exactly).
+ *
+ * Two things this project's own use-code values need and never had:
+ *  - A bare numeric county code ("511", "100", "1") is a real value, not
+ *    nonsense, but this project has no verified decode table for it and will
+ *    not invent one — a WRONG guess at what "511" means is worse than an
+ *    honest "not decoded". So it is labelled as exactly that.
+ *  - Everything else in the corpus is SHOUTING ("RESIDENTIAL 1 FAMILY",
+ *    "RURAL VACANT") because that is how the source system stores it. Title
+ *    Case is a pure text transform — it does not change what the value means,
+ *    only how loud it reads next to prose that isn't.
+ */
+export function fmtParcelUse(raw: string): string {
+  const trimmed = raw.trim();
+  if (/^\d+$/.test(trimmed)) return `Use code ${trimmed} (county-specific, not decoded)`;
+  const isShouting = trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed);
+  if (!isShouting) return trimmed;
+  return trimmed.toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase());
+}

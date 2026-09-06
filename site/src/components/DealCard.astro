@@ -25,8 +25,18 @@
  *
  * NO OWNER NAMES. The only owner-derived facts rendered anywhere below are
  * booleans and a tenure integer.
+ *
+ * ── POLISH PASS (this file) ──────────────────────────────────────────────────
+ * Reordered so a reader sees PRICE, the EVIDENCE LINK and the PRIMARY SOURCE
+ * before the score meter, not after it — every published Lane-1 row today is
+ * a distress lead with a confidence of ~31%, and a giant coloured "60" leading
+ * the card overstated a number nobody should weight heavily yet. The evidence
+ * link itself was ALSO silently broken (see `evidenceProvenanceOf` in
+ * lib/deals.ts) — every one of the 8 Lane-1 cards read "No direct link" while
+ * actually carrying a real, fetched link the old code never checked for.
  */
 import type { Listing } from '../lib/types';
+import { evidencePrice } from '../lib/types';
 import { withBase } from '../lib/nav';
 import {
   laneOf,
@@ -38,8 +48,12 @@ import {
   waterLabel,
   inFloodplain,
   provenanceOf,
+  evidenceProvenanceOf,
+  EVIDENCE_KIND_BADGE,
+  isDistressLead,
+  siteAddressOf,
 } from '../lib/deals';
-import { fmtAcres, fmtDate, fmtMoney, fmtPerAcre } from '../lib/format';
+import { fmtAcres, fmtDate, fmtMoney, fmtParcelUse, fmtPerAcre } from '../lib/format';
 import ScoreMeter from './ScoreMeter.astro';
 import WatchButton from './WatchButton.astro';
 
@@ -60,17 +74,36 @@ const price = fmtMoney(l.price);
 const flood = inFloodplain(l);
 const water = hasWater(l);
 const waterUnknown = waterIsUnknown(l);
+const addr = siteAddressOf(l);
 const ev = l.for_sale_evidence;
+const evProv = ev ? evidenceProvenanceOf(ev) : null;
+const evPrice = ev ? fmtMoney(evidencePrice(ev)) : null;
+const priceLabel = ev?.kind === 'auction' ? 'Opening bid' : 'Asking';
 const observed = ev ? fmtDate(ev.observed_at) : null;
-const saleDate = ev ? fmtDate(ev.sale_date) : null;
+const saleDate = ev ? fmtDate(ev.sale_date ?? null) : null;
+const saleDatePassed = !!(ev?.sale_date && Date.parse(ev.sale_date) < Date.now());
+
+/** Unknown acreage/assessed value COLLAPSE into one line instead of each
+ *  getting its own half-empty-looking grid slot (a `<dt>`/`<dd>` pair whose
+ *  only content is the word "unknown" reads like a broken render next to a
+ *  real number in the next cell over — a UI shape problem, not an honesty
+ *  one; the fact itself is still stated, just not as its own slot). */
+const unknownFacts: string[] = [];
+if (!acres.known) unknownFacts.push('acreage');
+if (!value.known) unknownFacts.push('assessed value');
 
 /** The vintage string. An assessed value with no year is a number with no
- *  meaning, and a county about to reappraise is about to invalidate it. */
+ *  meaning, and a county about to reappraise is about to invalidate it.
+ *  ⛔ `!= null`, not `!== undefined` — the published payload spells "unknown"
+ *  as an explicit `null` on this field (150 rows, all East Tennessee), and
+ *  `!== undefined` let every one of them through, producing the literal text
+ *  "assessed null (2026y old) · Cocke reappraises null" on 150 built pages.
+ *  Measured 2026-08-19 in dist/. */
 const vintage = (() => {
-  if (l.assessment_year === undefined) return null;
+  if (l.assessment_year == null) return null;
   const age = new Date().getFullYear() - l.assessment_year;
   const base = `assessed ${l.assessment_year}${age > 0 ? ` (${age}y old)` : ''}`;
-  return l.reappraisal_year !== undefined
+  return l.reappraisal_year != null
     ? `${base} · ${l.county} reappraises ${l.reappraisal_year}`
     : base;
 })();
@@ -93,7 +126,7 @@ const vintage = (() => {
   data-water={water ? 'true' : 'false'}
   data-water-unknown={waterUnknown ? 'true' : 'false'}
   data-flood={flood === null ? 'unknown' : flood ? 'true' : 'false'}
-  data-search={`${l.site_address ?? ''} ${l.county} ${l.state} ${l.parcel_use} ${l.id}`.toLowerCase()}
+  data-search={`${addr ?? ''} ${l.county} ${l.state} ${l.parcel_use} ${l.id}`.toLowerCase()}
 >
   <div class="dcard__top">
     <h3 class="dcard__name">
@@ -101,21 +134,34 @@ const vintage = (() => {
         {/* The situs address is how a person identifies a property; the county
             is how a database does. Lead with the address where one exists.
             26% of the corpus has none — 52% of VACANT parcels and 100% of
-            Avery County — so the county line is the fallback, never a blank. */}
-        {l.site_address ?? (showCounty ? `${l.county} County, ${l.state}` : l.parcel_use)}
-        <span class="dcard__id">#{l.id}</span>
+            Avery County — so the county line is the fallback, never a blank,
+            and never the literal "0 DEFAULT STREET" sentinel some counties
+            publish in place of a real address (see siteAddressOf). The record
+            id used to live inline here too; it is real but not what a human
+            reads a heading for, so it moved to its own small line below. */}
+        {addr ?? (showCounty ? `${l.county} County, ${l.state}` : fmtParcelUse(l.parcel_use))}
       </a>
     </h3>
     <WatchButton id={l.id} county={l.county} state={l.state} score={l.score} />
   </div>
+  <p class="dcard__id">#{l.id}</p>
 
   <p class="dcard__addr">
     {
-      l.site_address
+      addr
         ? `${l.county} County, ${l.state}`
         : `${l.county} County, ${l.state} · no street address on record`
     }
   </p>
+
+  {/* Short, factual, and next to the one control a reader might actually use
+      on this card — not a funnel to anywhere, just the reminder that nothing
+      above is a substitute for the three things that actually confirm a
+      property. Scoped to Lane 1: Lane 2 already carries its own "these are
+      not listings" warning wherever it appears. */}
+  {lane === 'market' && (
+    <p class="dcard__nextstep">Next step: confirm with the deed, a survey and the county — not this page.</p>
+  )}
 
   <p class="dcard__lane">
     <span class={`tag tag--lane-${lane}`}>{LANE_LABEL[lane]}</span>
@@ -128,9 +174,101 @@ const vintage = (() => {
         <span class="tier tier--notices-only">County not in the covered set</span>
       )
     }
+    {
+      ev && (
+        <span class={`tag ${isDistressLead(ev.kind) ? 'tag--distress' : 'tag--lane-market'}`}>
+          {EVIDENCE_KIND_BADGE[ev.kind]}
+        </span>
+      )
+    }
   </p>
 
-  {/* ⛔ CHEAPNESS FIRST, and as a SENTENCE not a number. This is the axis the
+  {/* ⛔ LEAD WITH PRICE, THE EVIDENCE LINK AND THE PRIMARY SOURCE. These are
+      the three things a reader needs to act on a Lane-1 row, and they used to
+      sit below a full-size score meter that, for every published Lane-1 row
+      today, is built from one signal at 31% confidence. Demoting theatre and
+      promoting substance is the same move in both directions. */}
+  <div class="dcard__lead">
+    {
+      evPrice?.known && (
+        <p class="dcard__price">
+          <span class="dcard__price-k">{priceLabel}</span>
+          <span class="dcard__price-v num">{evPrice.text}</span>
+        </p>
+      )
+    }
+    {
+      ev ? (
+        <p class="dcard__ev">
+          <strong>{ev.label}</strong>
+          {
+            saleDate?.known && (
+              saleDatePassed ? (
+                <> · <span class="dcard__saledate-passed">sale date passed</span> (was {saleDate.text})</>
+              ) : (
+                <> · sale {saleDate.text}</>
+              )
+            )
+          }
+          <br />
+          {
+            evProv?.recordUrl ? (
+              <a href={evProv.recordUrl} rel="noopener nofollow external" target="_blank">
+                Evidence source ↗
+              </a>
+            ) : evProv?.genericUrl ? (
+              <>
+                <a href={evProv.genericUrl} rel="noopener nofollow external" target="_blank">
+                  {evProv.label} ↗
+                </a>
+                <span class="dcard__scope"> — general source, not this record</span>
+              </>
+            ) : (
+              <span class="dcard__howto" title={evProv?.howToVerify ?? undefined}>
+                No direct link — {evProv?.howToVerify}
+              </span>
+            )
+          }
+          {observed?.known && <span class="dcard__sub"> observed {observed.text}</span>}
+        </p>
+      ) : (
+        <p class="dcard__ev dcard__ev--none">
+          No for-sale or distress evidence found. This is a research record, not a listing.
+        </p>
+      )
+    }
+
+    {/*
+      A source link must show the RECORD. Where a county publishes no
+      per-record page we say so and give instructions — never a homepage
+      standing in for provenance, which is what shipped before and is worse
+      than nothing because it looks like verification.
+    */}
+    <p class="dcard__src">
+      {
+        prov.recordUrl ? (
+          <a href={prov.recordUrl} rel="noopener nofollow external" target="_blank">
+            Exact parcel record ↗
+          </a>
+        ) : prov.genericUrl ? (
+          /* Owner ruling: a generic link is wanted where no per-record page
+             exists — but it must SAY it is generic, or it reads as record-level
+             provenance and is not. The label is the honesty, not the link. */
+          <>
+            <a href={prov.genericUrl} rel="noopener nofollow external" target="_blank">
+              {prov.label} ↗
+            </a>
+            <span class="dcard__scope"> — general source, not this record</span>
+            {prov.howToVerify && <span class="dcard__howto"> {prov.howToVerify}</span>}
+          </>
+        ) : (
+          <span class="dcard__howto">No direct link — {prov.howToVerify}</span>
+        )
+      }
+    </p>
+  </div>
+
+  {/* ⛔ CHEAPNESS, and as a SENTENCE not a number. This is the axis the
       shortlist was actually selected on, so it is the honest headline. The
       published set is the cheapest ~0.25% of the corpus, which means every
       cheapness value lands in 99.7–100 — printing "99.9972" would look precise
@@ -143,54 +281,43 @@ const vintage = (() => {
     </p>
   )}
 
-  <ScoreMeter score={l.score} breakdown={l.score_breakdown} confidence={l.confidence} />
+  <ScoreMeter
+    score={l.score}
+    breakdown={l.score_breakdown}
+    confidence={l.confidence}
+    assessedValueKnown={value.known}
+  />
 
   <dl class="dcard__facts">
-    <div>
-      <dt>Acreage</dt>
-      <dd>
-        {
-          acres.known ? (
-            <>
-              <span class="num">{acres.text}</span>
-              {l.acreage_basis === 'gis' && (
-                <span class="tag tag--neutral" title="Measured from the published parcel polygon, which is not a survey.">
-                  GIS-derived
-                </span>
-              )}
-              {l.acreage_basis === 'deeded' && (
-                <span class="tag tag--neutral" title="Acreage as stated on the deed, not measured from the polygon. Deeded and GIS acreage diverge — measured up to 29% on East Tennessee samples — so this figure is not comparable to a GIS-derived one.">
-                  from deed
-                </span>
-              )}
-              {l.acreage_basis === 'assessor' && <span class="tag tag--neutral">assessor-stated</span>}
-            </>
-          ) : (
-            <span class="unk" title={acres.why}>{acres.text}</span>
-          )
-        }
-      </dd>
-    </div>
-    <div>
-      <dt>Assessed value</dt>
-      <dd>
-        {
-          value.known ? (
-            <>
-              <span class="num">{value.text}</span>
-              {perAcre.known && <span class="dcard__sub num">{perAcre.text}</span>}
-            </>
-          ) : (
-            <span class="unk" title={value.why}>{value.text}</span>
-          )
-        }
-      </dd>
-    </div>
     {
-      price.known && (
+      acres.known && (
         <div>
-          <dt>{ev?.opening_bid !== null && ev?.opening_bid !== undefined ? 'Opening bid' : 'Asking'}</dt>
-          <dd><span class="num">{price.text}</span></dd>
+          <dt>Acreage</dt>
+          <dd>
+            <span class="num">{acres.text}</span>
+            {l.acreage_basis === 'gis' && (
+              <span class="tag tag--neutral" title="Measured from the published parcel polygon, which is not a survey.">
+                GIS-derived
+              </span>
+            )}
+            {l.acreage_basis === 'deeded' && (
+              <span class="tag tag--neutral" title="Acreage as stated on the deed, not measured from the polygon. Deeded and GIS acreage diverge — measured up to 29% on East Tennessee samples — so this figure is not comparable to a GIS-derived one.">
+                from deed
+              </span>
+            )}
+            {l.acreage_basis === 'assessor' && <span class="tag tag--neutral">assessor-stated</span>}
+          </dd>
+        </div>
+      )
+    }
+    {
+      value.known && (
+        <div>
+          <dt>Assessed value</dt>
+          <dd>
+            <span class="num">{value.text}</span>
+            {perAcre.known && <span class="dcard__sub num">{perAcre.text}</span>}
+          </dd>
         </div>
       )
     }
@@ -209,83 +336,31 @@ const vintage = (() => {
       </dd>
     </div>
   </dl>
+  {
+    unknownFacts.length > 0 && (
+      <p class="dcard__unk">
+        {unknownFacts.map((f) => f[0].toUpperCase() + f.slice(1)).join(' and ')} not published for this parcel.
+      </p>
+    )
+  }
 
   <p class="dcard__tags">
-    <span class="tag tag--neutral">{l.parcel_use}</span>
+    <span class="tag tag--neutral">{fmtParcelUse(l.parcel_use)}</span>
     {flood === true && <span class="tag tag--lane-market">In floodplain ({l.flood_zone})</span>}
     {flood === false && <span class="tag tag--neutral">Outside floodplain ({l.flood_zone})</span>}
     {flood === null && <span class="tag tag--unknown">Floodplain unknown</span>}
     {l.owner_out_of_state === true && <span class="tag tag--neutral">Out-of-state owner</span>}
     {l.owner_is_entity === true && <span class="tag tag--neutral">Entity-owned</span>}
-    {l.tenure_years !== undefined && <span class="tag tag--neutral">Held {l.tenure_years}y</span>}
+    {/* ⛔ `!= null` — `tenure_years: null` (438 of 658 rows) previously passed
+        the `!== undefined` guard and rendered the literal text "Held y" with
+        no number, because `{null}` renders nothing in the template while the
+        surrounding "Held" and "y" text still printed. Measured 2026-08-19 in
+        dist/: 438 cards read "Held y". */}
+    {l.tenure_years != null && <span class="tag tag--neutral">Held {l.tenure_years}y</span>}
   </p>
 
   {vintage && <p class="dcard__vintage">{vintage}</p>}
   {l.note && <p class="dcard__note">{l.note}</p>}
-
-  {
-    ev ? (
-      <p class="dcard__ev">
-        <strong>{ev.label}</strong>
-        {saleDate?.known && <> · sale {saleDate.text}</>}
-        <br />
-        {
-          ev.record_url ? (
-            <a href={ev.record_url} rel="noopener nofollow external" target="_blank">
-              Evidence source ↗
-            </a>
-          ) : ev.source_url ? (
-            <>
-              <a href={ev.source_url} rel="noopener nofollow external" target="_blank">
-                {ev.source_label ?? 'County source'} ↗
-              </a>
-              <span class="dcard__scope"> — general source, not this record</span>
-            </>
-          ) : (
-            <span class="dcard__howto" title={ev.how_to_verify}>
-              No direct link — {ev.how_to_verify}
-            </span>
-          )
-        }
-        {observed?.known && <span class="dcard__sub"> observed {observed.text}</span>}
-      </p>
-    ) : (
-      <p class="dcard__ev dcard__ev--none">
-        No for-sale or distress evidence found. This is a research record, not a listing.
-      </p>
-    )
-  }
-
-  {/*
-    A source link must show the RECORD. Where a county publishes no per-record
-    page we say so and give instructions — never a homepage standing in for
-    provenance, which is what shipped before and is worse than nothing because
-    it looks like verification.
-  */}
-  <p class="dcard__src">
-    {
-      prov.recordUrl ? (
-        <a href={prov.recordUrl} rel="noopener nofollow external" target="_blank">
-          Exact parcel record ↗
-        </a>
-      ) : prov.genericUrl ? (
-        /* Owner ruling: a generic link is wanted where no per-record page
-           exists — but it must SAY it is generic, or it reads as record-level
-           provenance and is not. The label is the honesty, not the link. */
-        <>
-          <a href={prov.genericUrl} rel="noopener nofollow external" target="_blank">
-            {prov.label} ↗
-          </a>
-          <span class="dcard__scope"> — general source, not this record</span>
-          {prov.howToVerify && (
-            <span class="dcard__howto"> {prov.howToVerify}</span>
-          )}
-        </>
-      ) : (
-        <span class="dcard__howto">No direct link — {prov.howToVerify}</span>
-      )
-    }
-  </p>
 </li>
 
 <style>
@@ -376,12 +451,20 @@ const vintage = (() => {
     text-decoration: underline;
   }
   .dcard__id {
-    display: block;
+    margin: -0.3rem 0 0;
     font-family: var(--font-ui);
     font-size: var(--step--2);
     color: var(--ink-soft);
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.03em;
+    max-width: none;
+  }
+  .dcard__nextstep {
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    font-style: italic;
+    max-width: none;
   }
   .dcard__lane {
     display: flex;
@@ -391,6 +474,41 @@ const vintage = (() => {
   }
   .dcard__lane .tier {
     text-decoration: none;
+  }
+  .tag--distress {
+    color: var(--warn);
+    border-color: color-mix(in srgb, var(--warn) 50%, transparent);
+    background: color-mix(in srgb, var(--warn) 14%, var(--surface));
+  }
+  .dcard__lead {
+    display: grid;
+    gap: 0.35rem;
+    padding: var(--space-2xs) var(--space-xs);
+    border: var(--hairline) solid var(--rule);
+    border-radius: var(--radius-s);
+    background: var(--band);
+  }
+  .dcard__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--font-ui);
+  }
+  .dcard__price-k {
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: var(--step--2);
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .dcard__price-v {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    color: var(--ink);
+  }
+  .dcard__saledate-passed {
+    color: var(--ink-soft);
+    font-style: italic;
   }
   .dcard__facts {
     display: grid;
@@ -417,6 +535,13 @@ const vintage = (() => {
     color: var(--ink-soft);
     font-size: var(--step--2);
   }
+  .dcard__unk {
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    font-style: italic;
+    max-width: none;
+  }
   .dcard__tags {
     display: flex;
     gap: 0.3rem;
@@ -437,9 +562,6 @@ const vintage = (() => {
   .dcard__ev {
     font-family: var(--font-ui);
     font-size: var(--step--1);
-    margin-top: auto;
-    padding-top: var(--space-2xs);
-    border-top: var(--hairline) solid var(--rule);
     max-width: none;
   }
   .dcard__ev strong {
