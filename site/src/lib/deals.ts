@@ -25,6 +25,7 @@ import rawStatus from '../../public/data/status.json';
 import type {
   CoverageCounty,
   CoverageTier,
+  ForSaleEvidence,
   Lane,
   Listing,
   ScoreBreakdown,
@@ -80,6 +81,52 @@ export const LANE_BLURB: Record<Lane, string> = {
   prospect:
     'A parcel record says a property EXISTS. It does not say it is for sale, and nobody here has been asked whether they want to sell. Treat everything in this lane as research, not as a listing.',
 };
+
+/**
+ * How each `for_sale_evidence.kind` reads to a buyer, named up front rather
+ * than left to be inferred from prose buried at the bottom of a card.
+ *
+ * ⛔ Every kind published today (all 8 Lane-1 rows) is `county_owned_reo` —
+ * NONE is `'listing'`. A card that only names its lane ("On market / in
+ * distress") and otherwise looks like a normal listing (address, price,
+ * "Watch" button) invites exactly the wrong mental model: there is no realtor,
+ * no MLS, no showing to schedule. This badge is the one place that says which
+ * kind of transaction this actually is, in the same visual register as the
+ * lane tag, not buried in the evidence paragraph near the bottom of the card.
+ */
+export const EVIDENCE_KIND_BADGE: Record<ForSaleEvidence['kind'], string> = {
+  listing: 'For-sale listing',
+  county_owned_reo: 'County-owned (REO) — distress lead',
+  'tax-foreclosure': 'Tax foreclosure — distress lead',
+  'sheriff-sale': "Sheriff's sale — distress lead",
+  'master-in-equity': 'Master-in-equity sale — distress lead',
+  'estate-notice': 'Estate notice — distress lead',
+  auction: 'Auction — distress lead',
+};
+
+/** True for every evidence kind EXCEPT an actual for-sale listing — i.e. every
+ *  kind currently published. Drives the badge's visual treatment (warn colour
+ *  vs neutral) independent of the label text above. */
+export function isDistressLead(kind: ForSaleEvidence['kind']): boolean {
+  return kind !== 'listing';
+}
+
+/**
+ * A parcel's own address field, with one county-system sentinel filtered out.
+ *
+ * ⛔ 30 published rows carry the literal string `"0   DEFAULT STREET"` — an
+ * upstream placeholder for "no address on file", not a real street. Treating
+ * it as a real value renders it as this card's H1, indistinguishable from an
+ * actual situs address, which is the same class of lie as rendering a null
+ * assessed value as "$0": a sentinel dressed up as data. This is the one
+ * place that knows the sentinel, so callers get `null` (the site's one
+ * spelling of unknown) and never see the raw string.
+ */
+export function siteAddressOf(l: Listing): string | null {
+  const raw = l.site_address;
+  if (!raw) return null;
+  return /^0?\s*default\s+street$/i.test(raw.trim()) ? null : raw;
+}
 
 export const TIER_LABEL: Record<CoverageTier, string> = {
   rich: 'Rich coverage',
@@ -228,6 +275,14 @@ export const sorted = [...listings].sort(
  *  non-zero value, and to say why rather than looking broken. */
 export const NOTHING_IS_SCORED = listings.every((l) => l.score === null);
 
+/** True when NO published row has ever been through water enrichment — today's
+ *  state: `water` is `null` on all 658 rows (the NHD join has not run against
+ *  the published candidate set yet). Same failure mode as `NOTHING_IS_SCORED`:
+ *  a "Water on parcel" filter that can only ever return zero rows is not a
+ *  filter, it is a control that looks like it does something and does not. The
+ *  rail disables it and says why, on the same principle. */
+export const NO_WATER_ENRICHED = listings.every((l) => waterIsUnknown(l));
+
 export function byLane(lane: Lane): Listing[] {
   return sorted.filter((l) => laneOf(l) === lane);
 }
@@ -328,6 +383,29 @@ export type Provenance = {
   label: string;
   howToVerify: string | null;
 };
+
+/**
+ * Provenance for the FOR-SALE EVIDENCE specifically — same shape, same tier
+ * order as `provenanceOf()`, but reading the evidence object's own fields.
+ *
+ * ⛔ Both DealCard.astro and deal/[id].astro used to check `ev.record_url`
+ * then fall straight to `ev.source_url` — a field that does not exist on any
+ * of the 8 published Lane-1 rows today (the live pipeline emits `generic_url`
+ * / `generic_label` instead; `source_url` is a fixture-era name). Every one of
+ * those 8 rows — the entire on-market/distress lane, the thing this project
+ * is actually for — therefore rendered "No direct link" under its evidence,
+ * even though all 8 carry a real, fetched `generic_url` to the county's own
+ * published REO list. Measured 2026-08-19 in the built dist/. This function is
+ * the fix, in one place, so a card and a detail page cannot disagree about it.
+ */
+export function evidenceProvenanceOf(ev: ForSaleEvidence): Provenance {
+  const rec = ev.record_url ?? null;
+  const how = ev.how_to_verify ?? null;
+  if (rec) return { recordUrl: rec, genericUrl: null, label: ev.label, howToVerify: how };
+  const gUrl = ev.generic_url ?? ev.source_url ?? null;
+  const gLabel = ev.generic_label ?? ev.source_label ?? ev.label;
+  return { recordUrl: null, genericUrl: gUrl, label: gLabel, howToVerify: how };
+}
 
 export function provenanceOf(l: Listing): Provenance {
   const p = (l as unknown as { provenance?: Record<string, unknown> }).provenance ?? {};
