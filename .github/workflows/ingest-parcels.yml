@@ -51,57 +51,47 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Gate family — must pass BEFORE any socket opens
         run: npm run verify
-
-      # ⛔ WITHOUT THIS STEP THIS WORKFLOW CANNOT SUCCEED, AND NEVER HAS.
-      # Measured: all three scheduled runs to date (32617980335, 33292578668,
-      # 34011615287) died on `prior warehouse state is EMPTY but 6 run
-      # manifest(s) exist` — the lost-state refusal in pipeline/store/warehouse.ts.
-      # data/warehouse/ is gitignored by design and the runner is ephemeral, so
-      # the corpus arrived empty every week and the guard correctly refused to
-      # publish a delta computed against nothing. The guard was right; the
-      # missing half was a way to carry the corpus between runs.
-      - name: Restore the warehouse (release asset -> data/warehouse/)
+      # ADR 0008 local mirror (~/blue-ridge-archive) remains the real backup;
+      # Actions cache is CI continuity only — it does not survive losing GitHub.
+      - name: Restore warehouse cache (CI continuity only)
+        id: warehouse-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/warehouse
+          key: brdf-warehouse-v1-${{ github.run_id }}
+          restore-keys: |
+            brdf-warehouse-v1-
+      - name: Seed warehouse from Release warehouse-ci (soft)
+        if: hashFiles('data/warehouse/warehouse-pointer.json') == ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/warehouse-remote.mjs restore
-
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p data/warehouse
+          # Soft: missing Release is not a hard fail — preflight below names
+          # the operator restore paths (cache / Release / local mirror).
+          gh release download warehouse-ci -D data/warehouse --clobber \
+            || echo "::notice::no Release tag warehouse-ci — soft miss; preflight will fail closed if still empty"
+      - name: Preflight — warehouse must be present before ingest
+        run: npm run ci:preflight-warehouse
       - name: Ingest NC parcels
-        id: ingest
         run: npm run ingest:parcels -- --counties="${{ inputs.counties }}"
-
-      # Immediately after the ingest and BEFORE the publish, deliberately: the
-      # corpus is the expensive, irreplaceable artifact and a later step failing
-      # must not be what loses it. Skipped as a no-op when the hash is unchanged.
-      - name: Persist the warehouse (data/warehouse/ -> release asset)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/warehouse-remote.mjs publish
-
-      # ⛔ THE PUBLISH PATH RAN IN NO WORKFLOW AT ALL. `npm run publish` is what
-      # turns the warehouse into listings.json, coverage.json and status.json —
-      # the Lane-1 rows and the freshness surface the site actually serves — and
-      # it appeared in none of the four workflow files. Deploy only ran
-      # `astro build` over whatever JSON happened to be committed, so those
-      # surfaces could only ever move when a human ran publish by hand. A
-      # scheduled ingest that never publishes updates nothing a reader can see.
-      #
-      # It runs HERE rather than in deploy.yml because it needs the warehouse,
-      # which exists only in this job. It is pure local computation over data
-      # already on disk — no socket, so it adds nothing to the cadence budget.
-      - name: Publish — warehouse in, site payload out
-        run: npm run publish
-
-      # Conditioned on the INGEST, not on the publish. The event log and the run
-      # manifest are true the moment the ingest returns, and they are the only
-      # record that the run happened at all — check-freshness.mjs reads exactly
-      # these. Losing them because a downstream projection failed would erase the
-      # evidence of a good run. The job still reports the publish failure.
-      - name: Commit event log, manifest + published surfaces
-        if: steps.ingest.outcome == 'success'
+      - name: Save warehouse cache (CI continuity only)
+        if: success()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/warehouse
+          key: brdf-warehouse-v1-${{ github.run_id }}
+      - name: Upload warehouse artifact
+        if: success()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: warehouse
+          path: data/warehouse
+          retention-days: 14
+      - name: Commit event log + manifest
         run: |
           git config user.name  "blue-ridge-bot"
           git config user.email "matt@ravenpower.net"
-          git add data/events data/runs data/coverage.json \
-                  publish/out site/src/data site/public/data
+          git add data/events data/runs data/coverage.json
           git diff --staged --quiet || git commit -m "ingest(parcels): $(date -u +%Y-%m-%dT%H:%MZ)"
           git push
