@@ -1,0 +1,127 @@
+---
+/**
+ * The hub's stale-snapshot banner.
+ *
+ * Server-rendered HIDDEN and revealed only by its own script, exactly like
+ * FreshnessBadge — a build cannot know whether it will still be fresh by the
+ * time someone loads the page, so the verdict (and therefore whether this
+ * banner shows at all) is computed in the browser, against the visitor's own
+ * clock, every time.
+ *
+ * Tone is deliberate: this states a fact and what it does and does not affect,
+ * without a red full-bleed "WARNING" treatment. The header badge already turns
+ * warm and says the same age; this is the one-time, once-per-visit expansion of
+ * "so what", not a second alarm.
+ */
+import { status } from '../lib/deals';
+import { site } from '../config/site';
+import { withBase } from '../lib/nav';
+
+const statusUrl = withBase('/data/status.json');
+const statusPageUrl = withBase('/status/');
+---
+
+<div
+  class="stale"
+  data-stale-banner
+  data-observed={status.data_observed_at ?? ''}
+  data-bar-hours={String(site.lane1FreshHours)}
+  data-status-url={statusUrl}
+  hidden
+>
+  <p class="stale__line">
+    <strong data-stale-headline>Checking data freshness…</strong>
+  </p>
+  <p class="stale__todo" data-stale-todo></p>
+  <p class="stale__more">
+    <a href={statusPageUrl}>Full source-by-source status →</a>
+  </p>
+</div>
+
+<script>
+  import { verdictFor, ageSuffix, whatToDo } from '../lib/freshness';
+
+  (() => {
+    const el = document.querySelector<HTMLElement>('[data-stale-banner]');
+    if (!el) return;
+    const barHours = Number(el.dataset.barHours || '48');
+    const headlineEl = el.querySelector<HTMLElement>('[data-stale-headline]');
+    const todoEl = el.querySelector<HTMLElement>('[data-stale-todo]');
+
+    function paint(iso: string | null) {
+      const v = verdictFor(iso, barHours);
+      // Honest, not alarming: this only ever appears when there is something
+      // to say. A fresh snapshot gets no banner at all.
+      if (v.state === 'ok') {
+        el!.hidden = true;
+        return;
+      }
+      el!.hidden = false;
+      el!.dataset.state = v.state;
+      if (headlineEl) {
+        headlineEl.textContent =
+          v.state === 'never'
+            ? 'No Lane 1 (on-market/distress) data has ever been observed.'
+            : `This is a snapshot, not a live feed — Lane 1 data ${ageSuffix(v, barHours).replace(/^—\s*/, '')}.`;
+      }
+      if (todoEl) todoEl.textContent = whatToDo(v.state) ?? '';
+    }
+
+    paint(el.dataset.observed || null);
+
+    const url = el.dataset.statusUrl;
+    if (!url) return;
+    fetch(url, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((j) => paint(typeof j?.data_observed_at === 'string' ? j.data_observed_at : null))
+      .catch(() => {
+        // Unreachable status file: still worth a calm note, not a scary one —
+        // it usually means a CDN edge is serving a cached page, not that data
+        // is wrong.
+        el.hidden = false;
+        el.dataset.state = 'unknown';
+        if (headlineEl) headlineEl.textContent = 'Freshness could not be checked for this page load.';
+        if (todoEl) {
+          todoEl.textContent =
+            'The status file did not respond. Reload, or check /status/ directly — this does not ' +
+            'mean the listings below are wrong, only that this page could not confirm how old they are.';
+        }
+      });
+  })();
+</script>
+
+<style>
+  .stale {
+    max-width: none;
+    border: var(--hairline) solid var(--rule);
+    border-left: 3px solid var(--warn);
+    background: var(--warn-bg);
+    border-radius: var(--radius-s);
+    padding: var(--space-xs) var(--space-s);
+    margin: var(--space-2xs) 0 var(--space-s);
+    font-family: var(--font-ui);
+  }
+  .stale[hidden] {
+    display: none;
+  }
+  .stale__line {
+    font-size: var(--step--1);
+    color: var(--warn);
+    max-width: none;
+  }
+  .stale__todo {
+    font-size: var(--step--2);
+    color: var(--ink-soft);
+    margin-top: 0.3rem;
+    max-width: 62ch;
+  }
+  .stale__more {
+    margin-top: 0.35rem;
+    font-size: var(--step--2);
+    max-width: none;
+  }
+  .stale__more a {
+    color: var(--accent);
+    font-weight: 600;
+  }
+</style>

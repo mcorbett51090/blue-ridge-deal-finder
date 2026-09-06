@@ -46,8 +46,12 @@ const dataUrl = withBase('/data/status.json');
 </a>
 
 <script>
-  // Recompute the verdict in the browser. `built_at` is deliberately ignored
-  // here: a build is not an observation.
+  // Recompute the verdict in the browser, from the ONE shared module — see
+  // lib/freshness.ts for why a second, independent computation is the bug
+  // this file used to be. `built_at` is deliberately ignored here: a build is
+  // not an observation.
+  import { verdictFor, ageSuffix, whatToDo } from '../lib/freshness';
+
   (() => {
     const el = document.querySelector<HTMLElement>('[data-fresh-badge]');
     if (!el) return;
@@ -56,26 +60,13 @@ const dataUrl = withBase('/data/status.json');
     const whenEl = el.querySelector<HTMLElement>('[data-fresh-when]');
 
     function paint(iso: string | null) {
-      if (!iso) {
-        el!.dataset.state = 'never';
-        if (ageEl) ageEl.textContent = '— nothing observed yet';
-        return;
-      }
-      const t = new Date(iso).getTime();
-      if (Number.isNaN(t)) {
-        el!.dataset.state = 'unknown';
-        if (ageEl) ageEl.textContent = '— freshness unknown';
-        return;
-      }
-      const hours = (Date.now() - t) / 3600000;
-      const rounded = hours < 1 ? '<1' : Math.floor(hours).toString();
-      el!.dataset.state = hours > barHours ? 'stale' : 'ok';
-      if (ageEl) {
-        ageEl.textContent =
-          hours > barHours
-            ? `— ${rounded} h old, past the ${barHours} h bar`
-            : `— ${rounded} h old`;
-      }
+      const v = verdictFor(iso, barHours);
+      el!.dataset.state = v.state;
+      if (ageEl) ageEl.textContent = ageSuffix(v, barHours);
+      // The "so what do I do" answer travels WITH the verdict, as the link's
+      // title — one hover away, never a separate fact to go find.
+      const todo = whatToDo(v.state);
+      el!.title = todo ?? 'Lane 1 (on-market/distress) data, measured against its freshness bar.';
     }
 
     paint(el.dataset.observed || null);
