@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T10:14:58.750Z",
+  "generated_at": "2026-09-10T16:12:48.143Z",
   "counties": [
     {
       "fips": "37189",
@@ -10,11 +10,11 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 46252,
-      "published": 107,
+      "published": 55,
       "scorable": 41081,
-      "ledger_status": "carried",
-      "last_ingested_at": null,
-      "note": "Collected and scored — the rows below are published from real parcel records. (Ledger note: the last run recorded this county as 'carried' while 46,252 of its parcels are present in the same warehouse — the row count is what is published here.)"
+      "ledger_status": "complete",
+      "last_ingested_at": "2026-09-10T16:05:00.925Z",
+      "note": "Collected and scored — the rows below are published from real parcel records."
     },
     {
       "fips": "37009",
@@ -25,10 +25,10 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 38698,
-      "published": 72,
+      "published": 43,
       "scorable": 37597,
       "ledger_status": "complete",
-      "last_ingested_at": "2026-08-19T15:48:58.294Z",
+      "last_ingested_at": "2026-09-10T16:05:00.925Z",
       "note": "Collected and scored — the rows below are published from real parcel records. (Source note: parvaltype=Market — not comparable to Assessed counties)"
     },
     {
@@ -40,10 +40,10 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 24034,
-      "published": 60,
+      "published": 32,
       "scorable": 24019,
       "ledger_status": "complete",
-      "last_ingested_at": "2026-08-19T15:48:58.294Z",
+      "last_ingested_at": "2026-09-10T15:49:35.805Z",
       "note": "Collected and scored — the rows below are published from real parcel records."
     },
     {
@@ -53,13 +53,13 @@
       "region": "Asheville",
       "tier": "rich",
       "parcel_source": "nc-onemap-parcels",
-      "data_state": "not-run",
-      "rows": null,
+      "data_state": "ingested",
+      "rows": 134729,
       "published": 0,
       "scorable": 0,
-      "ledger_status": "not-run",
-      "last_ingested_at": null,
-      "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: next reappraisal 2027 per NCDOR (last 2021)"
+      "ledger_status": "complete",
+      "last_ingested_at": "2026-09-10T16:05:00.925Z",
+      "note": "Collected, but NOTHING HERE CAN BE SCORED: this county publishes no assessed values, so every signal we have is unknown for every one of its parcels. That is a gap in what the county publishes, not a judgement about its land. (Source note: next reappraisal 2027 per NCDOR (last 2021)"
     },
     {
       "fips": "37089",
@@ -68,13 +68,13 @@
       "region": "Asheville",
       "tier": "rich",
       "parcel_source": "nc-onemap-parcels",
-      "data_state": "not-run",
-      "rows": null,
-      "published": 0,
-      "scorable": 0,
-      "ledger_status": "not-run",
-      "last_ingested_at": null,
-      "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero."
+      "data_state": "ingested",
+      "rows": 71158,
+      "published": 87,
+      "scorable": 64072,
+      "ledger_status": "complete",
+      "last_ingested_at": "2026-09-10T16:05:00.925Z",
+      "note": "Collected and scored — the rows below are published from real parcel records."
     },
     {
       "fips": "37087",
@@ -83,13 +83,13 @@
       "region": "NC High Country",
       "tier": "rich",
       "parcel_source": "nc-onemap-parcels",
-      "data_state": "not-run",
-      "rows": null,
-      "published": 0,
-      "scorable": 0,
-      "ledger_status": "not-run",
-      "last_ingested_at": null,
-      "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: parvaltype=Market; A19 tax-foreclosure page confirmed)"
+      "data_state": "ingested",
+      "rows": 50517,
+      "published": 68,
+      "scorable": 47774,
+      "ledger_status": "complete",
+      "last_ingested_at": "2026-09-10T16:05:00.925Z",
+      "note": "Collected and scored — the rows below are published from real parcel records. (Source note: parvaltype=Market; A19 tax-foreclosure page confirmed)"
     },
     {
       "fips": "37099",
@@ -100,10 +100,10 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 41291,
-      "published": 113,
+      "published": 66,
       "scorable": 39927,
       "ledger_status": "complete",
-      "last_ingested_at": "2026-08-19T15:48:58.294Z",
+      "last_ingested_at": "2026-09-10T16:05:00.925Z",
       "note": "Collected and scored — the rows below are published from real parcel records. (Source note: Glenville and Cashiers sit in this county — plateau parcels are already rich via the statewide anchor; see ADR 0009)"
     },
     {
@@ -113,13 +113,13 @@
       "region": "Highlands–Cashiers Plateau",
       "tier": "rich",
       "parcel_source": "nc-onemap-parcels",
-      "data_state": "not-run",
-      "rows": null,
-      "published": 0,
-      "scorable": 0,
-      "ledger_status": null,
-      "last_ingested_at": null,
-      "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: Highlands sits in this county — NC OneMap MapServer/1 reconfirmed live 2026-09-05: 44699 parcels; 97.3% non-zero Assessed value; same statewide anchor already serving Jackson/Transylvania; not yet ingested — see ADR 0009)"
+      "data_state": "ingested",
+      "rows": 44490,
+      "published": 69,
+      "scorable": 43406,
+      "ledger_status": "complete",
+      "last_ingested_at": "2026-09-10T16:05:00.925Z",
+      "note": "Collected and scored — the rows below are published from real parcel records. (Source note: Highlands sits in this county — NC OneMap MapServer/1 reconfirmed live 2026-09-05: 44699 parcels; 97.3% non-zero Assessed value; same statewide anchor already serving Jackson/Transylvania; not yet ingested — see ADR 0009)"
     },
     {
       "fips": "37115",
@@ -130,10 +130,10 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 21102,
-      "published": 53,
+      "published": 31,
       "scorable": 19412,
       "ledger_status": "complete",
-      "last_ingested_at": "2026-08-19T15:48:58.294Z",
+      "last_ingested_at": "2026-09-10T15:49:35.805Z",
       "note": "Collected and scored — the rows below are published from real parcel records."
     },
     {
@@ -145,10 +145,10 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 29204,
-      "published": 63,
+      "published": 38,
       "scorable": 28995,
       "ledger_status": "complete",
-      "last_ingested_at": "2026-08-19T15:48:58.294Z",
+      "last_ingested_at": "2026-09-10T16:05:00.925Z",
       "note": "Collected and scored — the rows below are published from real parcel records. (Source note: Sapphire/Toxaway fringe sits in this county — plateau parcels are already rich via the statewide anchor; see ADR 0009)"
     },
     {
@@ -163,7 +163,7 @@
       "published": 0,
       "scorable": 9,
       "ledger_status": "complete",
-      "last_ingested_at": "2026-08-19T15:28:22.027Z",
+      "last_ingested_at": "2026-09-10T15:49:35.805Z",
       "note": "Collected and scored: we hold this county's parcels and NONE of them ranked into the published set. This is a real zero, measured."
     },
     {
@@ -175,11 +175,11 @@
       "parcel_source": "nc-onemap-parcels",
       "data_state": "ingested",
       "rows": 17508,
-      "published": 40,
+      "published": 19,
       "scorable": 15498,
-      "ledger_status": "carried",
-      "last_ingested_at": null,
-      "note": "Collected and scored — the rows below are published from real parcel records. (Ledger note: the last run recorded this county as 'carried' while 17,508 of its parcels are present in the same warehouse — the row count is what is published here.)"
+      "ledger_status": "complete",
+      "last_ingested_at": "2026-09-10T15:49:35.805Z",
+      "note": "Collected and scored — the rows below are published from real parcel records."
     },
     {
       "fips": "47155",
@@ -188,13 +188,13 @@
       "region": "East TN",
       "tier": "partial",
       "parcel_source": "tn-property-boundaries",
-      "data_state": "ingested",
-      "rows": 70606,
-      "published": 43,
+      "data_state": "not-run",
+      "rows": null,
+      "published": 0,
       "scorable": 0,
-      "ledger_status": "complete",
-      "last_ingested_at": "2026-08-19T17:36:09.169Z",
-      "note": "Collected and scored — the rows below are published from real parcel records. (Source note: no assessed value; TPAD hop unsettled)"
+      "ledger_status": null,
+      "last_ingested_at": null,
+      "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
     },
     {
       "fips": "47029",
@@ -203,13 +203,13 @@
       "region": "East TN",
       "tier": "partial",
       "parcel_source": "tn-property-boundaries",
-      "data_state": "ingested",
-      "rows": 25259,
-      "published": 47,
+      "data_state": "not-run",
+      "rows": null,
+      "published": 0,
       "scorable": 0,
-      "ledger_status": "complete",
-      "last_ingested_at": "2026-08-19T17:36:09.169Z",
-      "note": "Collected and scored — the rows below are published from real parcel records. (Source note: no assessed value; TPAD hop unsettled)"
+      "ledger_status": null,
+      "last_ingested_at": null,
+      "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
     },
     {
       "fips": "47171",
@@ -218,13 +218,13 @@
       "region": "East TN",
       "tier": "partial",
       "parcel_source": "tn-property-boundaries",
-      "data_state": "ingested",
-      "rows": 10301,
-      "published": 9,
+      "data_state": "not-run",
+      "rows": null,
+      "published": 0,
       "scorable": 0,
-      "ledger_status": "complete",
-      "last_ingested_at": "2026-08-19T17:36:09.169Z",
-      "note": "Collected and scored — the rows below are published from real parcel records. (Source note: no assessed value; TPAD hop unsettled)"
+      "ledger_status": null,
+      "last_ingested_at": null,
+      "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
     },
     {
       "fips": "47091",
@@ -233,13 +233,13 @@
       "region": "East TN",
       "tier": "partial",
       "parcel_source": "tn-property-boundaries",
-      "data_state": "ingested",
-      "rows": 14175,
-      "published": 34,
+      "data_state": "not-run",
+      "rows": null,
+      "published": 0,
       "scorable": 0,
-      "ledger_status": "complete",
-      "last_ingested_at": "2026-08-19T17:36:09.169Z",
-      "note": "Collected and scored — the rows below are published from real parcel records. (Source note: no assessed value; TPAD hop unsettled)"
+      "ledger_status": null,
+      "last_ingested_at": null,
+      "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
     },
     {
       "fips": "47019",
@@ -248,13 +248,13 @@
       "region": "East TN",
       "tier": "partial",
       "parcel_source": "tn-property-boundaries",
-      "data_state": "ingested",
-      "rows": 31980,
-      "published": 17,
+      "data_state": "not-run",
+      "rows": null,
+      "published": 0,
       "scorable": 0,
-      "ledger_status": "complete",
-      "last_ingested_at": "2026-08-19T17:36:09.169Z",
-      "note": "Collected and scored — the rows below are published from real parcel records. (Source note: no assessed value; TPAD hop unsettled)"
+      "ledger_status": null,
+      "last_ingested_at": null,
+      "note": "A parcel source is registered for this county but has NOT BEEN RUN yet — this is an absence of collection, not a measurement of zero. (Source note: no assessed value; TPAD hop unsettled)"
     },
     {
       "fips": "51125",
