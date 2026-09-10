@@ -1,47 +1,55 @@
 {
-  "generated_at": "2026-08-20T10:14:58.750Z",
+  "generated_at": "2026-09-10T16:12:48.143Z",
   "warehouse": {
-    "file": "warehouse-2026-08-19T15-48-58.sqlite",
-    "sha256": "87d87fffd22ec40b55b50b9e417d4d0cf79dd8b9968c35cd8075169bc4aa4c0e",
-    "written_at": "2026-08-19T15:53:06.288Z"
+    "file": "warehouse-2026-09-10T16-05-00.sqlite",
+    "sha256": "a42c805f1743c5cc84eda4919c466a1088368f6442df21a2e577b2851793c773",
+    "written_at": "2026-09-10T16:09:47.434Z"
   },
-  "run_id": "2026-08-19T15-48-58",
-  "corpus_rows": 387742,
-  "published_rows": 658,
+  "run_id": "2026-09-10T16-05-00",
+  "corpus_rows": 536315,
+  "published_rows": 508,
   "excluded": {
-    "vetoed": 12225,
-    "no_scorable_signal": 375416,
-    "ranked_below_cutoff": 197282,
+    "vetoed": 22712,
+    "no_scorable_signal": 513502,
+    "ranked_below_cutoff": 345273,
     "cutoff": 500
   },
   "signals": {
     "known": {
       "water": 93,
-      "distress": 8,
-      "livability": 4
+      "livability": 4,
+      "distress": 8
     },
     "unknown": {
-      "discount": 387742,
-      "distress": 387734,
-      "water": 387649,
-      "livability": 387738
+      "discount": 536315,
+      "distress": 536307,
+      "water": 536222,
+      "livability": 536311
     }
   },
   "veto_by_reason": {
-    "acreage_below_min": 8009,
-    "owner_is_government": 3484,
-    "situs_excluded": 815,
-    "use_class_excluded": 1773
+    "owner_is_government": 5351,
+    "use_class_excluded": 4630,
+    "acreage_below_min": 14765,
+    "situs_excluded": 729
   },
   "cohorts": {
-    "total": 753,
-    "usable": 133,
+    "total": 1480,
+    "usable": 217,
     "min_cohort": 50
   },
   "value_floors": {
     "37009": {
       "value": 100,
       "rows_at_floor": 269
+    },
+    "37087": {
+      "value": 100,
+      "rows_at_floor": 545
+    },
+    "37089": {
+      "value": 100,
+      "rows_at_floor": 68
     },
     "37121": {
       "value": 100,
@@ -60,10 +68,10 @@
   },
   "provenance": {
     "with_record_url": 508,
-    "with_how_to_verify": 150
+    "with_how_to_verify": 0
   },
   "geometry": {
-    "rows_with_coordinates": 658,
+    "rows_with_coordinates": 0,
     "note": "The parcel ingest stores attributes only — lat/lng and bbox are NULL on every warehouse row, so no published row can be placed on the map yet. Published as null with a stated reason, never as 0,0."
   }
 }
