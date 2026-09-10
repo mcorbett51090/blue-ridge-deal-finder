@@ -241,7 +241,13 @@ async function main(): Promise<void> {
       }
     }
 
-    staged.push(...county0.rows);
+    // ⛔ NOT `staged.push(...county0.rows)`. Spreading a county's rows as
+    // individual push() arguments blows V8's call-stack argument limit once a
+    // single county clears roughly 100k rows — measured: Buncombe (134,741
+    // fetched) crashed here with `RangeError: Maximum call stack size
+    // exceeded` on the first real multi-county run this pipeline ever
+    // completed against a live warehouse. A per-row loop has no such limit.
+    for (const row of county0.rows) staged.push(row);
     completedFips.add(fips);
     countyReports.push({
       fips, county, status: 'complete',
