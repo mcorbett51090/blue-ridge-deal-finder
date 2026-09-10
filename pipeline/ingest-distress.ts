@@ -43,7 +43,22 @@ const registry = loadRegistry(ROOT);
 const client = new FetchClient(registry);
 const now = new Date().toISOString();
 
-const pointer = JSON.parse(readFileSync(join(ROOT, 'data/warehouse/warehouse-pointer.json'), 'utf8'));
+// ⛔ THE SAME GITIGNORED WAREHOUSE ingest-parcels.ts DEPENDS ON (ADR 0008,
+// docs/decisions/0010-ci-warehouse-store.md). This join needs the PARCELS
+// TABLE, not a delta, so it has no assertPriorStateNotLost-style guard of its
+// own — but on a hosted runner with no warehouse restored yet, the failure
+// was a bare ENOENT stack trace pointing at a path, not at what to do about
+// it. Named here so the CI operator lands on the bootstrap doc, not a guess.
+const pointerPath = join(ROOT, 'data/warehouse/warehouse-pointer.json');
+if (!existsSync(pointerPath)) {
+  throw new Error(
+    `no warehouse at ${pointerPath} — this join needs the parcels table nc-jackson-reo's PINs match ` +
+      'against, and none is present. On a hosted runner this means `node scripts/warehouse-remote.mjs ' +
+      "restore` found nothing to restore: see docs/decisions/0010-ci-warehouse-store.md. Locally, run " +
+      'pipeline/ingest-parcels.ts (or restore from ~/blue-ridge-archive) first.',
+  );
+}
+const pointer = JSON.parse(readFileSync(pointerPath, 'utf8'));
 const db = new DatabaseSync(join(ROOT, 'data/warehouse', pointer.current), { readOnly: true });
 
 const evidence: Record<string, Evidence> = {};

@@ -1,0 +1,77 @@
+name: Ingest distress evidence
+
+# ---------------------------------------------------------------------------
+# CADENCE JUSTIFICATION — a TERMS requirement, not a politeness knob (see the
+# longer version of this argument in ingest-parcels.yml).
+#
+# This job fetches exactly TWO documents: one static PDF (Jackson County REO)
+# and one small HTML page (Haywood County sale notices) — a couple of requests
+# total, at rates each source's own registry entry declares (rps 0.2 for
+# Haywood; see sources/sources.yaml). That is a different proportionality
+# picture from the 500k-row statewide parcel sweep, and the freshness it buys
+# matters more: this is Lane 1, "on market / in distress" — the only lane
+# with a dated, sourced claim that a property is actually for sale, and the
+# site holds it to a 48-hour freshness bar (site/src/config/site.ts). A weekly
+# cadence cannot clear a 48-hour bar with any margin; daily can.
+#
+# Still bounded, still off-:00, still one source per adapter — the discipline
+# is the same, the budget is just sized to what this job actually asks of two
+# small county sites.
+# ---------------------------------------------------------------------------
+on:
+  schedule:
+    # 11:05 UTC daily — off-hour, off-:00, and well clear of deploy.yml's 06:40
+    # run so a same-day publish has time to land before the site rebuilds.
+    - cron: '5 11 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ingest-distress
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Gate family — must pass BEFORE any socket opens
+        run: npm run verify
+
+      # Read-only restore: this job only JOINS against the parcels table
+      # (pipeline/ingest-distress.ts, PIN -> record_id) — it never writes to
+      # the warehouse, so there is no matching publish/upload step in this
+      # workflow. See docs/decisions/0010-ci-warehouse-store.md.
+      - name: Restore the warehouse (release asset -> data/warehouse/)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/warehouse-remote.mjs restore
+
+      - name: Ingest NC distress evidence (Jackson REO + Haywood notices)
+        id: ingest
+        run: npm run ingest:distress
+
+      # Same missing step as ingest-parcels.yml -- see the comment there. This
+      # is the one that actually moves the Lane-1 freshness badge and
+      # /status/'s data_observed_at; without it the evidence files above would
+      # update on disk but the SITE would never see it.
+      - name: Publish — warehouse in, site payload out
+        if: steps.ingest.outcome == 'success'
+        run: npm run publish
+
+      - name: Commit distress evidence + published payload
+        if: steps.ingest.outcome == 'success'
+        run: |
+          git config user.name  "blue-ridge-bot"
+          git config user.email "matt@ravenpower.net"
+          git add data/distress publish/out site/src/data site/public/data
+          git diff --staged --quiet || git commit -m "ingest(distress): $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push
