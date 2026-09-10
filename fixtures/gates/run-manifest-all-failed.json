@@ -1,0 +1,12 @@
+{
+  "_why": "A FAILED run manifest — every attempted county errored, none completed. Paired with an absurd --max-age-days, this proves the loosening that lets `partial` count does NOT also let `failed` count: a run that warehoused nothing new must stay UNKNOWN regardless of budget, or 'the ingest keeps failing' would read as fresh forever the day after the one run that ever succeeded.",
+  "run_id": "2026-01-02T04-17-00Z-nc-onemap-parcels",
+  "source_id": "nc-onemap-parcels",
+  "status": "failed",
+  "started_at": "2026-01-02T04:17:00.000Z",
+  "finished_at": "2026-01-02T04:17:30.000Z",
+  "counties": [
+    { "fips": "37199", "county": "Yancey", "status": "failed" }
+  ],
+  "totals": { "rows_warehoused": 0 }
+}

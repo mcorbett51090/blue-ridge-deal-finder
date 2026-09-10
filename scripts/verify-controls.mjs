@@ -83,7 +83,7 @@ dropScratch(baselineDir);
 for (const [gateFile, entries] of Object.entries(allEntries)) {
   if (!existsSync(join(root, 'scripts', gateFile))) continue;
   for (const entry of entries) {
-    const dir = makeScratch(entry.plant);
+    const dir = makeScratch(entry.plant, entry.clear ?? []);
     const { code, out } = runGate(gateFile, dir, entry.args ?? []);
     dropScratch(dir);
 

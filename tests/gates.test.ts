@@ -16,7 +16,13 @@ import { join } from 'node:path';
 import { dropScratch, makeScratch, runGate } from '../scripts/lib/scratch.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
-type Entry = { name: string; expect: 'red' | 'green'; plant?: Record<string, string>; args?: string[] };
+type Entry = {
+  name: string;
+  expect: 'red' | 'green';
+  plant?: Record<string, string>;
+  args?: string[];
+  clear?: string[];
+};
 type Manifest = {
   gates: Record<string, Entry[]>;
   non_verify_gates: Record<string, Entry[]>;
@@ -51,7 +57,7 @@ for (const gate of discovered) {
 for (const [gate, entries] of Object.entries(allEntries)) {
   for (const entry of entries) {
     test(`${gate} is ${entry.expect.toUpperCase()} on fixture '${entry.name}'`, () => {
-      const dir = makeScratch(entry.plant ?? {});
+      const dir = makeScratch(entry.plant ?? {}, entry.clear ?? []);
       try {
         const { code, out } = runGate(gate, dir, entry.args ?? []);
         if (entry.expect === 'red') {
