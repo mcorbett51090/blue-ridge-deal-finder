@@ -51,47 +51,65 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Gate family — must pass BEFORE any socket opens
         run: npm run verify
-      # ADR 0008 local mirror (~/blue-ridge-archive) remains the real backup;
-      # Actions cache is CI continuity only — it does not survive losing GitHub.
-      - name: Restore warehouse cache (CI continuity only)
-        id: warehouse-cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: data/warehouse
-          key: brdf-warehouse-v1-${{ github.run_id }}
-          restore-keys: |
-            brdf-warehouse-v1-
-      - name: Seed warehouse from Release warehouse-ci (soft)
-        if: hashFiles('data/warehouse/warehouse-pointer.json') == ''
+
+      # ⛔ WITHOUT THIS STEP THIS WORKFLOW CANNOT SUCCEED, AND FOR A WHILE
+      # NEVER DID. data/warehouse/ is gitignored by design (ADR 0008) and the
+      # runner is ephemeral, so the corpus arrived empty every scheduled run
+      # and pipeline/store/warehouse.ts's assertPriorStateNotLost correctly
+      # refused rather than publish a delta computed against nothing. The
+      # guard was right; the missing half was a way to carry the corpus
+      # between runs. See docs/decisions/0010-ci-warehouse-store.md.
+      #
+      # A PRIOR revision of this workflow tried `actions/cache` instead —
+      # wrong, for the reason scripts/warehouse-remote.mjs's own header states:
+      # cache entries are evicted after 7 days without a hit and the ingest
+      # cadence IS 7 days, so the only copy of the corpus rode on a coin flip.
+      # That revision also dropped the `npm run publish` step below, so even a
+      # successful ingest would never have reached the site. See ADR 0010 for
+      # the full history; this restores the release-asset design.
+      - name: Restore the warehouse (release asset -> data/warehouse/)
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p data/warehouse
-          # Soft: missing Release is not a hard fail — preflight below names
-          # the operator restore paths (cache / Release / local mirror).
-          gh release download warehouse-ci -D data/warehouse --clobber \
-            || echo "::notice::no Release tag warehouse-ci — soft miss; preflight will fail closed if still empty"
-      - name: Preflight — warehouse must be present before ingest
-        run: npm run ci:preflight-warehouse
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/warehouse-remote.mjs restore
+
       - name: Ingest NC parcels
+        id: ingest
         run: npm run ingest:parcels -- --counties="${{ inputs.counties }}"
-      - name: Save warehouse cache (CI continuity only)
-        if: success()
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: data/warehouse
-          key: brdf-warehouse-v1-${{ github.run_id }}
-      - name: Upload warehouse artifact
-        if: success()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: warehouse
-          path: data/warehouse
-          retention-days: 14
-      - name: Commit event log + manifest
+
+      # Immediately after the ingest and BEFORE the publish, deliberately: the
+      # corpus is the expensive, irreplaceable artifact and a later step
+      # failing must not be what loses it. A no-op when the hash is unchanged.
+      - name: Persist the warehouse (data/warehouse/ -> release asset)
+        if: steps.ingest.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/warehouse-remote.mjs publish
+
+      # ⛔ THE STEP THAT RAN IN NO WORKFLOW AT ALL. `npm run publish` is what
+      # turns the warehouse into listings.json, coverage.json and status.json
+      # — the Lane-1 rows and the freshness surface the site actually serves —
+      # and deploy.yml only ever runs `astro build` over whatever JSON is
+      # already committed. A scheduled ingest that never publishes moves
+      # nothing a reader can see. It runs here, not in deploy.yml, because it
+      # needs the warehouse, which exists only in this job; it is pure local
+      # computation over data already on disk, so it adds nothing to the
+      # cadence budget this workflow's header justifies.
+      - name: Publish — warehouse in, site payload out
+        if: steps.ingest.outcome == 'success'
+        run: npm run publish
+
+      # Conditioned on the INGEST, not on the publish. The event log and the
+      # run manifest are true the moment the ingest returns, and they are the
+      # only record that the run happened at all — check-freshness.mjs reads
+      # exactly these. Losing them because a downstream projection failed
+      # would erase the evidence of a good run; the job still reports the
+      # publish step's own failure separately if it has one.
+      - name: Commit event log, manifest + published surfaces
+        if: steps.ingest.outcome == 'success'
         run: |
           git config user.name  "blue-ridge-bot"
           git config user.email "matt@ravenpower.net"
-          git add data/events data/runs data/coverage.json
+          git add data/events data/runs data/coverage.json \
+                  publish/out site/src/data site/public/data
           git diff --staged --quiet || git commit -m "ingest(parcels): $(date -u +%Y-%m-%dT%H:%MZ)"
           git push
