@@ -1,0 +1,13 @@
+{
+  "_why": "A PARTIAL run manifest (some counties complete this run, the rest carried over as not-run) — same shape as every manifest this project has ever actually produced, since a full 12-county sweep succeeding in one run with nothing left `not-run` is the case that has never once happened. Paired with an absurd --max-age-days, this proves check-freshness.mjs now treats `partial` as usable evidence of freshness at all, matching publish/status.ts (`ok = complete`, `degraded = partial`, both count as a real last_success). Before this fixture, only `status: 'complete'` counted, so this exact, representative manifest shape read as UNKNOWN forever regardless of age.",
+  "run_id": "2026-01-01T03-17-00Z-nc-onemap-parcels",
+  "source_id": "nc-onemap-parcels",
+  "status": "partial",
+  "started_at": "2026-01-01T03:17:00.000Z",
+  "finished_at": "2026-01-01T03:41:12.000Z",
+  "counties": [
+    { "fips": "37199", "county": "Yancey", "status": "complete" },
+    { "fips": "37021", "county": "Buncombe", "status": "not-run" }
+  ],
+  "totals": { "rows_warehoused": 17332 }
+}

@@ -70,7 +70,8 @@ as not-yet-found, not closed.
 - **Honest user-agent, always.** Never a browser UA, never a bot/AI-named string.
 - **No owner names, ever published.** PII is consumed in memory and discarded at the redaction
   boundary; only booleans (`owner_out_of_state`, `tenure_years`) survive.
-- **Cadence is a terms requirement.** See the justification block in `ingest-parcels.yml`.
+- **Cadence is a terms requirement.** See the justification block in `ingest-parcels.yml` (weekly,
+  the 500k-row statewide sweep) and `ingest-distress.yml` (daily, two small per-county documents).
 
 ## Layout
 
@@ -104,14 +105,25 @@ meta-gate that asserts this. A gate with no failing fixture is not a gate.
 It is a personal tool for one user, kept honest by a build that fails closed rather than a
 promise. Two things worth knowing before you trust anything on it:
 
-- **This is a frozen snapshot, not a live feed.** The corpus and the published payload were last
-  regenerated **2026-08-19/20**. The weekly parcel ingest and the daily deploy are both defined
-  (`.github/workflows/ingest-parcels.yml`, `deploy.yml`) but have not produced a newer run since —
-  unsticking that pipeline is tracked as follow-up work, not done in this pass. Until it runs
-  again, the data on the site gets **days-to-weeks older with every day that passes**, and the
-  hub says so: a stale/snapshot banner appears once Lane 1 is past its 48-hour freshness bar, and
-  `/status/` states the exact source-by-source last-success timestamp, including the sources that
-  have never run at all.
+- **This is a frozen snapshot, not a live feed — and here is exactly why.** The corpus and the
+  published payload were last regenerated **2026-08-19/20**. `ingest-parcels.yml` (weekly) had
+  failed on *every* scheduled run since it was added, and `freshness.yml` had failed every run it
+  ever had: `data/warehouse/` is gitignored (ADR 0008) and a hosted CI runner is destroyed at the
+  end of every job, so the prior warehouse the pipeline needs to compute a real delta was
+  unconditionally absent, and its own guard correctly refused to publish a false "everything is
+  new" change feed against it, every time. `docs/decisions/0010-ci-warehouse-store.md` is the
+  fix — a GitHub Release now carries the warehouse between runs (`scripts/warehouse-remote.mjs`),
+  the missing `npm run publish` step now runs where the warehouse exists, `check-freshness.mjs` now
+  agrees with `/status/`'s own definition of a usable run, and a new daily `ingest-distress.yml`
+  gives Lane 1 a cadence that can actually clear its 48-hour bar. **It requires one operator step
+  this repo cannot perform for itself** — bootstrapping the Release from the real warehouse, which
+  lives only on the owner's machine (ADR 0008) — documented in that ADR. Until that step runs, both
+  workflows still fail exactly as described above, loudly and actionably rather than silently; once
+  it runs, the weekly parcel sweep, the daily distress ingest and the freshness heartbeat are all
+  designed to self-sustain without it again. Until then, the data on the site gets
+  **days-to-weeks older with every day that passes**, and the hub says so: a stale/snapshot banner
+  appears once Lane 1 is past its 48-hour freshness bar, and `/status/` states the exact
+  source-by-source last-success timestamp, including the sources that have never run at all.
 - **Two lanes, and the site never blurs them.** *On market / in distress* (Lane 1 — currently
   **8 rows**: county-owned parcels acquired through tax foreclosure, all in Jackson County, NC)
   is the only thing expanded by default and is the only lane with a dated, sourced claim that a

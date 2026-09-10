@@ -56,3 +56,14 @@ that lives inside the thing it monitors cannot report the thing's death.**
 Reasonable next step if this matters more later: a cron entry on the owner's
 machine, or a self-hosted runner. Neither is something the repo can arrange for
 itself.
+
+## See also
+
+`docs/decisions/0010-ci-warehouse-store.md` adds a *different* GitHub Release —
+tagged `warehouse-current`, holding the same warehouse the ingest workflows
+diff against between their own scheduled runs (`scripts/warehouse-remote.mjs`).
+That one purposely IS on GitHub: it is operational state for a workflow that
+already runs on GitHub and already has push access to this repo, not a
+disaster-recovery copy meant to survive losing GitHub. This ADR's "does not
+survive losing GitHub" argument is about the DR mirror above, and stands
+unchanged — see 0010 for why the two are not the same claim.

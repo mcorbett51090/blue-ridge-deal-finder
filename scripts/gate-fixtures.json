@@ -205,10 +205,12 @@
    {
     "name": "stale-run",
     "expect": "red",
+    "_why": "`clear` isolates data/runs/ from the real repo's own (accumulating) manifests, so this control keeps proving the AGE comparison rather than eventually being satisfied by unrelated fresh history landing there once real ingest runs succeed.",
     "args": [
      "--max-age-days",
      "10"
     ],
+    "clear": ["data/runs"],
     "plant": {
      "data/runs/2026-01-01-nc.json": "gates/run-manifest-stale.json"
     }
@@ -220,8 +222,35 @@
      "--max-age-days",
      "100000"
     ],
+    "clear": ["data/runs"],
     "plant": {
      "data/runs/2026-01-01-nc.json": "gates/run-manifest-stale.json"
+    }
+   },
+   {
+    "name": "partial-run-counts-as-fresh",
+    "expect": "green",
+    "_why": "Every manifest this project has ever produced is `partial` (or `failed`), never `complete` — a full 12-county sweep with zero not-run counties has not happened once. This proves that representative shape now counts, matching publish/status.ts's own treatment of `partial` as a real last_success.",
+    "args": [
+     "--max-age-days",
+     "100000"
+    ],
+    "clear": ["data/runs"],
+    "plant": {
+     "data/runs/2026-01-01-partial.json": "gates/run-manifest-partial-recent.json"
+    }
+   },
+   {
+    "name": "all-failed-run-stays-unknown",
+    "expect": "red",
+    "_why": "The loosening that lets `partial` count must not also let `failed` count — a run where every attempted county errored warehoused nothing new, so it must read UNKNOWN even at an absurd budget. `clear` keeps this isolated from the real repo's own (partial) manifests, which would otherwise make this pass for the wrong reason.",
+    "args": [
+     "--max-age-days",
+     "100000"
+    ],
+    "clear": ["data/runs"],
+    "plant": {
+     "data/runs/2026-01-02-failed.json": "gates/run-manifest-all-failed.json"
     }
    }
   ]
