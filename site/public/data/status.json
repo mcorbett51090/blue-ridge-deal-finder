@@ -4,9 +4,9 @@
     "fixture that shipped invented source history to production; see the",
     "header of publish/status.ts for what it claimed and why no gate caught it."
   ],
-  "data_observed_at": "2026-09-10T16:12:35.033Z",
-  "last_run_at": "2026-09-10T16:12:48.143Z",
-  "built_at": "2026-09-10T16:12:48.143Z",
+  "data_observed_at": "2026-09-11T11:19:19.455Z",
+  "last_run_at": "2026-09-11T11:19:21.609Z",
+  "built_at": "2026-09-11T11:19:21.609Z",
   "lane1_rows": 8,
   "lane2_rows": 500,
   "sources": [
@@ -40,8 +40,8 @@
     {
       "source_id": "haywood-tax-foreclosures-civicengage",
       "label": "haywood-tax-foreclosures-civicengage",
-      "last_success": "2026-09-10T16:12:35.033Z",
-      "last_attempt": "2026-09-10T16:12:35.033Z",
+      "last_success": "2026-09-11T11:19:19.455Z",
+      "last_attempt": "2026-09-11T11:19:19.455Z",
       "rows": 2,
       "state": "ok",
       "note": "No run manifest exists, but this source's output is on disk (data/distress/notices.json) and is what the site publishes. Timestamp is the artifact's own."
@@ -49,8 +49,8 @@
     {
       "source_id": "jackson-county-reo-pdf",
       "label": "jackson-county-reo-pdf",
-      "last_success": "2026-09-10T16:12:35.033Z",
-      "last_attempt": "2026-09-10T16:12:35.033Z",
+      "last_success": "2026-09-11T11:19:19.455Z",
+      "last_attempt": "2026-09-11T11:19:19.455Z",
       "rows": 8,
       "state": "ok",
       "note": "No run manifest exists, but this source's output is on disk (data/distress/evidence.json) and is what the site publishes. Timestamp is the artifact's own."
@@ -67,8 +67,8 @@
     {
       "source_id": "nc-haywood-bids",
       "label": "nc-haywood-bids",
-      "last_success": "2026-09-10T16:12:35.033Z",
-      "last_attempt": "2026-09-10T16:12:35.033Z",
+      "last_success": "2026-09-11T11:19:19.455Z",
+      "last_attempt": "2026-09-11T11:19:19.455Z",
       "rows": 2,
       "state": "ok",
       "note": "No run manifest exists, but this source's output is on disk (data/distress/notices.json) and is what the site publishes. Timestamp is the artifact's own."
@@ -76,8 +76,8 @@
     {
       "source_id": "nc-jackson-reo",
       "label": "nc-jackson-reo",
-      "last_success": "2026-09-10T16:12:35.033Z",
-      "last_attempt": "2026-09-10T16:12:35.033Z",
+      "last_success": "2026-09-11T11:19:19.455Z",
+      "last_attempt": "2026-09-11T11:19:19.455Z",
       "rows": 8,
       "state": "ok",
       "note": "No run manifest exists, but this source's output is on disk (data/distress/evidence.json) and is what the site publishes. Timestamp is the artifact's own."
@@ -89,7 +89,7 @@
       "last_attempt": "2026-09-10T16:05:00.925Z",
       "rows": 456339,
       "state": "degraded",
-      "note": "Derived from 2 run manifest(s) in data/runs/."
+      "note": "Derived from 8 run manifest(s) in data/runs/."
     },
     {
       "source_id": "nc-onemap-points",
@@ -121,11 +121,11 @@
     {
       "source_id": "tn-property-boundaries",
       "label": "tn-property-boundaries",
-      "last_success": "2026-08-19T17:36:09.169Z",
-      "last_attempt": "2026-08-19T17:36:09.169Z",
-      "rows": 152321,
-      "state": "ok",
-      "note": "No run manifest exists, but the county ledger dates this source's ingest and 152,321 parcel(s) are attributed to it."
+      "last_success": null,
+      "last_attempt": null,
+      "rows": null,
+      "state": "never-run",
+      "note": "Registered as a source. No run has ever been recorded for it, so nothing here has been fetched."
     },
     {
       "source_id": "usgs-epqs",
