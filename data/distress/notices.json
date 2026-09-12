@@ -1,15 +1,6 @@
 {
- "generated_at": "2026-09-11T11:19:19.455Z",
+ "generated_at": "2026-09-12T11:16:38.096Z",
  "notices": [
-  {
-   "bid_id": "256",
-   "title": "Tax Foreclosure Sale September 17 2026 at 10:00 a.m.",
-   "record_url": "https://www.haywoodcountync.gov/Bids.aspx?bidID=256",
-   "county": "Haywood",
-   "state": "NC",
-   "sale_date": "2026-09-17",
-   "observed_at": "2026-09-11T11:19:19.455Z"
-  },
   {
    "bid_id": "257",
    "title": "Tax Foreclosure Sale September 17 2026 at 10:00 a.m.",
@@ -17,7 +8,7 @@
    "county": "Haywood",
    "state": "NC",
    "sale_date": "2026-09-17",
-   "observed_at": "2026-09-11T11:19:19.455Z"
+   "observed_at": "2026-09-12T11:16:38.096Z"
   }
  ]
 }
