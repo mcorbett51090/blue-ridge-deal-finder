@@ -105,32 +105,19 @@ meta-gate that asserts this. A gate with no failing fixture is not a gate.
 It is a personal tool for one user, kept honest by a build that fails closed rather than a
 promise. Two things worth knowing before you trust anything on it:
 
-- **This is a frozen snapshot, not a live feed — and here is exactly why.** The corpus and the
-  published payload were last regenerated **2026-08-19/20**. `ingest-parcels.yml` (weekly) had
-  failed on *every* scheduled run since it was added, and `freshness.yml` had failed every run it
-  ever had: `data/warehouse/` is gitignored (ADR 0008) and a hosted CI runner is destroyed at the
-  end of every job, so the prior warehouse the pipeline needs to compute a real delta was
-  unconditionally absent, and its own guard correctly refused to publish a false "everything is
-  new" change feed against it, every time. `docs/decisions/0010-ci-warehouse-store.md` is the
-  fix — a GitHub Release now carries the warehouse between runs (`scripts/warehouse-remote.mjs`),
-  the missing `npm run publish` step now runs where the warehouse exists, `check-freshness.mjs` now
-  agrees with `/status/`'s own definition of a usable run, and a new daily `ingest-distress.yml`
-  gives Lane 1 a cadence that can actually clear its 48-hour bar. **It requires one operator step
-  this repo cannot perform for itself** — bootstrapping the Release from the real warehouse, which
-  lives only on the owner's machine (ADR 0008) — documented in that ADR. Until that step runs, both
-  workflows still fail exactly as described above, loudly and actionably rather than silently; once
-  it runs, the weekly parcel sweep, the daily distress ingest and the freshness heartbeat are all
-  designed to self-sustain without it again. Until then, the data on the site gets
-  **days-to-weeks older with every day that passes**, and the hub says so: a stale/snapshot banner
-  appears once Lane 1 is past its 48-hour freshness bar, and `/status/` states the exact
-  source-by-source last-success timestamp, including the sources that have never run at all.
+- **The warehouse is live again.** `warehouse-current` (GitHub Release) carries the SQLite corpus
+  between CI runs (ADR 0010). Weekly parcel ingest, daily distress ingest, and the freshness
+  heartbeat restore → work → republish. Lane 1 freshness is stated on the hub badge and on
+  `/status/` — including sources that have never run. The map requires the coordinate pass
+  (`nc-onemap-points`); that step now runs in `ingest-parcels.yml` before publish, and publish
+  itself fails closed if NC listings would ship with zero coordinates.
 - **Two lanes, and the site never blurs them.** *On market / in distress* (Lane 1 — currently
   **8 rows**: county-owned parcels acquired through tax foreclosure, all in Jackson County, NC)
   is the only thing expanded by default and is the only lane with a dated, sourced claim that a
-  property is actually for sale. *Prospecting* (Lane 2 — currently **650 rows**) is every scored
+  property is actually for sale. *Prospecting* (Lane 2 — currently **500 rows**) is every scored
   parcel in a covered county with **no** such evidence; it ships collapsed, labelled in full
-  everywhere it appears, and is a research list, not a listing feed.
+  everywhere it appears, and is a research list, not a listing feed. All **508** published rows
+  are mappable.
 
-None of that is a defect report — it is what "frozen snapshot" means, stated in the one place
-(the site itself) where it can't go stale silently. See `/status/` on the live site for the
-current numbers, and `/about/` for what this project does and does not claim.
+See `/status/` on the live site for the current numbers, and `/about/` for what this project does
+and does not claim.

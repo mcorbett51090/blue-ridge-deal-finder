@@ -297,6 +297,10 @@ const contributions = scored
     border-radius: var(--radius-s);
     padding: 0.35rem 0.55rem;
     max-width: none;
+    /* Mobile cards are narrow; without wrap the pink “Low evidence” band clips
+       mid-word (browser review at ~390px cut “…clair”). */
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .sm__why {
     margin-top: 0.5rem;

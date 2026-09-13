@@ -259,11 +259,27 @@ async function main(): Promise<void> {
     geometry: {
       rows_with_coordinates: listings.filter((l) => l.lat !== null && l.lng !== null).length,
       note:
-        'The parcel ingest stores attributes only — lat/lng and bbox are NULL on every warehouse row, ' +
-        'so no published row can be placed on the map yet. Published as null with a stated reason, ' +
-        'never as 0,0.',
+        listings.some((l) => l.lat !== null && l.lng !== null)
+          ? 'Coordinates come from the nc-onemap-points pass (FeatureServer/0), joined by parno. ' +
+            'Rows still null were not matched on that layer and stay unmapped with a stated reason.'
+          : 'The parcel ingest stores attributes only — lat/lng and bbox are NULL on every warehouse row, ' +
+            'so no published row can be placed on the map yet. Published as null with a stated reason, ' +
+            'never as 0,0. Run `npm run ingest:coords` before publish.',
     },
   };
+
+  // ⛔ FAIL CLOSED when the map would be empty. After the 2026-09-13 attributes
+  // rebuild, publish wrote 508 listings with 0 coordinates and the site looked
+  // healthy while MapLibre had nothing legal to draw. NC OneMap points exist
+  // for every target county; zero mapped rows means the coords pass was skipped.
+  const mapped = listings.filter((l) => l.lat !== null && l.lng !== null).length;
+  const ncPublished = listings.filter((l) => l.state === 'NC').length;
+  if (ncPublished > 0 && mapped === 0) {
+    throw new Error(
+      `publish: ${ncPublished} NC listing(s) but 0 with coordinates — run \`npm run ingest:coords\` ` +
+        `before publish, or the map (the primary UI) ships empty.`,
+    );
+  }
 
   // ⛔ NOTICES GO THROUGH THE FAIL-CLOSED ALLOWLIST TOO. `project()` was called
   // exactly once in this repo — for 'listing' — so notices shipped RAW for as

@@ -131,12 +131,15 @@
   --font-body: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
   --font-ui: 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif;
 
-  /* Map surface (light basemap = OpenFreeMap positron) */
-  --map-land: #e9ece6;
+  /* Map surface (light basemap = OpenFreeMap positron).
+     Roads must CONTRAST with land — pure white on haze-grey reads as a blank
+     canvas at mid zoom (measured in browser review: cluster visible, no roads).
+     Soft ink-tinted roads + a slightly cooler land keep geography legible. */
+  --map-land: #e4e8e2;
   --map-water: #c3d3d6;
   --map-landcover: #d7ded0;
-  --map-road: #ffffff;
-  --map-road-hi: #e6e6da;
+  --map-road: #d2d6ce;
+  --map-road-hi: #b8bfb4;
   --map-label: #3c4a45;
   --map-ink: #14201d;
   --map-pin-stroke: #f6f7f3;

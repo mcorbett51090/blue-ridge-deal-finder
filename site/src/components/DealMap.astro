@@ -37,11 +37,12 @@
  * lands. The consumer below reads one object either way — that swap touches this
  * file and nothing else.
  */
-import { featureCollection, bounds, sorted, hasWater, waterIsUnknown } from '../lib/deals';
+import { featureCollection, bounds, sorted, hasWater, waterIsUnknown, NOTHING_IS_MAPPABLE } from '../lib/deals';
 
 const fc = featureCollection();
 const bb = bounds(sorted);
 const payload = JSON.stringify({ fc, bounds: bb });
+const unmappable = NOTHING_IS_MAPPABLE;
 
 /** Same gate as the rail's disabled "Water on parcel" chip: water enrichment
  *  has not touched a single published row yet, so a ring legend implying two
@@ -50,7 +51,7 @@ const payload = JSON.stringify({ fc, bounds: bb });
 const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
 ---
 
-<div class="mapwrap" data-map-root>
+<div class="mapwrap" data-map-root data-unmappable={unmappable ? 'true' : undefined}>
   <!-- role="region", NOT role="application". `application` tells a screen
        reader to stop intercepting keys and hand everything to the widget, which
        is only correct when the widget IS the content. Here the real content is
@@ -58,9 +59,15 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
        score, lane and source link. The map is a second view of it, so browse
        mode must keep working. -->
   <div id="deal-map" class="mapwrap__canvas" role="region" aria-label="Map of tracked properties"></div>
-  <p class="mapwrap__fallback" data-map-fallback>Loading the map…</p>
+  <p class="mapwrap__fallback" data-map-fallback>
+    {unmappable
+      ? 'No published parcel has coordinates yet — the list beside the map has every property. The attribute ingest does not store geometry; the coordinate pass has not been run against this warehouse.'
+      : 'Loading the map…'}
+  </p>
 
-  <div class="maplegend" data-map-legend>
+  {
+    !unmappable && (
+      <div class="maplegend" data-map-legend>
     <p class="maplegend__t">Score</p>
     <ul class="maplegend__ramp">
       <li><span class="sw sw--1"></span>0–20</li>
@@ -91,7 +98,9 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
       Colour is a grouping hint. Every property's score, lane and coverage tier are written out in
       the list beside the map.
     </p>
-  </div>
+      </div>
+    )
+  }
 </div>
 
 <script is:inline type="application/json" id="brdf-map-data" set:html={payload}></script>
@@ -99,7 +108,7 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
 <script>
   import maplibreCssUrl from 'maplibre-gl/dist/maplibre-gl.css?url';
   import { getItems as watchItems, CHANGE_EVENT as WATCH_CHANGE } from '../lib/watchlist';
-  import type { GeoJSONSource, StyleSpecification } from 'maplibre-gl';
+  import type { ExpressionSpecification, GeoJSONSource, StyleSpecification } from 'maplibre-gl';
 
   type FC = {
     type: 'FeatureCollection';
@@ -133,21 +142,29 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
   }
 
   if (dataEl && mapEl) {
-    const hasDeepLink = location.search.length > 1 || location.hash.length > 1;
-    if (hasDeepLink) boot();
-    else if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((e) => e.isIntersecting)) {
-            io.disconnect();
-            boot();
-          }
-        },
-        { rootMargin: '200px' },
-      );
-      io.observe(mapEl);
+    // Attributes-only warehouse with no coords pass: nothing to draw. Keep the
+    // honest fallback visible and never boot MapLibre — a blank basemap under
+    // "Loading…" was the measured failure mode after the 2026-09-13 rebuild.
+    const unmapped = document.querySelector('[data-map-root][data-unmappable="true"]');
+    if (unmapped) {
+      if (fallbackEl) fallbackEl.hidden = false;
     } else {
-      boot();
+      const hasDeepLink = location.search.length > 1 || location.hash.length > 1;
+      if (hasDeepLink) boot();
+      else if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            if (entries.some((e) => e.isIntersecting)) {
+              io.disconnect();
+              boot();
+            }
+          },
+          { rootMargin: '200px' },
+        );
+        io.observe(mapEl);
+      } else {
+        boot();
+      }
     }
   }
 
@@ -197,12 +214,12 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
    * number, but found null instead" from its worker (a blob: URL), the map
    * still renders, and the build passes clean.
    */
-  function stepOrUnknown(prop: string, unknownColor: string, ramp: string[]): unknown[] {
+  function stepOrUnknown(prop: string, unknownColor: string, ramp: string[]): ExpressionSpecification {
     return [
       'step',
       ['number', ['get', prop], -1],
       unknownColor,
-      0, ramp[0], 21, ramp[1], 41, ramp[2], 61, ramp[3], 81, ramp[4],
+      0, ramp[0]!, 21, ramp[1]!, 41, ramp[2]!, 61, ramp[3]!, 81, ramp[4]!,
     ];
   }
 
@@ -377,9 +394,7 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
         source: 'deals',
         filter: ['has', 'point_count'],
         paint: {
-          'circle-color': [
-            ...stepOrUnknown('maxScore', C.scoreUnknown, C.score),
-          ],
+          'circle-color': stepOrUnknown('maxScore', C.scoreUnknown, C.score),
           'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 30],
           'circle-stroke-width': 1.5,
           'circle-stroke-color': C.ink,
@@ -454,17 +469,64 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
       restyle();
       renderWatchPins();
 
-      map.on('click', 'clusters', (e) => {
-        const f = map.queryRenderedFeatures(e.point, { layers: ['clusters'] })[0];
-        const clusterId = f?.properties?.cluster_id;
-        if (clusterId === undefined) return;
+      // Cluster expand. Clicks usually land on the `cluster-count` SYMBOL (the
+      // number sits on top of the circle), so listening only to `clusters` made
+      // the expand look broken in every browser review. Listen on both layers.
+      // `queryRenderedFeatures` stringifies GeoJSON props — coerce `cluster_id`
+      // before getClusterExpansionZoom, which rejects non-numbers silently.
+      const expandCluster = (e: {
+        point: { x: number; y: number };
+        features?: Array<{
+          properties?: Record<string, unknown> | null;
+          geometry?: GeoJSON.Geometry;
+        }>;
+        preventDefault?: () => void;
+      }) => {
+        e.preventDefault?.();
+        const point: [number, number] = [e.point.x, e.point.y];
+        const f =
+          e.features?.[0] ??
+          map.queryRenderedFeatures(point, { layers: ['clusters', 'cluster-count'] })[0];
+        const raw = f?.properties?.['cluster_id'];
+        const clusterId = typeof raw === 'number' ? raw : Number(raw);
+        if (!Number.isFinite(clusterId)) return;
         const src = map.getSource('deals') as GeoJSONSource;
-        void src.getClusterExpansionZoom(clusterId).then((zoom) => {
-          const geom = f.geometry as unknown as { coordinates: [number, number] };
-          map.easeTo({ center: geom.coordinates, zoom });
+        const geom = f?.geometry;
+        if (!geom || geom.type !== 'Point') return;
+        void src
+          .getClusterExpansionZoom(clusterId)
+          .then((zoom) => {
+            map.easeTo({ center: geom.coordinates as [number, number], zoom });
+          })
+          .catch(() => {
+            /* invalid cluster id after a filter race — ignore */
+          });
+      };
+      map.on('click', 'clusters', expandCluster);
+      map.on('click', 'cluster-count', expandCluster);
+      if (new URLSearchParams(location.search).has('debugMap')) {
+        (window as unknown as { __BRDF_MAP?: maplibregl.Map }).__BRDF_MAP = map;
+      }
+      // Fallback when the layer target is missed (overlapping hit tests).
+      map.on('click', (e) => {
+        if (e.defaultPrevented) return;
+        // 20px hit pad — symbol glyphs are easy to miss by a few pixels, and
+        // queryRenderedFeatures without a box only tests the exact point.
+        const pad = 20;
+        const hits = map.queryRenderedFeatures(
+          [
+            [e.point.x - pad, e.point.y - pad],
+            [e.point.x + pad, e.point.y + pad],
+          ],
+          { layers: ['clusters', 'cluster-count'] },
+        );
+        if (!hits.length) return;
+        expandCluster({
+          point: e.point,
+          features: hits,
+          preventDefault: () => e.preventDefault(),
         });
       });
-
       map.on('click', 'pins', (e) => {
         const f = e.features?.[0];
         const id = f?.properties?.id;
@@ -472,7 +534,7 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
         window.dispatchEvent(new CustomEvent('brdf:pinclick', { detail: { id } }));
       });
 
-      for (const layer of ['clusters', 'pins'] as const) {
+      for (const layer of ['clusters', 'cluster-count', 'pins'] as const) {
         map.on('mouseenter', layer, () => (map.getCanvas().style.cursor = 'pointer'));
         map.on('mouseleave', layer, () => (map.getCanvas().style.cursor = ''));
       }
@@ -575,6 +637,22 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
     color: var(--ink-soft);
     background: color-mix(in srgb, var(--surface) 92%, transparent);
     border-top: var(--hairline) solid var(--rule);
+  }
+  /* Permanent empty-map state (no coords in the published set): fill the pane
+     so it cannot be mistaken for a basemap that failed to load mid-flight. */
+  .mapwrap[data-unmappable='true'] .mapwrap__fallback {
+    inset: 0;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    padding: var(--space-l);
+    color: var(--ink);
+    background: var(--map-land);
+    border-top: 0;
+    line-height: 1.45;
+  }
+  .mapwrap[data-unmappable='true'] .mapwrap__canvas {
+    display: none;
   }
   .maplegend {
     position: absolute;

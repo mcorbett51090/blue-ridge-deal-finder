@@ -106,7 +106,14 @@ export function applyPoints(dbPath: string, fips: string, points: readonly Point
   // table what actually changed rather than trusting a driver return value.
   const before = db.prepare('SELECT COUNT(*) AS n FROM parcels WHERE fips = ? AND lat IS NOT NULL').get([fips]) as { n: number };
   const stmt = db.prepare('UPDATE parcels SET lat = ?, lng = ? WHERE fips = ? AND parno = ?');
-  for (const p of points) stmt.run([p.lat, p.lon, fips, p.parno]);
+  // ⛔ ONE TRANSACTION, not one per row. Without this, each UPDATE is its own
+  // fsync — measured: Jackson's ~41k points sat for minutes after the fetch
+  // finished with no further progress printed. A single transaction makes the
+  // apply a few seconds instead of looking hung.
+  const applyAll = db.transaction((rows: readonly PointRow[]) => {
+    for (const p of rows) stmt.run([p.lat, p.lon, fips, p.parno]);
+  });
+  applyAll(points);
   const after = db.prepare('SELECT COUNT(*) AS n FROM parcels WHERE fips = ? AND lat IS NOT NULL').get([fips]) as { n: number };
   updated = Number(after.n) - Number(before.n);
   db.close();
