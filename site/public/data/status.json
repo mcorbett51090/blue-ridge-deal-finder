@@ -5,8 +5,8 @@
     "header of publish/status.ts for what it claimed and why no gate caught it."
   ],
   "data_observed_at": "2026-09-12T11:16:38.096Z",
-  "last_run_at": "2026-09-12T11:16:39.955Z",
-  "built_at": "2026-09-12T11:16:39.955Z",
+  "last_run_at": "2026-09-13T04:37:03.836Z",
+  "built_at": "2026-09-13T04:37:03.836Z",
   "lane1_rows": 8,
   "lane2_rows": 500,
   "sources": [
@@ -85,11 +85,11 @@
     {
       "source_id": "nc-onemap-parcels",
       "label": "nc-onemap-parcels",
-      "last_success": "2026-09-10T16:09:49.094Z",
-      "last_attempt": "2026-09-10T16:05:00.925Z",
-      "rows": 456339,
-      "state": "degraded",
-      "note": "Derived from 8 run manifest(s) in data/runs/."
+      "last_success": "2026-09-13T04:36:55.945Z",
+      "last_attempt": "2026-09-13T04:30:15.266Z",
+      "rows": 536315,
+      "state": "ok",
+      "note": "Derived from 9 run manifest(s) in data/runs/."
     },
     {
       "source_id": "nc-onemap-points",

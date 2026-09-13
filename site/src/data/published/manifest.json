@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-12T11:16:39.955Z",
+  "generated_at": "2026-09-13T04:37:03.836Z",
   "warehouse": {
-    "file": "warehouse-2026-09-10T16-05-00.sqlite",
-    "sha256": "a42c805f1743c5cc84eda4919c466a1088368f6442df21a2e577b2851793c773",
-    "written_at": "2026-09-10T16:09:47.434Z"
+    "file": "warehouse-2026-09-13T04-30-15.sqlite",
+    "sha256": "a17ddae225a4d8c448f3b1493d758076170e2478921953192fb401a2c1ff3869",
+    "written_at": "2026-09-13T04:36:55.498Z"
   },
-  "run_id": "2026-09-10T16-05-00",
+  "run_id": "2026-09-13T04-30-15",
   "corpus_rows": 536315,
   "published_rows": 508,
   "excluded": {
