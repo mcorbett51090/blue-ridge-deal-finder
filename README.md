@@ -127,7 +127,7 @@ promise. Two things worth knowing before you trust anything on it:
 - **Two lanes, and the site never blurs them.** *On market / in distress* (Lane 1 — currently
   **8 rows**: county-owned parcels acquired through tax foreclosure, all in Jackson County, NC)
   is the only thing expanded by default and is the only lane with a dated, sourced claim that a
-  property is actually for sale. *Prospecting* (Lane 2 — currently **650 rows**) is every scored
+  property is actually for sale. *Prospecting* (Lane 2 — currently **500 rows**) is every scored
   parcel in a covered county with **no** such evidence; it ships collapsed, labelled in full
   everywhere it appears, and is a research list, not a listing feed.
 
