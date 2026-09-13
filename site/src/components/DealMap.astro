@@ -504,13 +504,22 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
       };
       map.on('click', 'clusters', expandCluster);
       map.on('click', 'cluster-count', expandCluster);
-      // Fallback: some environments deliver the hit on the map canvas without a
-      // layer target (automation / overlapping hit tests). Resolve manually.
+      if (new URLSearchParams(location.search).has('debugMap')) {
+        (window as unknown as { __BRDF_MAP?: maplibregl.Map }).__BRDF_MAP = map;
+      }
+      // Fallback when the layer target is missed (overlapping hit tests).
       map.on('click', (e) => {
         if (e.defaultPrevented) return;
-        const hits = map.queryRenderedFeatures(e.point, {
-          layers: ['clusters', 'cluster-count'],
-        });
+        // 20px hit pad — symbol glyphs are easy to miss by a few pixels, and
+        // queryRenderedFeatures without a box only tests the exact point.
+        const pad = 20;
+        const hits = map.queryRenderedFeatures(
+          [
+            [e.point.x - pad, e.point.y - pad],
+            [e.point.x + pad, e.point.y + pad],
+          ],
+          { layers: ['clusters', 'cluster-count'] },
+        );
         if (!hits.length) return;
         expandCluster({
           point: e.point,
