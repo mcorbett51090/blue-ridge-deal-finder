@@ -469,16 +469,28 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
       restyle();
       renderWatchPins();
 
-      map.on('click', 'clusters', (e) => {
-        const f = map.queryRenderedFeatures(e.point, { layers: ['clusters'] })[0];
-        const clusterId = f?.properties?.cluster_id;
-        if (clusterId === undefined) return;
+      // Cluster expand. Clicks usually land on the `cluster-count` SYMBOL (the
+      // number sits on top of the circle), so listening only to `clusters` made
+      // the expand look broken in every browser review. Query both layers.
+      // `cluster_id` also arrives as a string from GeoJSON properties — MapLibre
+      // wants a number, and a string silently rejects the expand.
+      const expandCluster = (e: maplibregl.MapLayerMouseEvent) => {
+        const point: [number, number] = [e.point.x, e.point.y];
+        const f =
+          map.queryRenderedFeatures(point, { layers: ['clusters', 'cluster-count'] })[0] ??
+          e.features?.[0];
+        const raw = f?.properties?.['cluster_id'];
+        const clusterId = typeof raw === 'number' ? raw : Number(raw);
+        if (!Number.isFinite(clusterId)) return;
         const src = map.getSource('deals') as GeoJSONSource;
         void src.getClusterExpansionZoom(clusterId).then((zoom) => {
-          const geom = f.geometry as unknown as { coordinates: [number, number] };
-          map.easeTo({ center: geom.coordinates, zoom });
+          const geom = f?.geometry;
+          if (!geom || geom.type !== 'Point') return;
+          map.easeTo({ center: geom.coordinates as [number, number], zoom });
         });
-      });
+      };
+      map.on('click', 'clusters', expandCluster);
+      map.on('click', 'cluster-count', expandCluster);
 
       map.on('click', 'pins', (e) => {
         const f = e.features?.[0];
@@ -487,7 +499,7 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
         window.dispatchEvent(new CustomEvent('brdf:pinclick', { detail: { id } }));
       });
 
-      for (const layer of ['clusters', 'pins'] as const) {
+      for (const layer of ['clusters', 'cluster-count', 'pins'] as const) {
         map.on('mouseenter', layer, () => (map.getCanvas().style.cursor = 'pointer'));
         map.on('mouseleave', layer, () => (map.getCanvas().style.cursor = ''));
       }
