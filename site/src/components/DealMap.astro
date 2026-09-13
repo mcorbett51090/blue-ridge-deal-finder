@@ -145,25 +145,26 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
     // Attributes-only warehouse with no coords pass: nothing to draw. Keep the
     // honest fallback visible and never boot MapLibre — a blank basemap under
     // "Loading…" was the measured failure mode after the 2026-09-13 rebuild.
-    if (document.querySelector('[data-map-root][data-unmappable="true"]')) {
+    const unmapped = document.querySelector('[data-map-root][data-unmappable="true"]');
+    if (unmapped) {
       if (fallbackEl) fallbackEl.hidden = false;
-      return;
-    }
-    const hasDeepLink = location.search.length > 1 || location.hash.length > 1;
-    if (hasDeepLink) boot();
-    else if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((e) => e.isIntersecting)) {
-            io.disconnect();
-            boot();
-          }
-        },
-        { rootMargin: '200px' },
-      );
-      io.observe(mapEl);
     } else {
-      boot();
+      const hasDeepLink = location.search.length > 1 || location.hash.length > 1;
+      if (hasDeepLink) boot();
+      else if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            if (entries.some((e) => e.isIntersecting)) {
+              io.disconnect();
+              boot();
+            }
+          },
+          { rootMargin: '200px' },
+        );
+        io.observe(mapEl);
+      } else {
+        boot();
+      }
     }
   }
 
