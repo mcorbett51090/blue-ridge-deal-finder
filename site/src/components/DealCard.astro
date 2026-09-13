@@ -70,7 +70,6 @@ const tier = tierOf(l.fips);
 const acres = fmtAcres(l.acres);
 const value = fmtMoney(l.assessed_value);
 const perAcre = fmtPerAcre(l.assessed_value, l.acres);
-const price = fmtMoney(l.price);
 const flood = inFloodplain(l);
 const water = hasWater(l);
 const waterUnknown = waterIsUnknown(l);

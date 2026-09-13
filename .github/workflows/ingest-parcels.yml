@@ -76,6 +76,18 @@ jobs:
         id: ingest
         run: npm run ingest:parcels -- --counties="${{ inputs.counties }}"
 
+      # ⛔ THE COORDINATE PASS. Attribute ingest stores NO geometry (lat/lng stay
+      # null on every warehouse row). Without this step the map — the primary
+      # interface — has nothing to draw. Measured after the 2026-09-13 warehouse
+      # bootstrap: 508 published rows, 0 with coordinates, map empty while the
+      # list looked healthy. This is the same failure mode coords.ts's own
+      # header documents; it must run in the same job that writes the warehouse
+      # and before `npm run publish`, or it will regress the next time attributes
+      # are refreshed. Cheap: FeatureServer/0 points, ~0.5 req/s, keyed by parno.
+      - name: Coordinate pass — make published parcels mappable
+        if: steps.ingest.outcome == 'success'
+        run: npm run ingest:coords -- --counties="${{ inputs.counties || 'Ashe,Avery,Buncombe,Haywood,Henderson,Jackson,Macon,Madison,Mitchell,Transylvania,Watauga,Yancey' }}"
+
       # Immediately after the ingest and BEFORE the publish, deliberately: the
       # corpus is the expensive, irreplaceable artifact and a later step
       # failing must not be what loses it. A no-op when the hash is unchanged.

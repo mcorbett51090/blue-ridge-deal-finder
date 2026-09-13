@@ -320,12 +320,24 @@ export interface DealFeatureProps {
   label: string;
 }
 
+/** Rows that can actually be drawn. Attribute-only ingest leaves lat/lng null;
+ *  feeding those into GeoJSON as `[null, null]` is invalid and silently breaks
+ *  MapLibre clustering / fitBounds (NaN bbox). Filter here so every consumer
+ *  gets a legal FeatureCollection whether or not the coords pass has run. */
+export function mappable(rows: Listing[] = sorted): Listing[] {
+  return rows.filter((l) => l.lat !== null && l.lng !== null);
+}
+
+/** True when NOTHING published can be placed on the map — today's failure mode
+ *  after an attributes-only warehouse rebuild that skipped the coords pass. */
+export const NOTHING_IS_MAPPABLE = mappable().length === 0;
+
 export function featureCollection(rows: Listing[] = sorted) {
   return {
     type: 'FeatureCollection' as const,
-    features: rows.map((l) => ({
+    features: mappable(rows).map((l) => ({
       type: 'Feature' as const,
-      geometry: { type: 'Point' as const, coordinates: [l.lng, l.lat] as [number, number] },
+      geometry: { type: 'Point' as const, coordinates: [l.lng!, l.lat!] as [number, number] },
       properties: {
         id: l.id,
         county: l.county,
@@ -349,15 +361,18 @@ export function featureCollection(rows: Listing[] = sorted) {
 }
 
 export function bounds(rows: Listing[] = sorted): [[number, number], [number, number]] {
-  if (rows.length === 0) {
-    // Never Math.min([]) → Infinity. Fall back to the Blue Ridge envelope.
+  const pts = mappable(rows);
+  if (pts.length === 0) {
+    // Never Math.min([]) → Infinity, and never Math.min(null…) → 0.
+    // Fall back to the Blue Ridge envelope so an empty map still opens on the
+    // region rather than the Gulf of Guinea or a NaN crash.
     return [
       [-84.5, 34.6],
       [-78.3, 38.4],
     ];
   }
-  const lngs = rows.map((r) => r.lng);
-  const lats = rows.map((r) => r.lat);
+  const lngs = pts.map((r) => r.lng!);
+  const lats = pts.map((r) => r.lat!);
   return [
     [Math.min(...lngs), Math.min(...lats)],
     [Math.max(...lngs), Math.max(...lats)],

@@ -259,9 +259,12 @@ async function main(): Promise<void> {
     geometry: {
       rows_with_coordinates: listings.filter((l) => l.lat !== null && l.lng !== null).length,
       note:
-        'The parcel ingest stores attributes only — lat/lng and bbox are NULL on every warehouse row, ' +
-        'so no published row can be placed on the map yet. Published as null with a stated reason, ' +
-        'never as 0,0.',
+        listings.some((l) => l.lat !== null && l.lng !== null)
+          ? 'Coordinates come from the nc-onemap-points pass (FeatureServer/0), joined by parno. ' +
+            'Rows still null were not matched on that layer and stay unmapped with a stated reason.'
+          : 'The parcel ingest stores attributes only — lat/lng and bbox are NULL on every warehouse row, ' +
+            'so no published row can be placed on the map yet. Published as null with a stated reason, ' +
+            'never as 0,0. Run `npm run ingest:coords` before publish.',
     },
   };
 

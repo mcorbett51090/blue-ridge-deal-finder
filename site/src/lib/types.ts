@@ -131,8 +131,10 @@ export interface Listing {
   fips: string;
   county: string;
   state: string;
-  lat: number;
-  lng: number;
+  /** null = not yet mapped (attribute ingest stores no geometry). Never 0,0. */
+  lat: number | null;
+  /** null = not yet mapped. Pair with `geometry_unknown_reason` when null. */
+  lng: number | null;
   /** null = unknown. Never 0 as a stand-in. */
   acres: number | null;
   /** null = unknown. Never 0 as a stand-in. */
