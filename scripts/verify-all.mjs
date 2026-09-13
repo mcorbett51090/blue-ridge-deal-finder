@@ -42,7 +42,7 @@ const GATES = [
 const results = [];
 for (const [file, why] of GATES) {
   console.log(`\n── ${file} — ${why}`);
-  const res = spawnSync(process.execPath, [join(here, file)], { stdio: 'inherit' });
+  const res = spawnSync(process.execPath, ['--import', 'tsx', join(here, file)], { stdio: 'inherit' });
   results.push({ file, code: res.status ?? 1 });
 }
 

@@ -60,10 +60,18 @@ export function makeScratch(plants = {}, clear = []) {
 }
 
 export function runGate(gateFile, scratchDir, args = []) {
-  const res = spawnSync(process.execPath, [join(selfRoot(), 'scripts', gateFile), ...args], {
-    env: { ...process.env, BRDF_ROOT: scratchDir },
-    encoding: 'utf8',
-  });
+  // Gates import TypeScript modules under pipeline/; Node needs the tsx loader.
+  // Pass it explicitly rather than relying on NODE_OPTIONS — scratch trees have
+  // no node_modules, so a leaked `--import tsx` resolved from BRDF_ROOT fails.
+  const { NODE_OPTIONS: _drop, ...cleanEnv } = process.env;
+  const res = spawnSync(
+    process.execPath,
+    ['--import', 'tsx', join(selfRoot(), 'scripts', gateFile), ...args],
+    {
+      env: { ...cleanEnv, BRDF_ROOT: scratchDir },
+      encoding: 'utf8',
+    },
+  );
   return { code: res.status, out: `${res.stdout ?? ''}${res.stderr ?? ''}` };
 }
 

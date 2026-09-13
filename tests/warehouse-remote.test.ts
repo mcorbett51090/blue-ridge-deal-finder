@@ -125,11 +125,16 @@ function makeSandbox() {
 }
 
 function run(sandbox: ReturnType<typeof makeSandbox>, command: 'restore' | 'publish') {
+  // Strip NODE_OPTIONS so a parent `--import tsx` (or anything else) does not
+  // leak into the temp sandbox, which has no node_modules/tsx. Measured: with
+  // NODE_OPTIONS='--import tsx' every publish/restore case failed looking for
+  // the tsx package under /tmp/brdf-warehouse-remote-*/repo/.
+  const { NODE_OPTIONS: _drop, ...cleanEnv } = process.env;
   const res = spawnSync(process.execPath, [MODULE, command], {
     cwd: sandbox.repoRoot,
     encoding: 'utf8',
     env: {
-      ...process.env,
+      ...cleanEnv,
       PATH: `${sandbox.binDir}:${process.env.PATH}`,
       FAKE_GH_STORE: sandbox.store,
       BRDF_ROOT: sandbox.repoRoot,
