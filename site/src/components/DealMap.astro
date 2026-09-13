@@ -471,27 +471,53 @@ const anyWaterKnown = sorted.some((l) => hasWater(l) || !waterIsUnknown(l));
 
       // Cluster expand. Clicks usually land on the `cluster-count` SYMBOL (the
       // number sits on top of the circle), so listening only to `clusters` made
-      // the expand look broken in every browser review. Query both layers.
-      // `cluster_id` also arrives as a string from GeoJSON properties — MapLibre
-      // wants a number, and a string silently rejects the expand.
-      const expandCluster = (e: maplibregl.MapLayerMouseEvent) => {
+      // the expand look broken in every browser review. Listen on both layers.
+      // `queryRenderedFeatures` stringifies GeoJSON props — coerce `cluster_id`
+      // before getClusterExpansionZoom, which rejects non-numbers silently.
+      const expandCluster = (e: {
+        point: { x: number; y: number };
+        features?: Array<{
+          properties?: Record<string, unknown> | null;
+          geometry?: GeoJSON.Geometry;
+        }>;
+        preventDefault?: () => void;
+      }) => {
+        e.preventDefault?.();
         const point: [number, number] = [e.point.x, e.point.y];
         const f =
-          map.queryRenderedFeatures(point, { layers: ['clusters', 'cluster-count'] })[0] ??
-          e.features?.[0];
+          e.features?.[0] ??
+          map.queryRenderedFeatures(point, { layers: ['clusters', 'cluster-count'] })[0];
         const raw = f?.properties?.['cluster_id'];
         const clusterId = typeof raw === 'number' ? raw : Number(raw);
         if (!Number.isFinite(clusterId)) return;
         const src = map.getSource('deals') as GeoJSONSource;
-        void src.getClusterExpansionZoom(clusterId).then((zoom) => {
-          const geom = f?.geometry;
-          if (!geom || geom.type !== 'Point') return;
-          map.easeTo({ center: geom.coordinates as [number, number], zoom });
-        });
+        const geom = f?.geometry;
+        if (!geom || geom.type !== 'Point') return;
+        void src
+          .getClusterExpansionZoom(clusterId)
+          .then((zoom) => {
+            map.easeTo({ center: geom.coordinates as [number, number], zoom });
+          })
+          .catch(() => {
+            /* invalid cluster id after a filter race — ignore */
+          });
       };
       map.on('click', 'clusters', expandCluster);
       map.on('click', 'cluster-count', expandCluster);
-
+      // Fallback: some environments deliver the hit on the map canvas without a
+      // layer target (automation / overlapping hit tests). Resolve manually.
+      map.on('click', (e) => {
+        if (e.defaultPrevented) return;
+        const hits = map.queryRenderedFeatures(e.point, {
+          layers: ['clusters', 'cluster-count'],
+        });
+        if (!hits.length) return;
+        expandCluster({
+          point: e.point,
+          features: hits,
+          preventDefault: () => e.preventDefault(),
+        });
+      });
       map.on('click', 'pins', (e) => {
         const f = e.features?.[0];
         const id = f?.properties?.id;
