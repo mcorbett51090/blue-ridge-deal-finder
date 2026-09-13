@@ -130,9 +130,17 @@ const neverRun = status.sources.length - everRun;
             return (
               <tr>
                 <th scope="row">
-                  {s.label}
-                  <br />
-                  <code>{s.source_id}</code>
+                  {
+                    s.label && s.label !== s.source_id ? (
+                      <>
+                        {s.label}
+                        <br />
+                        <code>{s.source_id}</code>
+                      </>
+                    ) : (
+                      <code>{s.source_id}</code>
+                    )
+                  }
                 </th>
                 <td>
                   <span class={`sstate sstate--${s.state}`}>{STATE_LABEL[s.state] ?? s.state}</span>
