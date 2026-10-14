@@ -1,5 +1,18 @@
 [
   {
+    "notice_id": "267",
+    "source_id": "nc-haywood-bids",
+    "kind": "tax-foreclosure",
+    "state": "NC",
+    "county": "Haywood",
+    "fips": "37087",
+    "source_url": "https://www.haywoodcountync.gov/Bids.aspx?bidID=267",
+    "observed_at": "2026-10-14T11:21:34.222Z",
+    "parcel_ref": null,
+    "matched_record_id": null,
+    "sale_date": null
+  },
+  {
     "notice_id": "263",
     "source_id": "nc-haywood-bids",
     "kind": "tax-foreclosure",
@@ -7,7 +20,7 @@
     "county": "Haywood",
     "fips": "37087",
     "source_url": "https://www.haywoodcountync.gov/Bids.aspx?bidID=263",
-    "observed_at": "2026-10-13T11:24:01.914Z",
+    "observed_at": "2026-10-14T11:21:34.222Z",
     "parcel_ref": null,
     "matched_record_id": null,
     "sale_date": "2026-10-15"
